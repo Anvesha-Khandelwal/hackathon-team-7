@@ -121,35 +121,41 @@ class Board:
     def _analyse_states(self, current_state: str) -> dict:
         """
         Compare current state against history using LCS and Edit Distance.
-
-        Returns a summary dict used by the Flask API.
+        
+        We skip the immediately preceding state because consecutive board states
+        always differ by exactly 1 cell → LCS = 8/9 = 88.89% which is misleading.
+        Instead we compare against states from at least 2 moves ago to detect
+        real cycling/stalling patterns.
         """
-        if len(self.history) < 2:
+        repeat_count = self.history.count(current_state)
+        threefold    = repeat_count >= REPEAT_LIMIT
+
+        # States from at least 2 moves back (skip immediate predecessor)
+        older_states = self.history[:-2] if len(self.history) > 2 else []
+
+        if not older_states:
             return {
-                "lcs_length": 0,
-                "similarity": 0.0,
-                "edit_distance": 0,
-                "repeat_count": 1,
-                "potential_draw": False,
-                "details": [],
+                "lcs_length":     0,
+                "similarity":     0.0,
+                "edit_distance":  9,
+                "repeat_count":   repeat_count,
+                "threefold":      threefold,
+                "potential_draw": threefold,
+                "threshold":      SIMILARITY_THRESHOLD,
+                "details":        [],
             }
 
-        similarities = []
+        similarities  = []
         edit_distances = []
 
-        # Compare against every previous state (excluding the current one
-        # which is already at the end of history)
-        previous_states = self.history[:-1]
-
-        for prev in previous_states:
+        for prev in older_states:
             sim   = lcs_similarity(current_state, prev)
             edist = edit_distance(current_state, prev)
             similarities.append(sim)
             edit_distances.append(edist)
 
-        max_similarity  = max(similarities)
-        min_edit_dist   = min(edit_distances)
-        repeat_count    = self.history.count(current_state)
+        max_similarity = max(similarities)
+        min_edit_dist  = min(edit_distances)
 
         # Build per-state detail list (for frontend display)
         details = [
@@ -158,23 +164,21 @@ class Board:
                 "similarity":    sim,
                 "edit_distance": edist,
             }
-            for prev, sim, edist in zip(previous_states, similarities, edit_distances)
+            for prev, sim, edist in zip(older_states, similarities, edit_distances)
         ]
 
-        threefold     = repeat_count >= REPEAT_LIMIT
-        potential_draw = (
-            max_similarity >= SIMILARITY_THRESHOLD or threefold
-        )
+        # Draw: threefold repetition OR similarity above threshold with older states
+        potential_draw = threefold or max_similarity >= SIMILARITY_THRESHOLD
 
         return {
-            "lcs_length":    lcs_length(current_state, previous_states[-1]),
-            "similarity":    max_similarity,
-            "edit_distance": min_edit_dist,
-            "repeat_count":  repeat_count,
-            "threefold":     threefold,
+            "lcs_length":     lcs_length(current_state, older_states[-1]),
+            "similarity":     max_similarity,
+            "edit_distance":  min_edit_dist,
+            "repeat_count":   repeat_count,
+            "threefold":      threefold,
             "potential_draw": potential_draw,
-            "threshold":     SIMILARITY_THRESHOLD,
-            "details":       details,
+            "threshold":      SIMILARITY_THRESHOLD,
+            "details":        details,
         }
 
     def get_full_analysis(self) -> dict:

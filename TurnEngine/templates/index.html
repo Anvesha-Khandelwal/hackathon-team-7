@@ -16,7 +16,7 @@
   <div class="bg-glow glow-2"></div>
   <div class="scanline"></div>
 
-  <!-- ══ HEADER ══════════════════════════════════════════════════════════ -->
+  <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
   <header class="header">
     <div class="header-left">
       <span class="logo-icon">⚡</span>
@@ -25,14 +25,12 @@
         <div class="logo-sub">COMPETITIVE GAME VALIDATOR</div>
       </div>
     </div>
-
     <div class="header-center">
-      <div class="turn-indicator" id="turnIndicator">
+      <div class="turn-indicator">
         <span class="turn-dot" id="turnDot"></span>
         <span id="turnText">Waiting…</span>
       </div>
     </div>
-
     <div class="header-right">
       <div class="status-badge">
         <span class="status-dot" id="statusDot"></span>
@@ -43,17 +41,16 @@
     </div>
   </header>
 
-  <!-- ══ MAIN 3-COLUMN GRID ═══════════════════════════════════════════════ -->
+  <!-- ══ MAIN 3-COLUMN GRID ════════════════════════════════════════ -->
   <main class="main-grid">
 
-    <!-- ── COL 1 : GAME BOARD ───────────────────────────────────────────── -->
+    <!-- ── COL 1: GAME BOARD ──────────────────────────────────────── -->
     <section class="panel panel-board">
       <div class="panel-header">
-        <h2>ARENA</h2>
+        <h2>⚔ ARENA</h2>
         <span class="panel-tag">3×3 GRID</span>
       </div>
 
-      <!-- Player chips -->
       <div class="player-bar">
         <div class="player-chip player-x" id="chipX">
           <span class="chip-symbol">X</span>
@@ -68,66 +65,69 @@
         </div>
       </div>
 
-      <!-- Board -->
       <div class="board-wrap">
         <div class="board" id="gameBoard"></div>
         <div class="board-overlay hidden" id="boardOverlay"></div>
       </div>
 
-      <!-- State string -->
       <div class="state-row">
-        <span class="state-label">STATE</span>
-        <span class="state-str" id="stateStr">.........</span>
+        <span class="state-label">BOARD STATE</span>
+        <span class="state-str mono" id="stateStr">.........</span>
       </div>
 
-      <!-- Game message -->
       <div class="game-message" id="gameMessage"></div>
 
-      <!-- Action buttons -->
       <div class="action-bar">
         <button class="btn btn-danger btn-sm" id="resetBtn">↺ RESET</button>
         <button class="btn btn-sm" id="analyseBtn">◈ ANALYSE</button>
-        <button class="btn btn-sm" id="historyBtn">≡ HISTORY</button>
+        <button class="btn btn-ghost btn-sm" id="historyBtn">≡ HISTORY</button>
       </div>
     </section>
 
-    <!-- ── COL 2 : ANALYSIS ENGINE ──────────────────────────────────────── -->
+    <!-- ── COL 2: ANALYSIS ENGINE ─────────────────────────────────── -->
     <section class="panel panel-analysis">
       <div class="panel-header">
-        <h2>ANALYSIS ENGINE</h2>
+        <h2>◈ ANALYSIS ENGINE</h2>
         <span class="panel-tag">DAA</span>
       </div>
 
-      <!-- LCS Similarity -->
+      <!-- LCS Similarity Meter -->
       <div class="metric-block">
-        <div class="metric-row">
+        <div class="metric-header-row">
           <span class="metric-label">LCS SIMILARITY</span>
           <span class="metric-val accent" id="simVal">—</span>
         </div>
         <div class="meter-track">
           <div class="meter-fill" id="simMeter" style="width:0%"></div>
         </div>
-        <div class="metric-sub">Longest Common Subsequence vs history</div>
+        <div class="metric-sub">Longest Common Subsequence vs history (2+ moves back)</div>
       </div>
 
-      <!-- Edit Distance -->
-      <div class="metric-block">
-        <div class="metric-row">
-          <span class="metric-label">EDIT DISTANCE</span>
-          <span class="metric-val" id="edVal">—</span>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-cell">
+          <span class="sc-label">EDIT DIST</span>
+          <span class="sc-val" id="edVal">—</span>
         </div>
-        <div class="metric-row">
-          <span class="metric-label">LCS LENGTH</span>
-          <span class="metric-val" id="lcsVal">—</span>
+        <div class="stat-cell">
+          <span class="sc-label">LCS LENGTH</span>
+          <span class="sc-val" id="lcsVal">—</span>
         </div>
-        <div class="metric-row">
-          <span class="metric-label">REPEAT COUNT</span>
-          <span class="metric-val" id="repeatVal">—</span>
+        <div class="stat-cell">
+          <span class="sc-label">REPEATS</span>
+          <span class="sc-val" id="repeatVal">—</span>
         </div>
-        <div class="metric-sub">Min edits · Subsequence length · State repeats</div>
+        <div class="stat-cell">
+          <span class="sc-label">THREEFOLD</span>
+          <div class="repeat-pips" id="repeatPips">
+            <span class="repeat-pip"></span>
+            <span class="repeat-pip"></span>
+            <span class="repeat-pip"></span>
+          </div>
+        </div>
       </div>
 
-      <!-- Draw Detection -->
+      <!-- Draw Alerts -->
       <div class="alert-box" id="drawAlert" style="display:none">
         <span class="alert-icon">⚠</span>
         <div>
@@ -135,29 +135,27 @@
           <div class="alert-sub" id="drawReason">Similarity threshold crossed</div>
         </div>
       </div>
-
-      <!-- Threefold Repetition -->
       <div class="alert-box alert-threefold" id="threefoldAlert" style="display:none">
         <span class="alert-icon">♻</span>
         <div>
           <div class="alert-title">THREEFOLD REPETITION</div>
-          <div class="alert-sub">Same board state appeared 3× — draw declared</div>
+          <div class="alert-sub">Same board state appeared 3× — draw rule applies</div>
         </div>
       </div>
 
-      <!-- History list -->
+      <!-- State History -->
       <div class="history-section">
-        <div class="metric-label" style="margin-bottom:8px">STATE HISTORY</div>
+        <div class="metric-label" style="margin-bottom:6px">STATE HISTORY</div>
         <div class="history-list" id="historyList">
           <span class="history-empty">No moves yet</span>
         </div>
       </div>
     </section>
 
-    <!-- ── COL 3 : GAME LOG / TIMELINE ──────────────────────────────────── -->
+    <!-- ── COL 3: GAME LOG / TIMELINE ─────────────────────────────── -->
     <section class="panel panel-timeline">
       <div class="panel-header">
-        <h2>GAME LOG</h2>
+        <h2>⏱ GAME LOG</h2>
         <span class="panel-tag">TIMELINE</span>
       </div>
       <div class="timeline" id="timeline">
@@ -167,13 +165,13 @@
 
   </main>
 
-  <!-- ══ BOTTOM GRID ══════════════════════════════════════════════════════ -->
+  <!-- ══ BOTTOM GRID ═══════════════════════════════════════════════ -->
   <div class="bottom-grid">
 
-    <!-- ── OS SYNC DEMO ─────────────────────────────────────────────────── -->
+    <!-- ── OS SYNC DEMO ───────────────────────────────────────────── -->
     <section class="panel">
       <div class="panel-header">
-        <h2>OS SYNC DEMO</h2>
+        <h2>⚙ OS SYNC DEMO</h2>
         <span class="panel-tag">SEMAPHORE</span>
       </div>
 
@@ -182,45 +180,63 @@
         <button class="btn btn-success btn-sm" id="safeBtn">🔒 SEMAPHORE SAFE</button>
       </div>
 
-      <!-- Semaphore diagram -->
-      <div class="sem-diagram" id="semDiagram" style="display:none">
+      <!-- ── Semaphore State Machine ─────────────────────────── -->
+      <div class="sem-diagram" id="semDiagram">
+        <!-- Thread P1 -->
         <div class="sem-thread">
-          <div class="thread-label">THREAD · P1</div>
+          <div class="thread-label">PROCESS · P1</div>
+          <div class="thread-icon x">X</div>
           <div class="thread-state" id="t1State">IDLE</div>
         </div>
-        <div class="sem-mutex">
-          <div class="mutex-label">MUTEX</div>
+
+        <!-- Central Semaphore -->
+        <div class="sem-center">
+          <div class="sem-title-label">SEMAPHORE</div>
           <div class="mutex-lock" id="mutexLock">🔓</div>
+          <div class="sem-counter">
+            S = <span id="semValue">1</span>
+          </div>
+          <div class="sem-ops">
+            <span class="sem-op p-op">P(wait)</span>
+            <span class="sem-op-arrow">⟵ · ⟶</span>
+            <span class="sem-op v-op">V(signal)</span>
+          </div>
         </div>
+
+        <!-- Thread P2 -->
         <div class="sem-thread">
-          <div class="thread-label">THREAD · P2</div>
+          <div class="thread-label">PROCESS · P2</div>
+          <div class="thread-icon o">O</div>
           <div class="thread-state" id="t2State">IDLE</div>
         </div>
       </div>
 
-      <!-- Verdict row -->
+      <!-- Sem note -->
+      <div class="sem-note" id="semNote">Click a demo button to begin…</div>
+
+      <!-- Verdict -->
       <div class="verdict-row" id="verdictRow" style="display:none">
         <div class="verdict-card" id="unsafeCard">
           <span class="verdict-icon">💥</span>
-          <span class="verdict-text" id="unsafeText">—</span>
+          <span class="verdict-text">—</span>
         </div>
         <div class="verdict-card verdict-safe" id="safeCard">
           <span class="verdict-icon">✅</span>
-          <span class="verdict-text" id="safeText">—</span>
+          <span class="verdict-text">—</span>
         </div>
       </div>
 
-      <!-- Log box -->
+      <!-- Event Log -->
       <div class="log-label">EVENT LOG</div>
       <div class="log-box" id="logBox">
         <span class="log-line head">[ Click a demo button to begin… ]</span>
       </div>
     </section>
 
-    <!-- ── STRATEGY COMPARE ──────────────────────────────────────────────── -->
+    <!-- ── STRATEGY COMPARE ───────────────────────────────────────── -->
     <section class="panel">
       <div class="panel-header">
-        <h2>STRATEGY COMPARE</h2>
+        <h2>⇄ STRATEGY COMPARE</h2>
         <span class="panel-tag bonus">BONUS</span>
       </div>
 
@@ -234,6 +250,9 @@
           <div class="strat-sim-val" id="stratSim">—</div>
           <div class="strat-sim-label">STRATEGY<br>SIMILARITY</div>
           <div class="strat-ed" id="stratEd">EDIT DIST: —</div>
+          <div class="meter-track" style="margin-top:8px">
+            <div class="meter-fill" id="stratBar" style="width:0%"></div>
+          </div>
         </div>
         <div class="strat-player strat-o">
           <div class="strat-name" id="stratNameO">{{ player2 }}</div>
@@ -242,18 +261,16 @@
         </div>
       </div>
 
-      <div class="strat-report" id="stratReport">—</div>
-
+      <div class="strat-report" id="stratReport">Run a full game then click Compare</div>
       <button class="btn btn-sm" id="stratBtn">COMPARE ▶</button>
     </section>
 
   </div>
 
-  <!-- ══ FOOTER ═══════════════════════════════════════════════════════════ -->
+  <!-- ══ FOOTER ════════════════════════════════════════════════════ -->
   <footer class="footer">
-    TurnEngine &nbsp;·&nbsp; DAA: LCS / Edit Distance &nbsp;·&nbsp; OS: Semaphores / Mutual Exclusion
-    <span class="footer-divider">|</span>
-    Hackathon Team 7
+    TurnEngine &nbsp;·&nbsp; DAA: LCS / Edit Distance &nbsp;·&nbsp;
+    OS: Semaphores / Mutual Exclusion &nbsp;·&nbsp; Hackathon Team 7
   </footer>
 
   <script src="/static/script.js"></script>
