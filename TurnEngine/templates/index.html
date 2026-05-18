@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TurnEngine — Competitive Turn-Based Game Validator</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+
+  <header>
+    <div class="logo">⚙ TurnEngine</div>
+    <div class="subtitle">Competitive Turn-Based Game Validator</div>
+  </header>
+
+  <main>
+    <!-- LEFT: Game Board -->
+    <section class="panel board-panel">
+      <div class="panel-title">
+        <span class="dot x-dot"></span> Game Board
+      </div>
+
+      <div class="turn-indicator" id="turnIndicator">Player X's Turn</div>
+
+      <div class="board" id="board">
+        <!-- 9 cells injected by JS -->
+      </div>
+
+      <div class="status-box" id="statusBox">Make your first move!</div>
+
+      <div class="btn-row">
+        <button class="btn btn-reset" onclick="resetGame()">↺ Reset Game</button>
+        <button class="btn btn-analysis" onclick="checkSimilarity()">⟳ Check Similarity (DAA)</button>
+        <button class="btn btn-semaphore" onclick="runSemaphore()">⚡ Run Semaphore Demo (OS)</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: Analysis + Semaphore -->
+    <section class="right-panels">
+
+      <!-- DAA Analysis -->
+      <div class="panel analysis-panel">
+        <div class="panel-title">
+          <span class="dot a-dot"></span> DAA Analysis
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">LCS Length</div>
+            <div class="metric-value" id="lcsVal">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Similarity</div>
+            <div class="metric-value" id="simVal">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Edit Distance</div>
+            <div class="metric-value" id="editVal">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Repeat Count</div>
+            <div class="metric-value" id="repeatVal">—</div>
+          </div>
+        </div>
+
+        <div class="draw-alert hidden" id="drawAlert">
+          ⚠ Potential Draw / Stalling Detected!
+        </div>
+
+        <div class="history-title">State History</div>
+        <div class="history-list" id="historyList">
+          <span class="history-empty">No moves yet</span>
+        </div>
+      </div>
+
+      <!-- OS Semaphore -->
+      <div class="panel semaphore-panel">
+        <div class="panel-title">
+          <span class="dot s-dot"></span> OS Sync Logs (Semaphores)
+        </div>
+        <div class="terminal" id="terminal">
+          <span class="term-prompt">$ </span><span class="term-idle">Waiting for demo...</span>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
