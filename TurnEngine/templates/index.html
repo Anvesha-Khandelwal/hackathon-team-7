@@ -5,68 +5,85 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>TurnEngine — Competitive Game Validator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --ink:#0e0f11;
-  --ink-2:#14161a;
-  --ink-3:#1c1f26;
-  --ink-4:#282d38;
-  --ink-5:#343a48;
-  --mist:#7a8296;
-  --fog:#b0b8cc;
-  --paper:#dde2ec;
-  --amber:#e8a832;
-  --amber-pale:#f5c96a;
-  --amber-deep:#a07020;
-  --blue:#6ab8e8;
-  --blue-dim:#3a7aaa;
-  --green:#4caf82;
-  --red:#e05252;
-  --purple:#9b72e8;
-  --ff-display:'Syne',sans-serif;
-  --ff-serif:'DM Serif Display',serif;
-  --ff-mono:'DM Mono',monospace;
-  --r:3px;
+  --bg:#080b10;
+  --bg2:#0d1117;
+  --bg3:#161b22;
+  --bg4:#21262d;
+  --bg5:#30363d;
+  --border:#30363d;
+  --border2:#444c56;
+  --text:#e6edf3;
+  --text2:#8b949e;
+  --text3:#484f58;
+  --amber:#f0a500;
+  --amber2:#ffc107;
+  --amber-dim:#7d5a00;
+  --blue:#58a6ff;
+  --blue2:#79c0ff;
+  --blue-dim:#1f4068;
+  --green:#3fb950;
+  --green2:#56d364;
+  --red:#f85149;
+  --red2:#ff7b72;
+  --purple:#bc8cff;
+  --purple2:#d2a8ff;
+  --cyan:#39d353;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Space Grotesk',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{height:100%}
-body{height:100vh;background:var(--ink);color:var(--fog);font-family:var(--ff-mono);font-size:12px;overflow:hidden;display:flex;flex-direction:column}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:12px;display:flex;flex-direction:column}
 
-/* ── BG ── */
-.bg{position:fixed;inset:0;z-index:0;pointer-events:none}
-.bg-noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")}
-.bg-grid{position:absolute;inset:0;background-image:linear-gradient(var(--ink-3) 1px,transparent 1px),linear-gradient(90deg,var(--ink-3) 1px,transparent 1px);background-size:48px 48px;opacity:.5}
+/* ── BACKGROUND ── */
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(88,166,255,.04) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 40% at 80% 100%,rgba(240,165,0,.03) 0%,transparent 60%)}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(48,54,61,.4) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(48,54,61,.4) 1px,transparent 1px);
+  background-size:32px 32px}
 
 /* ── HEADER ── */
-header{position:relative;z-index:20;display:flex;align-items:center;padding:0 20px;height:52px;background:var(--ink-2);border-bottom:1px solid var(--ink-4);flex-shrink:0;gap:16px}
-.hdr-brand{display:flex;align-items:center;gap:12px}
-.hdr-logo-mark{width:32px;height:32px;border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.hdr-logo-mark svg{width:16px;height:16px;fill:var(--amber)}
-.hdr-title{font-family:var(--ff-display);font-size:15px;font-weight:800;letter-spacing:4px;color:var(--paper);line-height:1}
-.hdr-title span{color:var(--amber)}
-.hdr-sep{width:1px;height:28px;background:var(--ink-4);margin:0 4px}
-.hdr-center{flex:1;display:flex;align-items:center;justify-content:center;gap:20px}
-.turn-chip{display:flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid var(--ink-4);background:var(--ink-3)}
-.turn-pip{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0}
-.turn-pip.blue{background:var(--blue)}
-.turn-pip.off{background:var(--ink-5)}
-.turn-pip.blink{animation:blink .9s step-end infinite}
-@keyframes blink{50%{opacity:0}}
-.turn-name{font-family:var(--ff-display);font-size:11px;font-weight:600;letter-spacing:2px;color:var(--paper)}
-.turn-sym{font-size:10px;color:var(--mist);letter-spacing:1px}
+header{position:relative;z-index:20;height:48px;display:flex;align-items:center;
+  padding:0 16px;background:var(--bg2);border-bottom:1px solid var(--border);
+  flex-shrink:0;gap:12px}
+.hdr-logo{display:flex;align-items:center;gap:10px}
+.hdr-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--amber),var(--amber2));
+  display:flex;align-items:center;justify-content:center;border-radius:6px;flex-shrink:0}
+.hdr-icon svg{width:14px;height:14px;fill:#000}
+.hdr-name{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:1px;color:var(--text)}
+.hdr-name span{color:var(--amber)}
+.hdr-sep{width:1px;height:24px;background:var(--border);margin:0 4px}
+.hdr-mid{flex:1;display:flex;justify-content:center}
+.turn-pill{display:flex;align-items:center;gap:8px;padding:4px 14px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:20px}
+.turn-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);animation:pulse 1.2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.turn-dot.blue{background:var(--blue)}
+.turn-label{font-family:var(--sans);font-size:11px;font-weight:600;color:var(--text);letter-spacing:.5px}
 .hdr-right{display:flex;align-items:center;gap:8px}
-.hdr-stat{padding:4px 10px;border:1px solid var(--ink-4);font-family:var(--ff-display);font-size:9px;letter-spacing:2px;color:var(--mist)}
-.hdr-stat span{color:var(--fog)}
-.hdr-btn{padding:6px 14px;border:1px solid var(--ink-4);background:transparent;color:var(--mist);font-family:var(--ff-display);font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .2s}
-.hdr-btn:hover{border-color:var(--fog);color:var(--paper)}
+.hdr-chip{padding:3px 10px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:4px;font-size:10px;color:var(--text2);letter-spacing:1px}
+.hdr-chip span{color:var(--text);font-weight:600}
+.hdr-btn{padding:5px 12px;background:transparent;border:1px solid var(--border);
+  border-radius:6px;color:var(--text2);font-family:var(--sans);font-size:10px;
+  font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.hdr-btn:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
 
 /* ── TABS ── */
-.tabs-bar{position:relative;z-index:15;display:flex;background:var(--ink-2);border-bottom:1px solid var(--ink-4);flex-shrink:0}
-.tab{padding:10px 20px;font-family:var(--ff-display);font-size:10px;font-weight:600;letter-spacing:3px;color:var(--mist);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;white-space:nowrap}
-.tab:hover{color:var(--fog)}
+.tabs{position:relative;z-index:15;display:flex;background:var(--bg2);
+  border-bottom:1px solid var(--border);flex-shrink:0;padding:0 8px}
+.tab{padding:10px 16px;font-family:var(--sans);font-size:11px;font-weight:600;
+  color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .2s;letter-spacing:.3px;white-space:nowrap}
+.tab:hover{color:var(--text)}
 .tab.active{color:var(--amber);border-bottom-color:var(--amber)}
-.tab-badge{font-size:8px;padding:1px 5px;border-radius:10px;background:var(--purple);color:#fff;margin-left:6px;vertical-align:middle;display:none}
+.tab-badge{display:none;margin-left:5px;padding:1px 5px;background:var(--purple);
+  color:#fff;border-radius:8px;font-size:8px;vertical-align:middle}
 .tab-badge.show{display:inline}
 
 /* ── VIEWS ── */
@@ -74,321 +91,395 @@ header{position:relative;z-index:20;display:flex;align-items:center;padding:0 20
 .view.active{display:flex}
 
 /* ══════════════════════════════════════════
-   VIEW 1: GAME
+   GAME VIEW
 ══════════════════════════════════════════ */
-#view-game{display:none;grid-template-columns:310px 1fr 300px;gap:1px;background:var(--ink-4)}
+#view-game{display:none;grid-template-columns:300px 1fr 320px;gap:1px;background:var(--border)}
 #view-game.active{display:grid}
 
-/* Panel */
-.panel{background:var(--ink-2);display:flex;flex-direction:column;overflow:hidden}
-.ph{padding:14px 16px;border-bottom:1px solid var(--ink-4);display:flex;align-items:center;gap:8px;flex-shrink:0}
-.ph-title{font-family:var(--ff-display);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--fog);flex:1;text-transform:uppercase}
-.ph-tag{font-size:8px;letter-spacing:2px;padding:2px 7px;border:1px solid var(--ink-5);color:var(--mist);text-transform:uppercase}
-.ph-tag.gold{border-color:var(--amber-deep);color:var(--amber)}
-.pb{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.panel{background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.panel-head{padding:12px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-shrink:0}
+.panel-title{font-family:var(--sans);font-size:10px;font-weight:700;
+  letter-spacing:2px;color:var(--text);flex:1;text-transform:uppercase}
+.panel-tag{font-size:8px;letter-spacing:1.5px;padding:2px 7px;
+  border:1px solid var(--border);color:var(--text2);border-radius:3px;text-transform:uppercase}
+.panel-tag.gold{border-color:var(--amber-dim);color:var(--amber)}
+.panel-body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
 
-/* ── Player chips ── */
-.player-strip{display:grid;grid-template-columns:1fr 36px 1fr;align-items:center;gap:0;border:1px solid var(--ink-4)}
-.pchip{padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:background .3s}
-.pchip.active-x{background:rgba(232,168,50,.06);border-right:2px solid var(--amber)}
-.pchip.active-o{background:rgba(106,184,232,.06);border-left:2px solid var(--blue)}
-.pchip-sym{font-family:var(--ff-display);font-size:22px;font-weight:700;line-height:1}
-.pchip.p-x .pchip-sym{color:var(--amber)}
-.pchip.p-o .pchip-sym{color:var(--blue)}
-.pchip-name{font-family:var(--ff-display);font-size:9px;letter-spacing:2px;color:var(--fog);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
-.pchip-status{font-size:8px;color:var(--mist);letter-spacing:1px}
-.pchip.active-x .pchip-status{color:var(--amber)}
-.pchip.active-o .pchip-status{color:var(--blue)}
-.vs-mid{text-align:center;font-family:var(--ff-serif);font-style:italic;color:var(--mist);font-size:15px}
+/* Player strip */
+.player-strip{display:grid;grid-template-columns:1fr 32px 1fr;
+  border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.pchip{padding:10px 8px;display:flex;flex-direction:column;align-items:center;
+  gap:3px;transition:background .3s;background:var(--bg3)}
+.pchip.ax{background:rgba(240,165,0,.06);border-right:2px solid var(--amber)}
+.pchip.ao{background:rgba(88,166,255,.06);border-left:2px solid var(--blue)}
+.pchip-sym{font-family:var(--sans);font-size:20px;font-weight:700}
+.px .pchip-sym{color:var(--amber)}
+.po .pchip-sym{color:var(--blue)}
+.pchip-name{font-family:var(--sans);font-size:9px;font-weight:600;
+  letter-spacing:1px;color:var(--text);max-width:76px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;text-align:center}
+.pchip-st{font-size:8px;color:var(--text2);letter-spacing:.5px}
+.pchip.ax .pchip-st{color:var(--amber)}
+.pchip.ao .pchip-st{color:var(--blue)}
+.vs-sep{display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--text3);font-style:italic;background:var(--bg3)}
 
-/* ── Board ── */
-.board-wrap{position:relative;display:flex;align-items:center;justify-content:center;padding:8px 0}
-.board{display:grid;grid-template-columns:repeat(3,86px);grid-template-rows:repeat(3,86px);gap:2px;background:var(--ink-4)}
-.cell{background:var(--ink-3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;position:relative;font-family:var(--ff-display);font-size:30px;font-weight:700}
-.cell:hover:not(.taken){background:var(--ink-4)}
-.cell::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s}
-.cell.cx{color:var(--amber);animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
-.cell.co{color:var(--blue);animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
-.cell.win-x{background:rgba(232,168,50,.12)!important;animation:pulse-x .7s ease infinite alternate}
-.cell.win-o{background:rgba(106,184,232,.12)!important;animation:pulse-o .7s ease infinite alternate}
+/* Board */
+.board-wrap{position:relative;display:flex;align-items:center;justify-content:center;padding:6px 0}
+.board{display:grid;grid-template-columns:repeat(3,82px);
+  grid-template-rows:repeat(3,82px);gap:2px;background:var(--border)}
+.cell{background:var(--bg3);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .12s;font-family:var(--sans);
+  font-size:28px;font-weight:700;position:relative;user-select:none}
+.cell:hover:not(.taken){background:var(--bg4)}
+.cell.cx{color:var(--amber);animation:pop .28s cubic-bezier(.34,1.56,.64,1)}
+.cell.co{color:var(--blue);animation:pop .28s cubic-bezier(.34,1.56,.64,1)}
+.cell.win-x{background:rgba(240,165,0,.14)!important;animation:glow-x .6s ease infinite alternate}
+.cell.win-o{background:rgba(88,166,255,.14)!important;animation:glow-o .6s ease infinite alternate}
 .cell.taken{cursor:default}
-@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
-@keyframes pulse-x{to{background:rgba(232,168,50,.22)!important}}
-@keyframes pulse-o{to{background:rgba(106,184,232,.22)!important}}
-.board-msg{min-height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-display);font-size:11px;letter-spacing:3px;color:var(--mist);border:1px solid transparent;transition:all .3s}
-.board-msg.win-msg{color:var(--amber);border-color:rgba(232,168,50,.3);background:rgba(232,168,50,.05)}
-.board-msg.draw-msg{color:var(--red);border-color:rgba(224,82,82,.3);background:rgba(224,82,82,.05)}
-.board-overlay{position:absolute;inset:0;background:rgba(14,15,17,.75);display:flex;align-items:center;justify-content:center;font-family:var(--ff-display);font-size:16px;letter-spacing:4px;color:var(--amber);display:none}
+@keyframes pop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes glow-x{to{background:rgba(240,165,0,.26)!important}}
+@keyframes glow-o{to{background:rgba(88,166,255,.26)!important}}
+.board-overlay{position:absolute;inset:0;background:rgba(8,11,16,.82);
+  display:none;align-items:center;justify-content:center;
+  font-family:var(--sans);font-size:18px;font-weight:700;
+  letter-spacing:3px;color:var(--amber);border-radius:2px}
 
-/* ── State row ── */
-.state-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--ink-3);border:1px solid var(--ink-4)}
-.state-lbl{font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase}
-.state-val{font-family:var(--ff-mono);font-size:12px;color:var(--amber);letter-spacing:3px}
+/* State bar */
+.state-bar{display:flex;align-items:center;gap:8px;padding:7px 10px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:4px}
+.state-lbl{font-size:8px;letter-spacing:2px;color:var(--text2);text-transform:uppercase}
+.state-val{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:2.5px;flex:1}
 
-/* ── Action buttons ── */
+/* Board message */
+.board-msg{min-height:30px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:1px;
+  color:var(--text2);border:1px solid transparent;border-radius:4px;transition:all .3s;padding:4px}
+.board-msg.win{color:var(--amber);border-color:rgba(240,165,0,.3);background:rgba(240,165,0,.05)}
+.board-msg.draw{color:var(--red);border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.05)}
+
+/* Buttons */
 .action-row{display:flex;gap:6px;flex-wrap:wrap}
-.btn{font-family:var(--ff-display);font-size:9px;font-weight:600;letter-spacing:2px;padding:8px 14px;border:1px solid var(--ink-5);background:transparent;color:var(--mist);cursor:pointer;transition:all .2s;text-transform:uppercase}
-.btn:hover{border-color:var(--fog);color:var(--paper)}
-.btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-amber{border-color:var(--amber-deep);color:var(--amber)}
-.btn-amber:hover{border-color:var(--amber);background:rgba(232,168,50,.08)}
-.btn-red{border-color:rgba(224,82,82,.5);color:var(--red)}
-.btn-red:hover{background:rgba(224,82,82,.07)}
-.btn-green{border-color:rgba(76,175,130,.5);color:var(--green)}
-.btn-green:hover{background:rgba(76,175,130,.07)}
+.btn{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:1px;
+  padding:7px 13px;border:1px solid var(--border);background:transparent;
+  color:var(--text2);cursor:pointer;transition:all .18s;border-radius:5px;text-transform:uppercase}
+.btn:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-red{border-color:rgba(248,81,73,.4);color:var(--red)}
+.btn-red:hover{background:rgba(248,81,73,.07);border-color:var(--red)}
+.btn-amber{border-color:var(--amber-dim);color:var(--amber)}
+.btn-amber:hover{background:rgba(240,165,0,.07);border-color:var(--amber)}
+.btn-green{border-color:rgba(63,185,80,.4);color:var(--green)}
+.btn-green:hover{background:rgba(63,185,80,.07);border-color:var(--green)}
+.btn-blue{border-color:var(--blue-dim);color:var(--blue)}
+.btn-blue:hover{background:rgba(88,166,255,.07);border-color:var(--blue)}
 
 /* ── Analysis panel ── */
-.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.metric-card{background:var(--ink-3);border:1px solid var(--ink-4);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
-.mc-lbl{font-size:8px;letter-spacing:2px;color:var(--mist);text-transform:uppercase}
-.mc-val{font-family:var(--ff-display);font-size:20px;font-weight:600;color:var(--paper);transition:all .3s}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.metric-card{background:var(--bg3);border:1px solid var(--border);
+  border-radius:5px;padding:9px 11px;display:flex;flex-direction:column;gap:3px}
+.mc-lbl{font-size:8px;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase}
+.mc-val{font-family:var(--sans);font-size:22px;font-weight:700;color:var(--text);transition:all .3s}
 .mc-val.amber{color:var(--amber)}
 .mc-val.blue{color:var(--blue)}
 .mc-val.red{color:var(--red)}
 .mc-val.green{color:var(--green)}
-.mc-sub{font-size:9px;color:var(--mist);letter-spacing:.5px}
+.mc-val.purple{color:var(--purple)}
+.mc-sub{font-size:8px;color:var(--text3);letter-spacing:.3px}
 
-/* ── Similarity Meter ── */
-.sim-block{background:var(--ink-3);border:1px solid var(--ink-4);padding:12px}
-.sim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.sim-title{font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase}
-.sim-pct{font-family:var(--ff-display);font-size:16px;font-weight:700;color:var(--paper);transition:all .3s}
-.sim-pct.danger{color:var(--red)}
-.track{height:5px;background:var(--ink-4);border-radius:2px;overflow:hidden}
-.fill{height:100%;background:linear-gradient(90deg,var(--blue-dim),var(--blue));transition:width .5s cubic-bezier(.4,0,.2,1);border-radius:2px}
-.fill.danger{background:linear-gradient(90deg,#a02020,var(--red))}
-.sim-note{font-size:9px;color:var(--mist);letter-spacing:.5px;margin-top:5px}
+/* Similarity meter */
+.sim-block{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:11px}
+.sim-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.sim-title{font-size:8px;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase}
+.sim-pct{font-family:var(--sans);font-size:18px;font-weight:700;color:var(--text);transition:all .3s}
+.sim-pct.hi{color:var(--red)}
+.sim-pct.mid{color:var(--amber)}
+.track{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:5px}
+.fill{height:100%;background:linear-gradient(90deg,var(--blue-dim),var(--blue));
+  transition:width .5s cubic-bezier(.4,0,.2,1);border-radius:2px}
+.fill.hi{background:linear-gradient(90deg,#7d1a1a,var(--red))}
+.fill.mid{background:linear-gradient(90deg,var(--amber-dim),var(--amber))}
+.sim-note{font-size:9px;color:var(--text2);line-height:1.5;word-break:break-all}
 
-/* ── LCS Chart ── */
-.chart-block{background:var(--ink-3);border:1px solid var(--ink-4);padding:12px;flex-shrink:0}
-.chart-title{font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase;margin-bottom:8px}
-.lcs-chart-wrap{height:70px;position:relative}
+/* Chart */
+.chart-block{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:11px;flex-shrink:0}
+.chart-title{font-size:8px;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase;margin-bottom:7px}
+.chart-wrap{height:64px;position:relative}
 canvas.lcs-canvas{width:100%;height:100%}
-.chart-legend{display:flex;gap:12px;margin-top:5px}
-.leg-item{display:flex;align-items:center;gap:5px;font-size:8px;color:var(--mist);letter-spacing:1px}
-.leg-dot{width:8px;height:3px;border-radius:1px}
-.leg-amber{background:var(--amber)}
-.leg-blue{background:var(--blue)}
-.leg-red{background:var(--red);border:1px dashed var(--red)}
+.chart-legend{display:flex;gap:10px;margin-top:5px}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:8px;color:var(--text2)}
+.leg-dot{width:8px;height:2px;border-radius:1px}
 
-/* ── Threefold pips ── */
-.threefold-row{display:flex;align-items:center;gap:10px}
-.tf-lbl{font-size:9px;letter-spacing:2px;color:var(--mist)}
-.tf-pips{display:flex;gap:5px}
-.tf-pip{width:22px;height:22px;border:1px solid var(--ink-5);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-5);transition:all .4s;border-radius:2px}
-.tf-pip.lit{border-color:var(--purple);color:var(--purple);background:rgba(155,114,232,.12);box-shadow:0 0 8px rgba(155,114,232,.3)}
+/* Threefold pips */
+.tf-row{display:flex;align-items:center;gap:8px}
+.tf-lbl{font-size:8px;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase}
+.tf-pips{display:flex;gap:4px}
+.tf-pip{width:20px;height:20px;border:1px solid var(--border);border-radius:3px;
+  display:flex;align-items:center;justify-content:center;font-size:8px;
+  color:var(--text3);transition:all .35s;font-family:var(--sans);font-weight:700}
+.tf-pip.lit{border-color:var(--purple);color:var(--purple);
+  background:rgba(188,140,255,.12);box-shadow:0 0 6px rgba(188,140,255,.3)}
 
-/* ── Alerts ── */
-.alert{padding:10px 12px;border-radius:2px;display:flex;gap:10px;align-items:flex-start;animation:slide-in .3s ease}
-@keyframes slide-in{0%{transform:translateY(-6px);opacity:0}100%{transform:translateY(0);opacity:1}}
-.alert-draw{background:rgba(232,168,50,.06);border:1px solid rgba(232,168,50,.3)}
-.alert-3fold{background:rgba(155,114,232,.06);border:1px solid rgba(155,114,232,.4)}
-.alert-icon{font-size:15px;flex-shrink:0;margin-top:1px}
-.alert-title{font-family:var(--ff-display);font-size:9px;letter-spacing:2px;color:var(--amber);margin-bottom:2px}
+/* Alerts */
+.alert{padding:9px 11px;border-radius:4px;display:flex;gap:9px;
+  align-items:flex-start;animation:slide-in .3s ease}
+@keyframes slide-in{0%{transform:translateY(-5px);opacity:0}100%{transform:translateY(0);opacity:1}}
+.alert-draw{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.3)}
+.alert-3fold{background:rgba(188,140,255,.06);border:1px solid rgba(188,140,255,.35)}
+.alert-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.alert-title{font-family:var(--sans);font-size:9px;font-weight:700;
+  letter-spacing:1px;color:var(--amber);margin-bottom:2px}
 .alert-3fold .alert-title{color:var(--purple)}
-.alert-body{font-size:10px;color:var(--mist)}
+.alert-body{font-size:9px;color:var(--text2);line-height:1.5}
 
-/* ── Game Log (Timeline) ── */
-.tl-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0}
-.tl-item{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ink-4);animation:slide-in .25s ease}
-.tl-num{font-size:9px;color:var(--mist);min-width:22px;padding-top:2px;letter-spacing:1px}
-.tl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+/* Timeline */
+.tl-wrap{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.tl-item{display:flex;gap:8px;align-items:flex-start;padding:6px 0;
+  border-bottom:1px solid var(--border);animation:slide-in .2s ease}
+.tl-num{font-size:8px;color:var(--text3);min-width:20px;padding-top:2px;letter-spacing:.5px}
+.tl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
 .tl-dot-x{background:var(--amber)}
 .tl-dot-o{background:var(--blue)}
-.tl-content{flex:1}
-.tl-state{font-size:11px;letter-spacing:3px;color:var(--paper)}
-.tl-meta{font-size:9px;color:var(--mist);margin-top:2px;letter-spacing:.5px}
-.tl-badge{display:inline-block;font-size:8px;padding:1px 5px;margin-left:5px;letter-spacing:1px;border-radius:1px}
-.tl-badge-rep{background:rgba(155,114,232,.15);color:var(--purple);border:1px solid rgba(155,114,232,.3)}
-.tl-empty{font-size:11px;color:var(--mist);padding:20px 0;text-align:center}
+.tl-content{flex:1;min-width:0}
+.tl-state{font-size:10px;letter-spacing:2.5px;color:var(--text);font-family:var(--mono)}
+.tl-meta{font-size:8px;color:var(--text2);margin-top:1px;letter-spacing:.3px}
+.tl-analysis{font-size:8px;color:var(--text3);margin-top:1px;letter-spacing:.3px}
+.tl-badge{display:inline-block;font-size:7px;padding:1px 4px;margin-left:4px;
+  border-radius:2px;background:rgba(188,140,255,.15);color:var(--purple);
+  border:1px solid rgba(188,140,255,.3)}
+.tl-empty{font-size:11px;color:var(--text3);padding:20px 0;text-align:center}
 
 /* ══════════════════════════════════════════
-   VIEW 2: SEMAPHORE
+   SEMAPHORE VIEW
 ══════════════════════════════════════════ */
 #view-sem{display:none;flex-direction:column;overflow-y:auto}
 #view-sem.active{display:flex}
-.sem-wrap{max-width:900px;width:100%;margin:0 auto;padding:24px 20px;display:flex;flex-direction:column;gap:20px}
-.sem-section{background:var(--ink-2);border:1px solid var(--ink-4)}
-.sem-sh{padding:12px 18px;border-bottom:1px solid var(--ink-4);display:flex;align-items:center;justify-content:space-between;gap:12px}
-.sem-sh-title{font-family:var(--ff-display);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--fog);text-transform:uppercase}
-.sem-sb{padding:18px;display:flex;flex-direction:column;gap:16px}
-.sem-btns{display:flex;gap:8px;flex-wrap:wrap}
+.sem-page{max-width:960px;width:100%;margin:0 auto;padding:20px 16px;
+  display:flex;flex-direction:column;gap:16px}
 
-/* Semaphore visualizer */
-.sem-viz{display:grid;grid-template-columns:1fr 180px 1fr;gap:0;background:var(--ink-4);border:1px solid var(--ink-4)}
-.sem-proc{background:var(--ink-3);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px}
-.sem-proc-title{font-size:8px;letter-spacing:3px;color:var(--mist);text-transform:uppercase}
-.sem-proc-sym{font-family:var(--ff-display);font-size:28px;font-weight:700}
+.sem-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.sem-card-head{padding:11px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.sem-card-title{font-family:var(--sans);font-size:10px;font-weight:700;
+  letter-spacing:2px;color:var(--text);text-transform:uppercase}
+.sem-card-body{padding:16px;display:flex;flex-direction:column;gap:14px}
+
+/* Concept explanation */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.concept-box{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:12px}
+.concept-title{font-family:var(--sans);font-size:9px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.concept-title.red{color:var(--red)}
+.concept-title.green{color:var(--green)}
+.concept-body{font-size:9px;color:var(--text2);line-height:1.7}
+.concept-code{font-family:var(--mono);font-size:9px;color:var(--blue2);
+  background:var(--bg4);border:1px solid var(--border);border-radius:3px;
+  padding:6px 8px;margin-top:6px;line-height:1.8}
+
+/* Visualizer */
+.sem-viz{display:grid;grid-template-columns:1fr 160px 1fr;gap:1px;
+  background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.sem-proc{background:var(--bg3);padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.sem-proc-label{font-size:8px;letter-spacing:2px;color:var(--text2);text-transform:uppercase}
+.sem-proc-sym{font-family:var(--sans);font-size:26px;font-weight:700}
 .sem-proc-sym.sx{color:var(--amber)}
 .sem-proc-sym.so{color:var(--blue)}
-.proc-state-badge{padding:4px 12px;font-family:var(--ff-display);font-size:9px;letter-spacing:2px;border:1px solid var(--ink-5);color:var(--mist);transition:all .4s}
-.proc-state-badge.running{border-color:var(--green);color:var(--green);background:rgba(76,175,130,.1)}
-.proc-state-badge.waiting{border-color:var(--amber);color:var(--amber);background:rgba(232,168,50,.08)}
-.proc-state-badge.blocked{border-color:var(--red);color:var(--red);background:rgba(224,82,82,.08)}
-.proc-state-badge.idle{border-color:var(--ink-5);color:var(--mist)}
-.proc-queue{display:flex;flex-direction:column;gap:4px;width:100%;min-height:30px}
-.proc-queue-item{font-size:9px;color:var(--mist);padding:3px 6px;border-left:2px solid var(--ink-5);letter-spacing:.5px;transition:all .3s}
-.proc-queue-item.active{border-left-color:var(--amber);color:var(--fog)}
+.proc-badge{padding:3px 10px;font-family:var(--sans);font-size:8px;font-weight:700;
+  letter-spacing:1.5px;border:1px solid var(--border);color:var(--text2);
+  border-radius:3px;transition:all .35s;text-transform:uppercase}
+.proc-badge.running{border-color:var(--green);color:var(--green);background:rgba(63,185,80,.1)}
+.proc-badge.waiting{border-color:var(--amber);color:var(--amber);background:rgba(240,165,0,.08)}
+.proc-badge.blocked{border-color:var(--red);color:var(--red);background:rgba(248,81,73,.08)}
+.proc-badge.idle{border-color:var(--border);color:var(--text3)}
+.proc-steps{display:flex;flex-direction:column;gap:3px;width:100%;margin-top:4px}
+.proc-step{font-size:8px;color:var(--text3);padding:2px 6px;
+  border-left:2px solid var(--border);letter-spacing:.3px;transition:all .25s}
+.proc-step.active{border-left-color:var(--amber);color:var(--text);background:rgba(240,165,0,.05)}
+.proc-step.done{border-left-color:var(--green);color:var(--green2)}
 
-/* Central mutex */
-.sem-mutex{background:var(--ink-2);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;border-left:1px solid var(--ink-4);border-right:1px solid var(--ink-4)}
-.mutex-title{font-size:8px;letter-spacing:3px;color:var(--mist);text-transform:uppercase}
-.mutex-icon{font-size:38px;transition:all .4s}
-.mutex-icon.locked{filter:drop-shadow(0 0 8px rgba(76,175,130,.5))}
-.mutex-icon.danger{filter:drop-shadow(0 0 8px rgba(224,82,82,.5))}
-.mutex-s{font-family:var(--ff-display);font-size:13px;letter-spacing:2px;color:var(--fog)}
-.mutex-ops{display:flex;gap:8px;margin-top:4px}
-.mutex-op{font-size:9px;padding:3px 8px;letter-spacing:1px;border-radius:2px}
-.op-p{color:var(--red);border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.05)}
-.op-v{color:var(--green);border:1px solid rgba(76,175,130,.3);background:rgba(76,175,130,.05)}
-.mutex-note{font-size:10px;color:var(--mist);text-align:center;min-height:30px;line-height:1.6;letter-spacing:.3px}
+.sem-mutex{background:var(--bg2);padding:16px;display:flex;flex-direction:column;
+  align-items:center;gap:8px;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.mutex-lbl{font-size:8px;letter-spacing:2px;color:var(--text2);text-transform:uppercase}
+.mutex-icon{font-size:36px;transition:all .4s;line-height:1}
+.mutex-s{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--text);letter-spacing:1px}
+.mutex-ops{display:flex;gap:6px;margin-top:2px}
+.mutex-op{font-size:8px;padding:2px 7px;border-radius:3px;font-family:var(--mono);font-weight:700}
+.op-p{color:var(--red);border:1px solid rgba(248,81,73,.3);background:rgba(248,81,73,.05)}
+.op-v{color:var(--green);border:1px solid rgba(63,185,80,.3);background:rgba(63,185,80,.05)}
+.mutex-note{font-size:9px;color:var(--text2);text-align:center;min-height:28px;line-height:1.6}
 
-/* Critical section highlight */
-.cs-highlight{border:1px solid var(--ink-4);background:var(--ink-3);padding:12px;position:relative;overflow:hidden}
-.cs-highlight::before{content:'CRITICAL SECTION';position:absolute;top:8px;right:10px;font-size:8px;letter-spacing:2px;color:var(--mist)}
-.cs-board-mini{display:grid;grid-template-columns:repeat(3,28px);gap:2px;margin:14px auto 0}
-.cs-cell{width:28px;height:28px;background:var(--ink-4);display:flex;align-items:center;justify-content:center;font-family:var(--ff-display);font-size:12px;font-weight:700}
+/* Critical section mini board */
+.cs-section{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:12px}
+.cs-label{font-size:8px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:8px}
+.cs-board{display:grid;grid-template-columns:repeat(3,30px);gap:2px;margin:0 auto;width:fit-content}
+.cs-cell{width:30px;height:30px;background:var(--bg4);display:flex;align-items:center;
+  justify-content:center;font-family:var(--sans);font-size:13px;font-weight:700;border-radius:2px}
 .cs-cell.cx{color:var(--amber)}
 .cs-cell.co{color:var(--blue)}
-.cs-corrupted .cs-cell.conflict{background:rgba(224,82,82,.25);animation:glitch .2s step-end infinite}
+.cs-cell.conflict{background:rgba(248,81,73,.2);animation:glitch .18s step-end infinite}
 @keyframes glitch{0%{opacity:1}50%{opacity:.3;transform:translateX(1px)}100%{opacity:1}}
+.cs-status{font-size:9px;color:var(--text2);text-align:center;margin-top:6px;letter-spacing:.3px}
 
-/* Verdict cards */
-.verdict-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.verdict-card{padding:12px 14px;display:flex;gap:10px;align-items:flex-start;border-radius:2px}
-.vc-unsafe{border:1px solid rgba(224,82,82,.35);background:rgba(224,82,82,.05)}
-.vc-safe{border:1px solid rgba(76,175,130,.35);background:rgba(76,175,130,.05)}
-.vc-icon{font-size:18px;flex-shrink:0}
-.vc-title{font-family:var(--ff-display);font-size:9px;letter-spacing:2px;margin-bottom:3px}
+/* Verdict */
+.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.verdict-card{padding:11px 13px;display:flex;gap:9px;align-items:flex-start;border-radius:5px}
+.vc-unsafe{border:1px solid rgba(248,81,73,.3);background:rgba(248,81,73,.04)}
+.vc-safe{border:1px solid rgba(63,185,80,.3);background:rgba(63,185,80,.04)}
+.vc-icon{font-size:16px;flex-shrink:0}
+.vc-title{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:3px}
 .vc-unsafe .vc-title{color:var(--red)}
 .vc-safe .vc-title{color:var(--green)}
-.vc-body{font-size:10px;color:var(--mist);line-height:1.6}
+.vc-body{font-size:9px;color:var(--text2);line-height:1.6}
 
 /* Event log */
-.event-log{background:#080a0d;border:1px solid var(--ink-4);padding:10px;max-height:200px;overflow-y:auto;font-size:10px;line-height:2;font-family:var(--ff-mono)}
-.el-line{display:block;letter-spacing:.3px;padding:1px 0;border-bottom:1px solid rgba(255,255,255,.02)}
-.el-head{color:var(--amber);font-family:var(--ff-display);font-size:8px;letter-spacing:3px;border-bottom:1px solid var(--ink-4)!important}
-.el-safe{color:var(--green)}
-.el-warn{color:var(--amber)}
-.el-err{color:var(--red)}
+.event-log{background:#050709;border:1px solid var(--border);border-radius:5px;
+  padding:10px;max-height:220px;overflow-y:auto;font-size:9px;
+  line-height:1.9;font-family:var(--mono)}
+.el-line{display:block;padding:1px 0;border-bottom:1px solid rgba(255,255,255,.02)}
+.el-head{color:var(--amber);font-family:var(--sans);font-size:8px;
+  font-weight:700;letter-spacing:2px;border-bottom:1px solid var(--border)!important}
+.el-safe{color:var(--green2)}
+.el-warn{color:var(--amber2)}
+.el-err{color:var(--red2)}
+.el-info{color:var(--blue2)}
 
 /* ══════════════════════════════════════════
-   VIEW 3: ANALYTICS
+   ANALYTICS VIEW
 ══════════════════════════════════════════ */
 #view-analytics{display:none;flex-direction:column;overflow-y:auto}
 #view-analytics.active{display:flex}
-.ana-wrap{max-width:960px;width:100%;margin:0 auto;padding:24px 20px;display:flex;flex-direction:column;gap:18px}
-.ana-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.ana-card{background:var(--ink-2);border:1px solid var(--ink-4)}
-.ana-head{padding:11px 16px;border-bottom:1px solid var(--ink-4);display:flex;align-items:center;justify-content:space-between}
-.ana-head-title{font-family:var(--ff-display);font-size:9px;font-weight:700;letter-spacing:3px;color:var(--fog);text-transform:uppercase}
-.ana-body{padding:16px}
+.ana-page{max-width:1000px;width:100%;margin:0 auto;padding:20px 16px;
+  display:flex;flex-direction:column;gap:16px}
+.ana-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ana-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.ana-head{padding:11px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.ana-head-title{font-family:var(--sans);font-size:10px;font-weight:700;
+  letter-spacing:2px;color:var(--text);text-transform:uppercase}
+.ana-body{padding:14px}
 
 /* Strategy compare */
-.strat-grid{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;background:var(--ink-4)}
-.strat-col{background:var(--ink-3);padding:14px 12px;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
-.strat-sym{font-family:var(--ff-display);font-size:20px;font-weight:700;margin-bottom:2px}
+.strat-grid{display:grid;grid-template-columns:1fr 90px 1fr;gap:1px;
+  background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:10px}
+.strat-col{background:var(--bg3);padding:12px 10px;display:flex;
+  flex-direction:column;align-items:center;gap:5px;text-align:center}
+.strat-sym{font-family:var(--sans);font-size:18px;font-weight:700}
 .strat-sym.sx{color:var(--amber)}
 .strat-sym.so{color:var(--blue)}
-.strat-name{font-family:var(--ff-display);font-size:9px;letter-spacing:2px;color:var(--fog)}
-.strat-seq{font-size:12px;letter-spacing:3px;color:var(--paper);min-height:22px;word-break:break-all}
-.strat-seq-lbl{font-size:8px;letter-spacing:1px;color:var(--mist)}
-.strat-center{background:var(--ink-2);padding:14px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-left:1px solid var(--ink-4);border-right:1px solid var(--ink-4)}
-.strat-pct{font-family:var(--ff-display);font-size:24px;font-weight:700;color:var(--paper);transition:all .4s}
-.strat-pct-lbl{font-size:8px;letter-spacing:2px;color:var(--mist)}
-.strat-report{margin-top:10px;padding:10px 12px;font-family:var(--ff-display);font-size:10px;letter-spacing:2px;text-align:center;border-radius:2px}
-.strat-similar{color:var(--red);border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.05)}
-.strat-moderate{color:var(--amber);border:1px solid rgba(232,168,50,.3);background:rgba(232,168,50,.05)}
-.strat-distinct{color:var(--green);border:1px solid rgba(76,175,130,.3);background:rgba(76,175,130,.05)}
-.strat-neutral{color:var(--mist);border:1px solid var(--ink-4);background:var(--ink-3)}
+.strat-name{font-family:var(--sans);font-size:9px;font-weight:600;
+  letter-spacing:1px;color:var(--text)}
+.strat-seq{font-size:10px;letter-spacing:2px;color:var(--text);
+  min-height:20px;word-break:break-all;font-family:var(--mono)}
+.strat-seq-lbl{font-size:8px;color:var(--text3);letter-spacing:.5px}
+.strat-mid{background:var(--bg2);padding:12px 8px;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.strat-pct{font-family:var(--sans);font-size:22px;font-weight:700;
+  color:var(--text);transition:all .4s}
+.strat-pct-lbl{font-size:8px;letter-spacing:1.5px;color:var(--text2)}
+.strat-ed{font-size:9px;color:var(--text2);margin-top:2px}
+.strat-report{padding:9px 12px;font-family:var(--sans);font-size:10px;
+  font-weight:600;letter-spacing:1px;text-align:center;border-radius:4px}
+.sr-similar{color:var(--red);border:1px solid rgba(248,81,73,.3);background:rgba(248,81,73,.05)}
+.sr-moderate{color:var(--amber);border:1px solid rgba(240,165,0,.3);background:rgba(240,165,0,.05)}
+.sr-distinct{color:var(--green);border:1px solid rgba(63,185,80,.3);background:rgba(63,185,80,.05)}
+.sr-neutral{color:var(--text2);border:1px solid var(--border);background:var(--bg3)}
 
 /* Heatmap */
-.heatmap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
-.hm-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:2px;transition:all .4s}
-.hm-n{font-family:var(--ff-display);font-size:14px;font-weight:700;color:var(--paper)}
-.hm-lbl{font-size:8px;letter-spacing:1px;color:rgba(255,255,255,.4)}
+.heatmap{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.hm-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;border-radius:4px;transition:all .4s}
+.hm-n{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--text)}
+.hm-lbl{font-size:7px;letter-spacing:.5px;color:rgba(255,255,255,.35)}
 
 /* Stats table */
 .stats-tbl{width:100%;border-collapse:collapse}
-.stats-tbl tr{border-bottom:1px solid var(--ink-4)}
-.stats-tbl td{padding:8px 4px;font-size:10px;vertical-align:middle}
-.stats-tbl td:first-child{color:var(--mist);font-size:9px;letter-spacing:1px;width:120px}
-.stats-tbl td:last-child{text-align:right;font-family:var(--ff-display);font-size:12px;color:var(--paper)}
+.stats-tbl tr{border-bottom:1px solid var(--border)}
+.stats-tbl td{padding:7px 4px;font-size:10px;vertical-align:middle}
+.stats-tbl td:first-child{color:var(--text2);font-size:9px;letter-spacing:.5px;width:130px}
+.stats-tbl td:last-child{text-align:right;font-family:var(--sans);font-size:13px;
+  font-weight:700;color:var(--text)}
 
-/* Move distribution bars */
-.dist-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.dist-lbl{font-size:8px;letter-spacing:1px;color:var(--mist);width:16px;text-align:right}
-.dist-bar-wrap{flex:1;height:14px;background:var(--ink-4);border-radius:1px;overflow:hidden;position:relative}
-.dist-bar{height:100%;border-radius:1px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.dist-bar-x{background:linear-gradient(90deg,var(--amber-deep),var(--amber))}
-.dist-bar-o{background:linear-gradient(90deg,var(--blue-dim),var(--blue))}
-.dist-val{font-size:8px;letter-spacing:1px;color:var(--mist);width:20px;text-align:right}
+/* Move history table */
+.move-history{width:100%;border-collapse:collapse;font-size:9px}
+.move-history th{padding:5px 8px;text-align:left;font-family:var(--sans);
+  font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--text2);
+  text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3)}
+.move-history td{padding:5px 8px;border-bottom:1px solid var(--border);
+  font-family:var(--mono);color:var(--text2);vertical-align:middle}
+.move-history tr:hover td{background:var(--bg3)}
+.move-history .mx{color:var(--amber);font-weight:700}
+.move-history .mo{color:var(--blue);font-weight:700}
+.move-history .state-cell{letter-spacing:2px;color:var(--text);font-size:9px}
+.move-history .lcs-cell{color:var(--blue)}
+.move-history .ed-cell{color:var(--amber)}
+.move-history .rep-cell{color:var(--purple)}
+.mh-wrap{max-height:320px;overflow-y:auto;border:1px solid var(--border);border-radius:5px}
 
 /* Scrollbars */
 ::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:var(--ink)}
-::-webkit-scrollbar-thumb{background:var(--ink-5);border-radius:2px}
-::-webkit-scrollbar-thumb:hover{background:var(--mist)}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
 
 .hidden{display:none!important}
 @keyframes fade-in{0%{opacity:0}100%{opacity:1}}
-.fade-in{animation:fade-in .3s ease}
 </style>
 </head>
 <body>
-
-<div class="bg"><div class="bg-noise"></div><div class="bg-grid"></div></div>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
 
 <!-- HEADER -->
 <header>
-  <div class="hdr-brand">
-    <div class="hdr-logo-mark"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-    <div>
-      <div class="hdr-title">TURN<span>ENGINE</span></div>
-    </div>
+  <div class="hdr-logo">
+    <div class="hdr-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+    <div class="hdr-name">TURN<span>ENGINE</span></div>
   </div>
   <div class="hdr-sep"></div>
-  <div class="hdr-center">
-    <div class="turn-chip">
-      <div class="turn-pip blink" id="turnPip"></div>
-      <span class="turn-name" id="turnName">—</span>
-      <span class="turn-sym" id="turnSym"></span>
+  <div class="hdr-mid">
+    <div class="turn-pill">
+      <div class="turn-dot" id="turnDot"></div>
+      <span class="turn-label" id="turnLabel">—</span>
     </div>
   </div>
   <div class="hdr-right">
-    <div class="hdr-stat">MOVE <span id="hdrMove">0</span></div>
-    <div class="hdr-stat">STATUS <span id="hdrStatus">READY</span></div>
-    <button class="hdr-btn" onclick="window.location.href='login.html'">↩ LOGOUT</button>
+    <div class="hdr-chip">MOVE <span id="hdrMove">0</span></div>
+    <div class="hdr-chip">STATUS <span id="hdrStatus">READY</span></div>
+    <button class="hdr-btn" onclick="window.location.href='/login'">↩ Logout</button>
   </div>
 </header>
 
 <!-- TABS -->
-<nav class="tabs-bar">
+<nav class="tabs">
   <div class="tab active" data-tab="game">⚔ Arena</div>
-  <div class="tab" data-tab="sem">⚙ Semaphore Demo</div>
+  <div class="tab" data-tab="sem">⚙ OS Sync Demo</div>
   <div class="tab" data-tab="analytics">◈ Analytics <span class="tab-badge" id="anaAlert">!</span></div>
 </nav>
 
-<!-- ═══════════ VIEW: GAME ═══════════ -->
+<!-- ═══════════ GAME VIEW ═══════════ -->
 <div class="view" id="view-game">
 
   <!-- COL 1: BOARD -->
   <div class="panel">
-    <div class="ph"><span class="ph-title">Arena</span><span class="ph-tag">3×3 GRID</span></div>
-    <div class="pb">
-
+    <div class="panel-head">
+      <span class="panel-title">Arena</span>
+      <span class="panel-tag">3×3 GRID</span>
+    </div>
+    <div class="panel-body">
       <div class="player-strip">
-        <div class="pchip p-x active-x" id="chipX">
+        <div class="pchip px ax" id="chipX">
           <div class="pchip-sym">X</div>
           <div class="pchip-name" id="nameX">ALPHA</div>
-          <div class="pchip-status" id="statX">YOUR TURN</div>
+          <div class="pchip-st" id="statX">YOUR TURN</div>
         </div>
-        <div class="vs-mid">vs</div>
-        <div class="pchip p-o" id="chipO">
+        <div class="vs-sep">vs</div>
+        <div class="pchip po" id="chipO">
           <div class="pchip-sym">O</div>
           <div class="pchip-name" id="nameO">OMEGA</div>
-          <div class="pchip-status" id="statO">WAITING</div>
+          <div class="pchip-st" id="statO">WAITING</div>
         </div>
       </div>
 
@@ -397,7 +488,7 @@ canvas.lcs-canvas{width:100%;height:100%}
         <div class="board-overlay" id="boardOverlay"></div>
       </div>
 
-      <div class="state-row">
+      <div class="state-bar">
         <span class="state-lbl">STATE</span>
         <span class="state-val" id="stateStr">·········</span>
       </div>
@@ -406,7 +497,7 @@ canvas.lcs-canvas{width:100%;height:100%}
 
       <div class="action-row">
         <button class="btn btn-red" id="resetBtn">↺ Reset</button>
-        <button class="btn btn-amber" id="autoSimBtn">▶ Auto-Sim</button>
+        <button class="btn btn-amber" id="autoSimBtn">▶ Simulate 20+</button>
         <button class="btn" id="undoBtn">◁ Undo</button>
       </div>
     </div>
@@ -414,46 +505,49 @@ canvas.lcs-canvas{width:100%;height:100%}
 
   <!-- COL 2: ANALYSIS ENGINE -->
   <div class="panel">
-    <div class="ph"><span class="ph-title">Analysis Engine</span><span class="ph-tag">DAA — DP</span></div>
-    <div class="pb" style="overflow-y:auto">
+    <div class="panel-head">
+      <span class="panel-title">Analysis Engine</span>
+      <span class="panel-tag gold">DAA · DP</span>
+    </div>
+    <div class="panel-body">
 
-      <!-- LCS Similarity Meter -->
+      <!-- LCS Similarity -->
       <div class="sim-block">
-        <div class="sim-header">
-          <span class="sim-title">LCS Similarity (vs −2 states)</span>
+        <div class="sim-hdr">
+          <span class="sim-title">LCS Similarity — X seq vs O seq</span>
           <span class="sim-pct" id="simPct">—</span>
         </div>
         <div class="track"><div class="fill" id="simFill" style="width:0%"></div></div>
-        <div class="sim-note" id="simNote">Needs 3+ states to compare</div>
+        <div class="sim-note" id="simNote">Waiting for both players to move…</div>
       </div>
 
-      <!-- Dynamic LCS Chart -->
+      <!-- Live Chart -->
       <div class="chart-block">
-        <div class="chart-title">Live Similarity History</div>
-        <div class="lcs-chart-wrap"><canvas id="lcsCanvas" class="lcs-canvas"></canvas></div>
+        <div class="chart-title">Live Similarity &amp; Edit Distance History</div>
+        <div class="chart-wrap"><canvas id="lcsCanvas" class="lcs-canvas"></canvas></div>
         <div class="chart-legend">
-          <div class="leg-item"><div class="leg-dot leg-amber"></div>LCS %</div>
-          <div class="leg-item"><div class="leg-dot leg-blue"></div>Edit Dist (norm)</div>
-          <div class="leg-item"><div class="leg-dot leg-red"></div>80% threshold</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--amber)"></div>LCS %</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--blue)"></div>Edit Dist (norm)</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--red);border:1px dashed var(--red)"></div>60% threshold</div>
         </div>
       </div>
 
-      <!-- Metrics Grid -->
-      <div class="metric-row">
+      <!-- Metrics -->
+      <div class="metric-grid">
         <div class="metric-card">
           <div class="mc-lbl">Edit Distance</div>
           <div class="mc-val amber" id="edVal">—</div>
-          <div class="mc-sub">Δ current vs −2</div>
+          <div class="mc-sub">X strategy → O strategy</div>
         </div>
         <div class="metric-card">
           <div class="mc-lbl">LCS Length</div>
           <div class="mc-val blue" id="lcsVal">—</div>
-          <div class="mc-sub">common chars</div>
+          <div class="mc-sub">shared row/col patterns</div>
         </div>
         <div class="metric-card">
           <div class="mc-lbl">State Repeats</div>
-          <div class="mc-val" id="repVal">—</div>
-          <div class="mc-sub">current state</div>
+          <div class="mc-val purple" id="repVal">—</div>
+          <div class="mc-sub">current board state</div>
         </div>
         <div class="metric-card">
           <div class="mc-lbl">Unique States</div>
@@ -463,33 +557,43 @@ canvas.lcs-canvas{width:100%;height:100%}
       </div>
 
       <!-- Threefold -->
-      <div class="threefold-row">
-        <span class="tf-lbl">THREEFOLD</span>
+      <div class="tf-row">
+        <span class="tf-lbl">Threefold</span>
         <div class="tf-pips">
           <div class="tf-pip" id="pip0">1</div>
           <div class="tf-pip" id="pip1">2</div>
           <div class="tf-pip" id="pip2">3</div>
         </div>
+        <span style="font-size:8px;color:var(--text3);letter-spacing:.5px">repetitions</span>
       </div>
 
       <!-- Alerts -->
       <div class="alert alert-draw hidden" id="drawAlert">
         <div class="alert-icon">⚠</div>
-        <div><div class="alert-title">Potential Draw Detected</div><div class="alert-body" id="drawAlertTxt">—</div></div>
+        <div>
+          <div class="alert-title">Strategy Draw Detected</div>
+          <div class="alert-body" id="drawAlertTxt">—</div>
+        </div>
       </div>
       <div class="alert alert-3fold hidden" id="threefoldAlert">
         <div class="alert-icon">♻</div>
-        <div><div class="alert-title">Threefold Repetition</div><div class="alert-body">Same position appeared 3× — draw rule applies</div></div>
+        <div>
+          <div class="alert-title">Threefold Repetition</div>
+          <div class="alert-body">Same board position appeared 3× — draw rule applies</div>
+        </div>
       </div>
 
     </div>
   </div>
 
-  <!-- COL 3: GAME LOG -->
+  <!-- COL 3: GAME LOG (20+ moves) -->
   <div class="panel">
-    <div class="ph"><span class="ph-title">Game Log</span><span class="ph-tag">TIMELINE</span></div>
-    <div class="pb" style="padding:10px 12px">
-      <div class="tl-scroll" id="timeline">
+    <div class="panel-head">
+      <span class="panel-title">Game Log</span>
+      <span class="panel-tag">HISTORY</span>
+    </div>
+    <div class="panel-body" style="padding:8px 10px">
+      <div class="tl-wrap" id="timeline">
         <div class="tl-empty">No moves yet</div>
       </div>
     </div>
@@ -497,77 +601,102 @@ canvas.lcs-canvas{width:100%;height:100%}
 
 </div><!-- /view-game -->
 
-<!-- ═══════════ VIEW: SEMAPHORE ═══════════ -->
+<!-- ═══════════ OS SYNC VIEW ═══════════ -->
 <div class="view" id="view-sem">
-<div class="sem-wrap">
+<div class="sem-page">
 
-  <div class="sem-section">
-    <div class="sem-sh">
-      <span class="sem-sh-title">OS Sync Demo — Mutual Exclusion</span>
-      <span class="ph-tag">SEMAPHORE</span>
+  <!-- Concept explanation -->
+  <div class="sem-card">
+    <div class="sem-card-head">
+      <span class="sem-card-title">OS Synchronisation — Semaphore &amp; Race Condition</span>
+      <span class="panel-tag">CONCEPTS</span>
     </div>
-    <div class="sem-sb">
+    <div class="sem-card-body">
+      <div class="concept-grid">
+        <div class="concept-box">
+          <div class="concept-title red">⚡ Race Condition (No Semaphore)</div>
+          <div class="concept-body">Two threads write to the same shared board cell simultaneously with no protection. The second write overwrites the first — board state becomes undefined.</div>
+          <div class="concept-code">Thread-1: read cell[6] → '.'<br>Thread-2: read cell[6] → '.'  ← same!<br>Thread-1: write cell[6] = 'X'<br>Thread-2: write cell[6] = 'O'  ← OVERWRITE<br>Result: CORRUPTED ⚠</div>
+        </div>
+        <div class="concept-box">
+          <div class="concept-title green">🔒 Semaphore Protected (Mutex)</div>
+          <div class="concept-body">A binary semaphore (S=1) acts as a mutex. P() decrements S to 0 (lock). V() increments S to 1 (unlock). Only one thread in critical section at a time.</div>
+          <div class="concept-code">Thread-1: P(S): S=1→0 ✓ ACQUIRED<br>Thread-2: P(S): S=0 → BLOCKED ⏳<br>Thread-1: write safely → V(S): S=0→1<br>Thread-2: unblocked → P(S): S=1→0<br>Result: CONSISTENT ✅</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-      <div class="sem-btns">
-        <button class="btn btn-red" id="raceBtn">⚡ Race Condition (No Semaphore)</button>
-        <button class="btn btn-green" id="safeBtn">🔒 Semaphore Protected</button>
+  <!-- Demo -->
+  <div class="sem-card">
+    <div class="sem-card-head">
+      <span class="sem-card-title">Live Demo</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-red" id="raceBtn">⚡ Race Condition</button>
+        <button class="btn btn-green" id="safeBtn">🔒 Semaphore Safe</button>
         <button class="btn" id="semResetBtn">↺ Reset</button>
       </div>
+    </div>
+    <div class="sem-card-body">
 
-      <div class="sem-viz" id="semViz">
-        <!-- Process P1 -->
+      <!-- Visualizer -->
+      <div class="sem-viz">
         <div class="sem-proc" id="proc1">
-          <div class="sem-proc-title">Process · P1 (X)</div>
-          <div class="sem-proc-sym sx" id="p1Sym">X</div>
-          <div class="proc-state-badge idle" id="p1Badge">IDLE</div>
-          <div style="font-size:9px;color:var(--mist);letter-spacing:1px;margin-top:6px;text-align:center">Action Queue</div>
-          <div class="proc-queue" id="p1Queue"></div>
+          <div class="sem-proc-label">Process P1 · Thread-1</div>
+          <div class="sem-proc-sym sx">X</div>
+          <div class="proc-badge idle" id="p1Badge">IDLE</div>
+          <div class="proc-steps" id="p1Steps"></div>
         </div>
-
-        <!-- Mutex -->
         <div class="sem-mutex">
-          <div class="mutex-title">Semaphore</div>
+          <div class="mutex-lbl">Semaphore</div>
           <div class="mutex-icon" id="mutexIcon">🔓</div>
           <div class="mutex-s">S = <span id="semS">1</span></div>
           <div class="mutex-ops">
-            <span class="mutex-op op-p">P()</span>
-            <span style="color:var(--mist);font-size:10px">⟵·⟶</span>
-            <span class="mutex-op op-v">V()</span>
+            <span class="mutex-op op-p">P(wait)</span>
+            <span style="color:var(--text3);font-size:9px">⟵·⟶</span>
+            <span class="mutex-op op-v">V(signal)</span>
           </div>
           <div class="mutex-note" id="mutexNote">Click a demo to begin</div>
         </div>
-
-        <!-- Process P2 -->
         <div class="sem-proc" id="proc2">
-          <div class="sem-proc-title">Process · P2 (O)</div>
-          <div class="sem-proc-sym so" id="p2Sym">O</div>
-          <div class="proc-state-badge idle" id="p2Badge">IDLE</div>
-          <div style="font-size:9px;color:var(--mist);letter-spacing:1px;margin-top:6px;text-align:center">Action Queue</div>
-          <div class="proc-queue" id="p2Queue"></div>
+          <div class="sem-proc-label">Process P2 · Thread-2</div>
+          <div class="sem-proc-sym so">O</div>
+          <div class="proc-badge idle" id="p2Badge">IDLE</div>
+          <div class="proc-steps" id="p2Steps"></div>
         </div>
       </div>
 
-      <!-- Critical Section board mini -->
-      <div class="cs-highlight" id="csHighlight">
-        <div style="font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase;margin-bottom:6px">Shared Resource — Game Board</div>
-        <div class="cs-board-mini" id="csMini"></div>
-        <div style="font-size:9px;color:var(--mist);margin-top:8px;text-align:center;letter-spacing:.5px" id="csStatus">Board state: idle</div>
+      <!-- Critical section board -->
+      <div class="cs-section">
+        <div class="cs-label">Shared Resource — Game Board (Critical Section)</div>
+        <div class="cs-board" id="csBoard"></div>
+        <div class="cs-status" id="csStatus">Board state: idle</div>
       </div>
 
-      <div class="verdict-row hidden" id="verdictRow">
+      <!-- Verdict -->
+      <div class="verdict-grid hidden" id="verdictRow">
         <div class="verdict-card vc-unsafe">
           <div class="vc-icon">💥</div>
-          <div><div class="vc-title">Without Semaphore</div><div class="vc-body" id="unsafeText">—</div></div>
+          <div>
+            <div class="vc-title">Without Semaphore</div>
+            <div class="vc-body" id="unsafeText">—</div>
+          </div>
         </div>
         <div class="verdict-card vc-safe">
           <div class="vc-icon">✅</div>
-          <div><div class="vc-title">With Semaphore</div><div class="vc-body" id="safeText">—</div></div>
+          <div>
+            <div class="vc-title">With Semaphore</div>
+            <div class="vc-body" id="safeText">—</div>
+          </div>
         </div>
       </div>
 
+      <!-- Event log -->
       <div>
-        <div style="font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase;margin-bottom:6px">Event Log</div>
-        <div class="event-log" id="eventLog"><span class="el-line el-head">[ Waiting for demo… ]</span></div>
+        <div style="font-size:8px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:6px">Event Log — Thread Execution Trace</div>
+        <div class="event-log" id="eventLog">
+          <span class="el-line el-head">[ Click a demo button to begin… ]</span>
+        </div>
       </div>
 
     </div>
@@ -576,38 +705,40 @@ canvas.lcs-canvas{width:100%;height:100%}
 </div>
 </div><!-- /view-sem -->
 
-<!-- ═══════════ VIEW: ANALYTICS ═══════════ -->
+<!-- ═══════════ ANALYTICS VIEW ═══════════ -->
 <div class="view" id="view-analytics">
-<div class="ana-wrap">
+<div class="ana-page">
 
   <!-- Strategy Compare (full width) -->
   <div class="ana-card">
     <div class="ana-head">
-      <span class="ana-head-title">Strategy Comparison — Edit Distance Analysis</span>
+      <span class="ana-head-title">Strategy Comparison — Edit Distance &amp; LCS Analysis</span>
       <button class="btn btn-amber" id="stratCompareBtn" style="padding:5px 12px;font-size:9px">Compare ▶</button>
     </div>
-    <div class="ana-body" style="display:flex;flex-direction:column;gap:12px">
+    <div class="ana-body">
       <div class="strat-grid">
         <div class="strat-col">
           <div class="strat-sym sx">X</div>
           <div class="strat-name" id="anaNameX">—</div>
           <div class="strat-seq" id="xSeq">—</div>
-          <div class="strat-seq-lbl">Move Sequence</div>
+          <div class="strat-seq-lbl">Move Sequence (RC encoded)</div>
         </div>
-        <div class="strat-center">
+        <div class="strat-mid">
           <div class="strat-pct" id="stratPct">—</div>
-          <div class="strat-pct-lbl">SIMILARITY</div>
-          <div style="font-size:9px;color:var(--mist);margin-top:3px">ED: <span id="stratEd">—</span></div>
-          <div class="track" style="margin-top:6px;width:60px"><div class="fill" id="stratFill" style="width:0%"></div></div>
+          <div class="strat-pct-lbl">LCS SIM %</div>
+          <div class="strat-ed">ED: <span id="stratEd">—</span></div>
+          <div class="track" style="margin-top:5px;width:60px">
+            <div class="fill" id="stratFill" style="width:0%"></div>
+          </div>
         </div>
         <div class="strat-col">
           <div class="strat-sym so">O</div>
           <div class="strat-name" id="anaNameO">—</div>
           <div class="strat-seq" id="oSeq">—</div>
-          <div class="strat-seq-lbl">Move Sequence</div>
+          <div class="strat-seq-lbl">Move Sequence (RC encoded)</div>
         </div>
       </div>
-      <div class="strat-report strat-neutral" id="stratReport">Play moves then click Compare</div>
+      <div class="strat-report sr-neutral" id="stratReport">Play moves then click Compare</div>
     </div>
   </div>
 
@@ -617,36 +748,58 @@ canvas.lcs-canvas{width:100%;height:100%}
     <div class="ana-card">
       <div class="ana-head"><span class="ana-head-title">Move Frequency Heatmap</span></div>
       <div class="ana-body">
-        <div class="heatmap-grid" id="heatmap"></div>
-        <div style="display:flex;gap:16px;margin-top:10px;font-size:9px;color:var(--mist)">
+        <div class="heatmap" id="heatmap"></div>
+        <div style="display:flex;gap:14px;margin-top:10px;font-size:8px;color:var(--text2)">
           <span>■ <span style="color:var(--amber)">X moves</span></span>
           <span>■ <span style="color:var(--blue)">O moves</span></span>
-          <span>■ Mixed</span>
+          <span>■ <span style="color:var(--text2)">Mixed</span></span>
         </div>
       </div>
     </div>
 
-    <!-- Game Stats -->
+    <!-- Match Stats -->
     <div class="ana-card">
       <div class="ana-head"><span class="ana-head-title">Match Statistics</span></div>
       <div class="ana-body">
-        <table class="stats-tbl" id="statsTable">
+        <table class="stats-tbl">
           <tr><td>Total Moves</td><td id="sTotalMoves">0</td></tr>
           <tr><td>X Moves</td><td id="sXMoves">0</td></tr>
           <tr><td>O Moves</td><td id="sOMoves">0</td></tr>
           <tr><td>Unique States</td><td id="sUnique">1</td></tr>
           <tr><td>Max Repeat</td><td id="sMaxRep">1×</td></tr>
-          <tr><td>Peak Similarity</td><td id="sPeakSim">—</td></tr>
+          <tr><td>Peak LCS Sim</td><td id="sPeakSim">—</td></tr>
           <tr><td>Min Edit Dist</td><td id="sMinEd">—</td></tr>
           <tr><td>Draw Warnings</td><td id="sDrawWarn">0</td></tr>
         </table>
       </div>
     </div>
 
-    <!-- Move Distribution -->
+    <!-- 20+ Move History Table -->
     <div class="ana-card" style="grid-column:1/-1">
-      <div class="ana-head"><span class="ana-head-title">Cell Play Distribution</span></div>
-      <div class="ana-body" id="distBody" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px">
+      <div class="ana-head">
+        <span class="ana-head-title">Full Move History (20+ moves)</span>
+        <span style="font-size:9px;color:var(--text2)" id="moveHistCount">0 moves recorded</span>
+      </div>
+      <div class="ana-body" style="padding:0">
+        <div class="mh-wrap">
+          <table class="move-history" id="moveHistTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Cell (R,C)</th>
+                <th>Board State</th>
+                <th>LCS</th>
+                <th>Edit Dist</th>
+                <th>Repeats</th>
+                <th>Event</th>
+              </tr>
+            </thead>
+            <tbody id="moveHistBody">
+              <tr><td colspan="8" style="text-align:center;padding:16px;color:var(--text3)">No moves yet</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -655,18 +808,22 @@ canvas.lcs-canvas{width:100%;height:100%}
 </div><!-- /view-analytics -->
 
 <script>
-// ══════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 //  TURNENGINE — main script
-// ══════════════════════════════════════════
+//  Deliverables:
+//  1. LCS & Edit Distance on RC-encoded move sequences
+//  2. Threefold repetition detection
+//  3. 20+ move simulation with full history table
+//  4. Strategy similarity report (bonus)
+//  5. Semaphore demo with race condition before/after
+// ══════════════════════════════════════════════════════════════
 
-const P1 = sessionStorage.getItem('p1Name') || 'ALPHA';
-const P2 = sessionStorage.getItem('p2Name') || 'OMEGA';
-['nameX','anaNameX'].forEach(id=>document.getElementById(id).textContent=P1);
-['nameO','anaNameO'].forEach(id=>document.getElementById(id).textContent=P2);
-document.getElementById('stratNameX') && (document.getElementById('stratNameX').textContent=P1);
-document.getElementById('stratNameO') && (document.getElementById('stratNameO').textContent=P2);
+const P1 = sessionStorage.getItem('p1Name') || '{{ player1 }}' || 'ALPHA';
+const P2 = sessionStorage.getItem('p2Name') || '{{ player2 }}' || 'OMEGA';
+['nameX','anaNameX'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=P1});
+['nameO','anaNameO'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=P2});
 
-// ── Tabs ──
+// ── Tabs ──────────────────────────────────────────────────────
 document.querySelectorAll('.tab').forEach(t=>{
   t.addEventListener('click',()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -676,33 +833,29 @@ document.querySelectorAll('.tab').forEach(t=>{
     if(t.dataset.tab==='analytics') refreshAnalytics();
   });
 });
-// init first view
 document.getElementById('view-game').classList.add('active');
 
-// ──────────────────────────────────────────
-//  GAME STATE
-// ──────────────────────────────────────────
+// ── Game State ────────────────────────────────────────────────
 const G={
   board:Array(9).fill('.'),
   turn:'X', over:false, moveNum:0,
-  xMoves:[], oMoves:[],
-  stateLog:[], repeatMap:{}, history:[],
+  xMoves:[], oMoves:[],          // RC-encoded: ["00","12","21"]
+  stateLog:[], repeatMap:{},
+  history:[],                    // undo stack
   simHistory:[], edHistory:[],
   drawWarnCount:0,
-  cellCount:Array(10).fill(0) // index 0 unused; 1-9 for X; then reuse with 'O'
+  moveLog:[],                    // full ordered log for 20+ history table
 };
 const xCell=Array(9).fill(0);
 const oCell=Array(9).fill(0);
 const WIN_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-const SIM_THRESH=0.80;
+const SIM_THRESH=0.60;  // 60% — matches backend threshold
 
 function bStr(){return G.board.join('')}
-
 G.stateLog=[bStr()];
 
-// ──────────────────────────────────────────
-//  ALGORITHMS
-// ──────────────────────────────────────────
+// ── DP Algorithms ─────────────────────────────────────────────
+// LCS on RC-encoded move sequences
 function lcsLen(a,b){
   const m=a.length,n=b.length;
   const dp=Array.from({length:m+1},()=>new Int32Array(n+1));
@@ -710,18 +863,22 @@ function lcsLen(a,b){
     dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
   return dp[m][n];
 }
-function lcsSim(a,b){if(!a||!b)return 0;return lcsLen(a,b)/Math.max(a.length,b.length);}
+function lcsSim(a,b){
+  if(!a||!b)return 0;
+  return lcsLen(a,b)/Math.max(a.length,b.length);
+}
+// Edit Distance (Levenshtein) on RC-encoded move sequences
 function editDist(a,b){
   const m=a.length,n=b.length;
-  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  const dp=Array.from({length:m+1},(_,i)=>
+    Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
   for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
-    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:
+      1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
   return dp[m][n];
 }
 
-// ──────────────────────────────────────────
-//  RENDER BOARD
-// ──────────────────────────────────────────
+// ── Board Render ──────────────────────────────────────────────
 function renderBoard(){
   const el=document.getElementById('gameBoard');
   el.innerHTML='';
@@ -729,7 +886,7 @@ function renderBoard(){
     const c=document.createElement('div');
     c.className='cell'+(v!=='.'?' '+(v==='X'?'cx':'co')+' taken':'');
     c.textContent=v!=='.'?v:'';
-    if(v==='.')c.addEventListener('click',()=>handleClick(i));
+    if(v==='.'&&!G.over)c.addEventListener('click',()=>handleClick(i));
     el.appendChild(c);
   });
 }
@@ -737,164 +894,184 @@ function renderBoard(){
 function updateTurnUI(){
   const isX=G.turn==='X';
   const cx=document.getElementById('chipX'),co=document.getElementById('chipO');
-  cx.className='pchip p-x'+(isX?' active-x':'');
-  co.className='pchip p-o'+(isX?'':' active-o');
+  cx.className='pchip px'+(isX?' ax':'');
+  co.className='pchip po'+(isX?'':' ao');
   document.getElementById('statX').textContent=isX?'YOUR TURN':'WAITING';
   document.getElementById('statO').textContent=isX?'WAITING':'YOUR TURN';
-  document.getElementById('turnName').textContent=isX?P1:P2;
-  document.getElementById('turnSym').textContent=isX?'(X)':'(O)';
-  document.getElementById('turnPip').className='turn-pip blink '+(isX?'':'blue');
+  const name=isX?P1:P2;
+  document.getElementById('turnLabel').textContent=`${name}'s turn (${G.turn})`;
+  const dot=document.getElementById('turnDot');
+  dot.className='turn-dot'+(isX?'':' blue');
   document.getElementById('stateStr').textContent=bStr();
   document.getElementById('hdrMove').textContent=G.moveNum;
 }
 
-// ──────────────────────────────────────────
-//  LCS CHART (canvas)
-// ──────────────────────────────────────────
-function drawLCSChart(){
+// ── Chart ─────────────────────────────────────────────────────
+function drawChart(){
   const canvas=document.getElementById('lcsCanvas');
   const wrap=canvas.parentElement;
-  canvas.width=wrap.offsetWidth||260;
-  canvas.height=wrap.offsetHeight||70;
+  canvas.width=wrap.offsetWidth||260;canvas.height=wrap.offsetHeight||64;
   const W=canvas.width,H=canvas.height;
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,W,H);
-
-  // threshold line
+  // threshold line at 60%
   ctx.beginPath();ctx.setLineDash([3,3]);
-  ctx.strokeStyle='rgba(224,82,82,0.4)';ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(248,81,73,0.4)';ctx.lineWidth=1;
   const ty=(1-SIM_THRESH)*H;ctx.moveTo(0,ty);ctx.lineTo(W,ty);ctx.stroke();
   ctx.setLineDash([]);
-
-  const simD=G.simHistory;
-  const edD=G.edHistory;
-
   function drawLine(data,color,maxVal=1){
     if(data.length<2)return;
     const step=W/(data.length-1);
     ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;
     data.forEach((v,i)=>{
-      const x=i*step;const y=(1-(v/maxVal))*H;
+      const x=i*step,y=(1-(v/maxVal))*H;
       i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
     });
     ctx.stroke();
-    // dots
     ctx.fillStyle=color;
     data.forEach((v,i)=>{
-      const x=i*step;const y=(1-(v/maxVal))*H;
-      ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(i*step,(1-(v/maxVal))*H,2.5,0,Math.PI*2);ctx.fill();
     });
   }
-
-  const maxED=Math.max(...edD,1);
-  drawLine(simD,'rgba(232,168,50,0.85)',1);
-  drawLine(edD.map(v=>v/maxED),'rgba(106,184,232,0.65)',1);
+  const maxED=Math.max(...G.edHistory,1);
+  drawLine(G.simHistory,'rgba(240,165,0,0.85)',1);
+  drawLine(G.edHistory.map(v=>v/maxED),'rgba(88,166,255,0.65)',1);
 }
+</script>
 
-// ──────────────────────────────────────────
-//  ANALYSIS
-// ──────────────────────────────────────────
+<script>
+// ── Analysis — RC-encoded move sequences ─────────────────────
+// xSeq = G.xMoves.join('') e.g. "001221"
+// oSeq = G.oMoves.join('') e.g. "011020"
+// LCS finds shared row/col digit patterns → meaningful similarity
+// EditDist counts ops to convert X's strategy string into O's
 function runAnalysis(){
-  const log=G.stateLog;
-  const cur=log[log.length-1];
+  const cur=bStr();
   G.repeatMap[cur]=(G.repeatMap[cur]||0)+1;
   const reps=G.repeatMap[cur];
+
+  // Threefold pips
   document.getElementById('repVal').textContent=reps+'×';
-  document.getElementById('repVal').className='mc-val'+(reps>=3?' red':reps>=2?' amber':'');
-  // pips
+  document.getElementById('repVal').className='mc-val'+(reps>=3?' red':reps>=2?' amber':' purple');
   for(let k=0;k<3;k++)document.getElementById('pip'+k).classList.toggle('lit',k<reps);
-  // threefold
   const tfAlert=document.getElementById('threefoldAlert');
   reps>=3?tfAlert.classList.remove('hidden'):tfAlert.classList.add('hidden');
+  document.getElementById('uniqueVal').textContent=Object.keys(G.repeatMap).length;
 
-  // unique
-  const uq=Object.keys(G.repeatMap).length;
-  document.getElementById('uniqueVal').textContent=uq;
+  // Build RC-encoded sequences
+  const xSeq=G.xMoves.join('');   // e.g. "001221"
+  const oSeq=G.oMoves.join('');   // e.g. "011020"
 
-  // LCS vs -2
-  const ci=log.length-1-2;
-  if(ci<0){
+  if(!xSeq||!oSeq){
     ['simPct','edVal','lcsVal'].forEach(id=>document.getElementById(id).textContent='—');
     document.getElementById('simFill').style.width='0%';
-    document.getElementById('simNote').textContent=`Need 3+ states (have ${log.length})`;
+    document.getElementById('simNote').textContent='Waiting for both players to move…';
     document.getElementById('drawAlert').classList.add('hidden');
-    drawLCSChart();
-    return;
+    drawChart();return;
   }
-  const prev=log[ci];
-  const sim=lcsSim(cur,prev);
-  const ll=lcsLen(cur,prev);
-  const ed=editDist(cur,prev);
+
+  // Run DP algorithms
+  const ll=lcsLen(xSeq,oSeq);
+  const sim=lcsSim(xSeq,oSeq);   // 0.0–1.0
+  const ed=editDist(xSeq,oSeq);
   const pct=Math.round(sim*100);
 
   G.simHistory.push(sim);
   G.edHistory.push(ed);
 
-  document.getElementById('simPct').textContent=pct+'%';
-  document.getElementById('simPct').className='sim-pct'+(sim>=SIM_THRESH?' danger':'');
-  document.getElementById('simFill').style.width=pct+'%';
-  document.getElementById('simFill').className='fill'+(sim>=SIM_THRESH?' danger':'');
-  document.getElementById('simNote').textContent=`Comparing state #${log.length-1} vs #${ci+1}`;
+  // Update meters
+  const simEl=document.getElementById('simPct');
+  simEl.textContent=pct+'%';
+  simEl.className='sim-pct'+(sim>=SIM_THRESH?' hi':sim>=0.4?' mid':'');
+  const fill=document.getElementById('simFill');
+  fill.style.width=pct+'%';
+  fill.className='fill'+(sim>=SIM_THRESH?' hi':sim>=0.4?' mid':'');
+
+  // Show sequences under meter
+  const fmt=arr=>arr.map(rc=>`(${rc[0]},${rc[1]})`).join('→');
+  document.getElementById('simNote').textContent=
+    `X:[${fmt(G.xMoves)}]  vs  O:[${fmt(G.oMoves)}]`;
+
   document.getElementById('lcsVal').textContent=ll;
   document.getElementById('edVal').textContent=ed;
 
+  // Draw alert
   const da=document.getElementById('drawAlert');
   if(sim>=SIM_THRESH){
     da.classList.remove('hidden');
-    document.getElementById('drawAlertTxt').textContent=`Similarity ${pct}% ≥ ${Math.round(SIM_THRESH*100)}% threshold — possible stalling`;
+    document.getElementById('drawAlertTxt').textContent=
+      `LCS similarity ${pct}% ≥ ${Math.round(SIM_THRESH*100)}% threshold — `+
+      `X seq "${xSeq}" and O seq "${oSeq}" share ${ll} common chars. `+
+      `Edit distance = ${ed}.`;
     G.drawWarnCount++;
+    document.getElementById('anaAlert').classList.add('show');
   } else {
     da.classList.add('hidden');
   }
-
-  drawLCSChart();
+  drawChart();
 }
 
-// ──────────────────────────────────────────
-//  TIMELINE
-// ──────────────────────────────────────────
+// ── Timeline entry ────────────────────────────────────────────
 function addTL(idx,player,state,num){
   const tl=document.getElementById('timeline');
   const em=tl.querySelector('.tl-empty');if(em)em.remove();
   const reps=G.repeatMap[state]||1;
-  const repBadge=reps>1?`<span class="tl-badge tl-badge-rep">×${reps}</span>`:'';
+  const repBadge=reps>1?`<span class="tl-badge">×${reps}</span>`:'';
+  const xSeq=G.xMoves.join(''),oSeq=G.oMoves.join('');
+  const ll=xSeq&&oSeq?lcsLen(xSeq,oSeq):0;
+  const ed=xSeq&&oSeq?editDist(xSeq,oSeq):'—';
   const item=document.createElement('div');
   item.className='tl-item';
+  const rc=`(${Math.floor(idx/3)},${idx%3})`;
   item.innerHTML=`
     <span class="tl-num">#${String(num).padStart(2,'0')}</span>
     <span class="tl-dot tl-dot-${player.toLowerCase()}"></span>
     <div class="tl-content">
       <div class="tl-state">${state}${repBadge}</div>
-      <div class="tl-meta">${player} → cell[${idx}] · sim:${document.getElementById('simPct').textContent}</div>
+      <div class="tl-meta">${player==='X'?P1:P2} (${player}) → cell ${rc}</div>
+      <div class="tl-analysis">LCS=${ll} · ED=${ed} · repeats=${reps}</div>
     </div>`;
   tl.appendChild(item);
   tl.scrollTop=tl.scrollHeight;
 }
 
-// ──────────────────────────────────────────
-//  MOVE LOGIC
-// ──────────────────────────────────────────
+// ── Move Logic ────────────────────────────────────────────────
 function handleClick(idx){if(G.over||G.board[idx]!=='.')return;commitMove(idx);}
 
 function commitMove(idx){
+  // Save undo snapshot
   G.history.push({board:[...G.board],turn:G.turn,moveNum:G.moveNum,
     xMoves:[...G.xMoves],oMoves:[...G.oMoves],
     stateLog:[...G.stateLog],repeatMap:{...G.repeatMap},
     simHistory:[...G.simHistory],edHistory:[...G.edHistory],
-    drawWarnCount:G.drawWarnCount});
+    drawWarnCount:G.drawWarnCount,moveLog:[...G.moveLog]});
+
   G.board[idx]=G.turn;G.moveNum++;
-  if(G.turn==='X'){G.xMoves.push(String(idx));xCell[idx]++;}
-  else{G.oMoves.push(String(idx));oCell[idx]++;}
+  // RC encoding: row=floor(idx/3), col=idx%3
+  const rc=String(Math.floor(idx/3))+String(idx%3);
+  if(G.turn==='X'){G.xMoves.push(rc);xCell[idx]++;}
+  else{G.oMoves.push(rc);oCell[idx]++;}
+
   const s=bStr();G.stateLog.push(s);
+
+  // Run analysis BEFORE adding to log so we capture current values
+  const xSeq=G.xMoves.join(''),oSeq=G.oMoves.join('');
+  const ll=xSeq&&oSeq?lcsLen(xSeq,oSeq):0;
+  const ed=xSeq&&oSeq?editDist(xSeq,oSeq):0;
+  const sim=xSeq&&oSeq?Math.round(lcsSim(xSeq,oSeq)*100):0;
+  const reps=(G.repeatMap[s]||0)+1;
+
+  G.moveLog.push({num:G.moveNum,player:G.turn,idx,rc,state:s,
+    lcs:ll,ed,sim,reps});
+
   renderBoard();updateTurnUI();runAnalysis();addTL(idx,G.turn,s,G.moveNum);
 
   const win=checkWin();
   if(win){
-    G.over=true;
-    highlightWin(win.line);
+    G.over=true;highlightWin(win.line);
     const wn=win.w==='X'?P1:P2;
     const msg=document.getElementById('boardMsg');
-    msg.textContent=`🏆 ${wn} wins!`;msg.className='board-msg win-msg';
+    msg.textContent=`🏆 ${wn} wins!`;msg.className='board-msg win';
     const ov=document.getElementById('boardOverlay');
     ov.textContent=`${wn} WINS`;ov.style.display='flex';
     document.getElementById('hdrStatus').textContent='GAME OVER';
@@ -903,7 +1080,7 @@ function commitMove(idx){
   if(G.board.every(c=>c!=='.')){
     G.over=true;
     const msg=document.getElementById('boardMsg');
-    msg.textContent='⚖ Draw — board full';msg.className='board-msg draw-msg';
+    msg.textContent='⚖ Draw — board full';msg.className='board-msg draw';
     const ov=document.getElementById('boardOverlay');
     ov.textContent='DRAW';ov.style.display='flex';
     document.getElementById('hdrStatus').textContent='DRAW';
@@ -919,27 +1096,24 @@ function checkWin(){
       return{w:G.board[a],line:[a,b,c]};
   return null;
 }
-
 function highlightWin(line){
   const cells=document.getElementById('gameBoard').children;
   const cls=G.board[line[0]]==='X'?'win-x':'win-o';
   line.forEach(i=>cells[i].classList.add(cls));
 }
 
-// ──────────────────────────────────────────
-//  RESET
-// ──────────────────────────────────────────
+// ── Reset ─────────────────────────────────────────────────────
 function resetGame(){
   Object.assign(G,{board:Array(9).fill('.'),turn:'X',over:false,moveNum:0,
     xMoves:[],oMoves:[],stateLog:[],repeatMap:{},history:[],
-    simHistory:[],edHistory:[],drawWarnCount:0});
+    simHistory:[],edHistory:[],drawWarnCount:0,moveLog:[]});
   xCell.fill(0);oCell.fill(0);
   G.stateLog=[bStr()];
   renderBoard();updateTurnUI();
   ['simPct','edVal','lcsVal','repVal'].forEach(id=>document.getElementById(id).textContent='—');
   document.getElementById('uniqueVal').textContent='1';
   document.getElementById('simFill').style.width='0%';
-  document.getElementById('simNote').textContent='Needs 3+ states to compare';
+  document.getElementById('simNote').textContent='Waiting for both players to move…';
   ['drawAlert','threefoldAlert'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   for(let k=0;k<3;k++)document.getElementById('pip'+k).classList.remove('lit');
   document.getElementById('timeline').innerHTML='<div class="tl-empty">No moves yet</div>';
@@ -947,115 +1121,119 @@ function resetGame(){
   document.getElementById('boardOverlay').style.display='none';
   document.getElementById('hdrStatus').textContent='READY';
   document.getElementById('anaAlert').classList.remove('show');
-  drawLCSChart();
+  drawChart();
 }
+document.getElementById('resetBtn').addEventListener('click',resetGame);
 
-// ──────────────────────────────────────────
-//  UNDO
-// ──────────────────────────────────────────
+// ── Undo ──────────────────────────────────────────────────────
 document.getElementById('undoBtn').addEventListener('click',()=>{
   if(!G.history.length)return;
   const s=G.history.pop();
   Object.assign(G,{board:s.board,turn:s.turn,moveNum:s.moveNum,
     xMoves:s.xMoves,oMoves:s.oMoves,stateLog:s.stateLog,
     repeatMap:s.repeatMap,simHistory:s.simHistory,edHistory:s.edHistory,
-    drawWarnCount:s.drawWarnCount,over:false});
-  // rebuild xCell/oCell
+    drawWarnCount:s.drawWarnCount,moveLog:s.moveLog,over:false});
   xCell.fill(0);oCell.fill(0);
-  G.xMoves.forEach(m=>xCell[+m]++);
-  G.oMoves.forEach(m=>oCell[+m]++);
+  G.xMoves.forEach(rc=>xCell[+rc[0]*3+ +rc[1]]++);
+  G.oMoves.forEach(rc=>oCell[+rc[0]*3+ +rc[1]]++);
   renderBoard();updateTurnUI();
-  const msg=document.getElementById('boardMsg');msg.textContent='';msg.className='board-msg';
+  document.getElementById('boardMsg').textContent='';
+  document.getElementById('boardMsg').className='board-msg';
   document.getElementById('boardOverlay').style.display='none';
   document.getElementById('hdrStatus').textContent='READY';
-  // Re-run analysis on last recorded state
-  if(G.stateLog.length>1){
-    // just refresh metrics from last known values
-    const log=G.stateLog;
-    const cur=log[log.length-1];
-    const reps=G.repeatMap[cur]||0;
-    document.getElementById('repVal').textContent=reps?reps+'×':'—';
-    document.getElementById('uniqueVal').textContent=Object.keys(G.repeatMap).length;
-    for(let k=0;k<3;k++)document.getElementById('pip'+k).classList.toggle('lit',k<reps);
-    if(reps<3)document.getElementById('threefoldAlert').classList.add('hidden');
-    const ci=log.length-1-2;
-    if(ci>=0){
-      const prev=log[ci];
-      const sim=lcsSim(cur,prev);
-      const ll=lcsLen(cur,prev);
-      const ed=editDist(cur,prev);
-      const pct=Math.round(sim*100);
-      document.getElementById('simPct').textContent=pct+'%';
-      document.getElementById('simFill').style.width=pct+'%';
-      document.getElementById('lcsVal').textContent=ll;
-      document.getElementById('edVal').textContent=ed;
-    }
-    drawLCSChart();
+  // Recompute analysis from move sequences
+  const xSeq=G.xMoves.join(''),oSeq=G.oMoves.join('');
+  if(xSeq&&oSeq){
+    const ll=lcsLen(xSeq,oSeq),sim=lcsSim(xSeq,oSeq),ed=editDist(xSeq,oSeq),pct=Math.round(sim*100);
+    document.getElementById('simPct').textContent=pct+'%';
+    document.getElementById('simFill').style.width=pct+'%';
+    document.getElementById('lcsVal').textContent=ll;
+    document.getElementById('edVal').textContent=ed;
+    const fmt=arr=>arr.map(rc=>`(${rc[0]},${rc[1]})`).join('→');
+    document.getElementById('simNote').textContent=`X:[${fmt(G.xMoves)}]  vs  O:[${fmt(G.oMoves)}]`;
   } else {
     ['simPct','edVal','lcsVal'].forEach(id=>document.getElementById(id).textContent='—');
     document.getElementById('simFill').style.width='0%';
-    document.getElementById('drawAlert').classList.add('hidden');
-    drawLCSChart();
+    document.getElementById('simNote').textContent='Waiting for both players to move…';
   }
-  // rebuild timeline
+  const cur=bStr();const reps=G.repeatMap[cur]||0;
+  document.getElementById('repVal').textContent=reps?reps+'×':'—';
+  document.getElementById('uniqueVal').textContent=Object.keys(G.repeatMap).length;
+  for(let k=0;k<3;k++)document.getElementById('pip'+k).classList.toggle('lit',k<reps);
+  if(reps<3)document.getElementById('threefoldAlert').classList.add('hidden');
+  // Rebuild timeline
   const tl=document.getElementById('timeline');
   tl.innerHTML=G.moveNum===0?'<div class="tl-empty">No moves yet</div>':'';
-  const moves=[...G.xMoves.map((m,i)=>({idx:+m,p:'X',n:i*2+1})),...G.oMoves.map((m,i)=>({idx:+m,p:'O',n:i*2+2}))].sort((a,b)=>a.n-b.n);
-  moves.forEach(mv=>{
-    const st=G.stateLog[mv.n];if(!st)return;
-    const reps=G.repeatMap[st]||1;
-    const repB=reps>1?`<span class="tl-badge tl-badge-rep">×${reps}</span>`:'';
+  G.moveLog.forEach(mv=>{
+    const em=tl.querySelector('.tl-empty');if(em)em.remove();
+    const rp=G.repeatMap[mv.state]||1;
+    const rb=rp>1?`<span class="tl-badge">×${rp}</span>`:'';
     const item=document.createElement('div');item.className='tl-item';
-    item.innerHTML=`<span class="tl-num">#${String(mv.n).padStart(2,'0')}</span><span class="tl-dot tl-dot-${mv.p.toLowerCase()}"></span><div class="tl-content"><div class="tl-state">${st}${repB}</div><div class="tl-meta">${mv.p} → cell[${mv.idx}]</div></div>`;
+    item.innerHTML=`<span class="tl-num">#${String(mv.num).padStart(2,'0')}</span>
+      <span class="tl-dot tl-dot-${mv.player.toLowerCase()}"></span>
+      <div class="tl-content">
+        <div class="tl-state">${mv.state}${rb}</div>
+        <div class="tl-meta">${mv.player==='X'?P1:P2} (${mv.player}) → cell (${Math.floor(mv.idx/3)},${mv.idx%3})</div>
+        <div class="tl-analysis">LCS=${mv.lcs} · ED=${mv.ed} · repeats=${mv.reps}</div>
+      </div>`;
     tl.appendChild(item);
   });
+  tl.scrollTop=tl.scrollHeight;
+  drawChart();
 });
+</script>
 
-// ──────────────────────────────────────────
-//  AUTO-SIM (20+ moves, shows threefold)
-// ──────────────────────────────────────────
+<script>
+// ── Auto-Sim: 3 games = 27+ moves ────────────────────────────
+// Game 1: full draw (9 moves)
+// Game 2: threefold repetition (3-move opening × 3, then fill = 15 moves)
+// Game 3: strategy similarity draw detection (9 moves)
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 document.getElementById('autoSimBtn').addEventListener('click',async()=>{
-  resetGame();await sleep(300);
-  // Play a game that creates repeating states
-  const seq1=[0,4,1,3,8,6,2,5,7]; // draw
-  for(const i of seq1){if(G.over)break;commitMove(i);await sleep(280);}
-  await sleep(500);resetGame();await sleep(300);
-  // Repeat opening to force threefold
+  resetGame();
+  const btn=document.getElementById('autoSimBtn');
+  btn.disabled=true;btn.textContent='⏳ Simulating…';
+  await sleep(400);
+
+  // GAME 1: Full board draw
+  for(const i of [4,0,2,6,8,1,3,5,7]){if(G.over)break;commitMove(i);await sleep(300);}
+  await sleep(700);resetGame();await sleep(350);
+
+  // GAME 2: Threefold repetition
+  // Play opening [0,4,8], undo 3 times, then fill board
   const opening=[0,4,8];
-  for(let r=0;r<3;r++){
-    for(const i of opening){commitMove(i);await sleep(300);}
-    if(r<2){// undo all
-      for(let k=0;k<opening.length;k++){
-        if(G.history.length){
-          const s=G.history.pop();
-          Object.assign(G,{board:s.board,turn:s.turn,moveNum:s.moveNum,
-            xMoves:s.xMoves,oMoves:s.oMoves,stateLog:s.stateLog,
-            repeatMap:s.repeatMap,simHistory:s.simHistory,edHistory:s.edHistory,
-            drawWarnCount:s.drawWarnCount,over:false});
-          xCell.fill(0);oCell.fill(0);G.xMoves.forEach(m=>xCell[+m]++);G.oMoves.forEach(m=>oCell[+m]++);
-          renderBoard();updateTurnUI();drawLCSChart();
-        }
-        await sleep(180);
+  for(let rep=0;rep<3;rep++){
+    for(const i of opening){commitMove(i);await sleep(280);}
+    if(rep<2){
+      for(let k=0;k<3;k++){
+        if(!G.history.length)break;
+        const s=G.history.pop();
+        Object.assign(G,{board:s.board,turn:s.turn,moveNum:s.moveNum,
+          xMoves:s.xMoves,oMoves:s.oMoves,stateLog:s.stateLog,
+          repeatMap:s.repeatMap,simHistory:s.simHistory,edHistory:s.edHistory,
+          drawWarnCount:s.drawWarnCount,moveLog:s.moveLog,over:false});
+        xCell.fill(0);oCell.fill(0);
+        G.xMoves.forEach(rc=>xCell[+rc[0]*3+ +rc[1]]++);
+        G.oMoves.forEach(rc=>oCell[+rc[0]*3+ +rc[1]]++);
+        renderBoard();updateTurnUI();drawChart();
+        await sleep(200);
       }
       await sleep(300);
     }
   }
-  // Continue to fill board
-  const fills=[2,3,5,6,7,1];
-  for(const i of fills){if(G.over)break;commitMove(i);await sleep(300);}
+  await sleep(600);
+  for(const i of [2,3,1,5,6,7]){if(G.over)break;commitMove(i);await sleep(280);}
+  await sleep(700);resetGame();await sleep(350);
+
+  // GAME 3: Strategy similarity — both players target same rows
+  for(const i of [0,2,3,5,1,4,6,8,7]){if(G.over)break;commitMove(i);await sleep(300);}
+
   document.getElementById('anaAlert').classList.add('show');
+  btn.disabled=false;btn.textContent='▶ Simulate 20+';
 });
 
-// ──────────────────────────────────────────
-//  RESET BUTTON
-// ──────────────────────────────────────────
-document.getElementById('resetBtn').addEventListener('click',resetGame);
-
-// ──────────────────────────────────────────
-//  ANALYTICS
-// ──────────────────────────────────────────
+// ── Analytics ─────────────────────────────────────────────────
 function refreshAnalytics(){
   document.getElementById('sTotalMoves').textContent=G.moveNum;
   document.getElementById('sXMoves').textContent=G.xMoves.length;
@@ -1063,273 +1241,268 @@ function refreshAnalytics(){
   document.getElementById('sUnique').textContent=Object.keys(G.repeatMap).length;
   const maxRep=Math.max(...Object.values(G.repeatMap),1);
   document.getElementById('sMaxRep').textContent=maxRep+'×';
-  const peakSim=G.simHistory.length?Math.round(Math.max(...G.simHistory)*100)+'%':'—';
-  document.getElementById('sPeakSim').textContent=peakSim;
-  const minEd=G.edHistory.length?Math.min(...G.edHistory):'—';
-  document.getElementById('sMinEd').textContent=minEd;
+  document.getElementById('sPeakSim').textContent=
+    G.simHistory.length?Math.round(Math.max(...G.simHistory)*100)+'%':'—';
+  document.getElementById('sMinEd').textContent=
+    G.edHistory.length?Math.min(...G.edHistory):'—';
   document.getElementById('sDrawWarn').textContent=G.drawWarnCount;
 
-  // heatmap
+  // Heatmap
   const hm=document.getElementById('heatmap');hm.innerHTML='';
   const maxV=Math.max(...xCell,...oCell,1);
+  const names=['TL','TC','TR','ML','C','MR','BL','BC','BR'];
   for(let i=0;i<9;i++){
     const xv=xCell[i],ov=oCell[i],total=xv+ov;
-    const intX=xv/maxV,intO=ov/maxV;
     let bg,col;
-    if(xv>0&&ov>0){bg=`rgba(150,128,100,${0.1+total/maxV*.5})`;col='#ccc';}
-    else if(xv>0){bg=`rgba(232,168,50,${0.1+intX*.6})`;col='var(--amber)';}
-    else if(ov>0){bg=`rgba(106,184,232,${0.1+intO*.6})`;col='var(--blue)';}
-    else{bg='var(--ink-4)';col='var(--mist)';}
+    if(xv>0&&ov>0){bg=`rgba(150,128,100,${.1+total/maxV*.5})`;col='#ccc';}
+    else if(xv>0){bg=`rgba(240,165,0,${.1+xv/maxV*.6})`;col='var(--amber)';}
+    else if(ov>0){bg=`rgba(88,166,255,${.1+ov/maxV*.6})`;col='var(--blue)';}
+    else{bg='var(--bg4)';col='var(--text3)';}
     const c=document.createElement('div');
     c.className='hm-cell';c.style.background=bg;
-    c.innerHTML=`<div class="hm-n" style="color:${col}">${total||'·'}</div><div class="hm-lbl">CELL ${i}</div>`;
+    c.innerHTML=`<div class="hm-n" style="color:${col}">${total||'·'}</div><div class="hm-lbl">${names[i]}</div>`;
     hm.appendChild(c);
   }
 
-  // distribution
-  const db=document.getElementById('distBody');db.innerHTML='';
-  const names=['Top-L','Top-C','Top-R','Mid-L','Center','Mid-R','Bot-L','Bot-C','Bot-R'];
-  for(let i=0;i<9;i++){
-    const totX=xCell[i],totO=oCell[i],mx=Math.max(...xCell,...oCell,1);
-    const wrap=document.createElement('div');
-    wrap.innerHTML=`
-      <div style="font-size:9px;color:var(--mist);letter-spacing:1px;margin-bottom:3px">${names[i]} (${i})</div>
-      <div class="dist-row"><span class="dist-lbl">X</span><div class="dist-bar-wrap"><div class="dist-bar dist-bar-x" style="width:${totX/mx*100}%"></div></div><span class="dist-val">${totX}</span></div>
-      <div class="dist-row"><span class="dist-lbl">O</span><div class="dist-bar-wrap"><div class="dist-bar dist-bar-o" style="width:${totO/mx*100}%"></div></div><span class="dist-val">${totO}</span></div>`;
-    db.appendChild(wrap);
-  }
-
-  // strategy
-  document.getElementById('xSeq').textContent=G.xMoves.join('')||'—';
-  document.getElementById('oSeq').textContent=G.oMoves.join('')||'—';
+  // Strategy sequences
+  const fmtSeq=arr=>arr.length?arr.join('·'):'—';
+  document.getElementById('xSeq').textContent=fmtSeq(G.xMoves);
+  document.getElementById('oSeq').textContent=fmtSeq(G.oMoves);
   document.getElementById('anaNameX').textContent=P1;
   document.getElementById('anaNameO').textContent=P2;
+
+  // 20+ Move History Table
+  const tbody=document.getElementById('moveHistBody');
+  document.getElementById('moveHistCount').textContent=G.moveLog.length+' moves recorded';
+  if(!G.moveLog.length){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--text3)">No moves yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML='';
+  G.moveLog.forEach(mv=>{
+    const tr=document.createElement('tr');
+    const pcls=mv.player==='X'?'mx':'mo';
+    const event=mv.reps>=3?'♻ THREEFOLD':mv.sim>=60?'⚠ DRAW WARN':'';
+    tr.innerHTML=`
+      <td>${mv.num}</td>
+      <td class="${pcls}">${mv.player}</td>
+      <td>(${Math.floor(mv.idx/3)},${mv.idx%3})</td>
+      <td class="state-cell">${mv.state}</td>
+      <td class="lcs-cell">${mv.lcs}</td>
+      <td class="ed-cell">${mv.ed}</td>
+      <td class="rep-cell">${mv.reps}</td>
+      <td style="color:${mv.reps>=3?'var(--purple)':mv.sim>=60?'var(--amber)':'var(--text3)'}">${event}</td>`;
+    tbody.appendChild(tr);
+  });
 }
 
-// Strategy compare
+// Strategy compare button
 document.getElementById('stratCompareBtn').addEventListener('click',()=>{
   const xs=G.xMoves.join(''),os=G.oMoves.join('');
-  if(!xs||!os){document.getElementById('stratReport').textContent='Need moves from both players';return;}
-  const sim=lcsSim(xs,os);
-  const ed=editDist(xs,os);
-  const pct=Math.round(sim*100);
+  if(!xs||!os){
+    document.getElementById('stratReport').textContent='Need moves from both players first';
+    document.getElementById('stratReport').className='strat-report sr-neutral';
+    return;
+  }
+  const sim=lcsSim(xs,os),ed=editDist(xs,os),pct=Math.round(sim*100);
   document.getElementById('stratPct').textContent=pct+'%';
   document.getElementById('stratEd').textContent=ed;
   document.getElementById('stratFill').style.width=pct+'%';
   const rp=document.getElementById('stratReport');
-  if(pct>=70){rp.className='strat-report strat-similar';rp.textContent=`Highly similar strategies (${pct}%) — mirroring detected`;}
-  else if(pct>=40){rp.className='strat-report strat-moderate';rp.textContent=`Moderate overlap (${pct}%) — some shared patterns`;}
-  else{rp.className='strat-report strat-distinct';rp.textContent=`Distinct strategies (${pct}%) — divergent play styles`;}
+  if(pct>=70){
+    rp.className='strat-report sr-similar';
+    rp.textContent=`Highly similar strategies (${pct}%) — LCS=${lcsLen(xs,os)}, ED=${ed}. Possible mirroring!`;
+  } else if(pct>=40){
+    rp.className='strat-report sr-moderate';
+    rp.textContent=`Moderate overlap (${pct}%) — LCS=${lcsLen(xs,os)}, ED=${ed}. Some shared patterns.`;
+  } else {
+    rp.className='strat-report sr-distinct';
+    rp.textContent=`Distinct strategies (${pct}%) — LCS=${lcsLen(xs,os)}, ED=${ed}. Divergent play styles.`;
+  }
 });
+</script>
 
-// ══════════════════════════════════════════
-//  SEMAPHORE DEMO
-// ══════════════════════════════════════════
+<script>
+// ══════════════════════════════════════════════════════════════
+//  SEMAPHORE DEMO — step-by-step animated thread execution
+// ══════════════════════════════════════════════════════════════
 let semRunning=false;
 
-function semSetProc(p,state){
-  const badge=document.getElementById('p'+p+'Badge');
-  badge.className='proc-state-badge '+state;
-  badge.textContent=state.toUpperCase();
-}
-
-function semSetMutex(icon,sVal,note,cls=''){
-  const mi=document.getElementById('mutexIcon');
-  mi.textContent=icon;mi.className='mutex-icon'+(cls?' '+cls:'');
-  document.getElementById('semS').textContent=sVal;
-  document.getElementById('mutexNote').textContent=note;
-}
-
-function semLog(txt,cls=''){
-  const lb=document.getElementById('eventLog');
-  const line=document.createElement('span');
-  line.className='el-line'+(cls?' '+cls:'');
-  line.textContent=txt;
-  lb.appendChild(line);lb.scrollTop=lb.scrollHeight;
-}
-
-function clearSemLog(){document.getElementById('eventLog').innerHTML='';}
-
-function semAddQueue(p,items){
-  const q=document.getElementById('p'+p+'Queue');q.innerHTML='';
-  items.forEach((t,i)=>{
-    const d=document.createElement('div');
-    d.className='proc-queue-item'+(i===0?' active':'');
-    d.textContent=t;q.appendChild(d);
-  });
-}
-
-function semHighlightQueue(p,idx){
-  const items=document.getElementById('p'+p+'Queue').children;
-  [...items].forEach((el,i)=>el.classList.toggle('active',i===idx));
-}
-
-function initCSMini(board){
-  const el=document.getElementById('csMini');el.innerHTML='';
+function initCSBoard(board){
+  const el=document.getElementById('csBoard');el.innerHTML='';
   (board||Array(9).fill('.')).forEach(v=>{
     const c=document.createElement('div');
     c.className='cs-cell'+(v==='X'?' cx':v==='O'?' co':'');
     c.textContent=v!=='.'?v:'';el.appendChild(c);
   });
 }
-initCSMini();
+initCSBoard();
 
-function csStatus(txt){document.getElementById('csStatus').textContent=txt;}
-
-function setBoard(board){
-  initCSMini(board);
-  if(board[6]==='X'&&board[6]==='O'){}// conflict handled elsewhere
+function setProc(p,state,steps,activeStep){
+  const badge=document.getElementById('p'+p+'Badge');
+  badge.className='proc-badge '+state;badge.textContent=state.toUpperCase();
+  const stepsEl=document.getElementById('p'+p+'Steps');stepsEl.innerHTML='';
+  (steps||[]).forEach((txt,i)=>{
+    const d=document.createElement('div');
+    d.className='proc-step'+(i===activeStep?' active':i<activeStep?' done':'');
+    d.textContent=txt;stepsEl.appendChild(d);
+  });
 }
+function setMutex(icon,s,note,cls=''){
+  document.getElementById('mutexIcon').textContent=icon;
+  document.getElementById('mutexIcon').className='mutex-icon'+(cls?' '+cls:'');
+  document.getElementById('semS').textContent=s;
+  document.getElementById('mutexNote').textContent=note;
+}
+function semLog(txt,cls=''){
+  const lb=document.getElementById('eventLog');
+  const line=document.createElement('span');
+  line.className='el-line'+(cls?' '+cls:'');line.textContent=txt;
+  lb.appendChild(line);lb.scrollTop=lb.scrollHeight;
+}
+function clearLog(){document.getElementById('eventLog').innerHTML='';}
+
+const RACE_STEPS=['1. read_board()','2. write cell[6]=X','3. done'];
+const SAFE_P1_STEPS=['1. P(wait) — acquire','2. read_board()','3. write cell[6]=X','4. V(signal) — release'];
+const SAFE_P2_STEPS=['1. P(wait) — acquire','2. read_board()','3. write cell[7]=O','4. V(signal) — release'];
 
 document.getElementById('semResetBtn').addEventListener('click',()=>{
   semRunning=false;
-  semSetProc(1,'idle');semSetProc(2,'idle');
-  semSetMutex('🔓',1,'Click a demo to begin');
+  setProc(1,'idle',[]);setProc(2,'idle',[]);
+  setMutex('🔓',1,'Click a demo to begin');
   document.getElementById('verdictRow').classList.add('hidden');
-  clearSemLog();
+  clearLog();
   document.getElementById('eventLog').innerHTML='<span class="el-line el-head">[ Waiting for demo… ]</span>';
-  initCSMini();csStatus('Board state: idle');
-  document.getElementById('csHighlight').classList.remove('cs-corrupted');
+  initCSBoard();document.getElementById('csStatus').textContent='Board state: idle';
 });
 
 document.getElementById('raceBtn').addEventListener('click',async()=>{
   if(semRunning)return;semRunning=true;
-  clearSemLog();
-  document.getElementById('verdictRow').classList.add('hidden');
-  document.getElementById('csHighlight').classList.remove('cs-corrupted');
-  semLog('[ RACE CONDITION — NO SEMAPHORE PROTECTION ]','el-head');
+  clearLog();document.getElementById('verdictRow').classList.add('hidden');
+  semLog('[ RACE CONDITION DEMO — NO SEMAPHORE ]','el-head');
+  semLog('Two threads write to cell[6] simultaneously with no protection.','el-warn');
   await sleep(400);
 
   const board=['X','O','X','X','O','.','.','.','.'];
-  initCSMini(board);csStatus('Shared board — XOXXO.....');
+  initCSBoard(board);document.getElementById('csStatus').textContent='Shared board: XOXXO.....';
 
-  semSetProc(1,'running');semSetProc(2,'running');
-  semAddQueue(1,['1. read_board()','2. write cell[6]=X','3. done']);
-  semAddQueue(2,['1. read_board()','2. write cell[6]=O','3. done']);
-  semSetMutex('🔓','—','⚠ No semaphore — both threads run freely!','danger');
-
-  semLog('[P1] Spawned — reading board state…','el-warn');
-  semLog('[P2] Spawned — reading board state…','el-warn');
+  setProc(1,'running',RACE_STEPS,0);setProc(2,'running',RACE_STEPS,0);
+  setMutex('🔓','—','⚠ No semaphore — both threads run freely!','');
+  semLog('[T1] Spawned — reading board state…','el-warn');
+  semLog('[T2] Spawned — reading board state…','el-warn');
   await sleep(600);
 
-  semHighlightQueue(1,0);semHighlightQueue(2,0);
-  semLog('[P1] read(): XOXXO..... → plans to write cell[6]=X','el-warn');
-  await sleep(500);
-  semLog('[P2] read(): XOXXO..... → plans to write cell[6]=O','el-warn');
+  setProc(1,'running',RACE_STEPS,0);setProc(2,'running',RACE_STEPS,0);
+  semLog('[T1] read(): XOXXO..... → plans to write cell[6] = X','el-warn');
+  await sleep(450);
+  semLog('[T2] read(): XOXXO..... → plans to write cell[6] = O','el-warn');
+  await sleep(450);
+
+  setProc(1,'running',RACE_STEPS,1);setProc(2,'running',RACE_STEPS,1);
+  semLog('[T1] write(): cell[6] ← X','el-warn');
+  await sleep(300);
+  semLog('[T2] write(): cell[6] ← O  ← OVERWRITE CONFLICT!','el-err');
+
+  // Show corruption
+  const corrupt=['X','O','X','X','O','.','O','.','.']; // T2 wins the race
+  initCSBoard(corrupt);
+  document.getElementById('csBoard').children[6].classList.add('conflict');
+  document.getElementById('csStatus').textContent='⚠ CORRUPTED — cell[6] has conflicting writes!';
   await sleep(500);
 
-  semHighlightQueue(1,1);semHighlightQueue(2,1);
-  semLog('[P1] write(): cell[6] ← X','el-warn');
-  await sleep(350);
-  semLog('[P2] write(): cell[6] ← O  ← OVERWRITE CONFLICT!','el-err');
-
-  // Show conflict on board
-  const b1=['X','O','X','X','O','.','X','.','.']; // P1's view
-  const b2=['X','O','X','X','O','.','O','.','.']; // P2's view
-  initCSMini(b2);
-  document.getElementById('csHighlight').classList.add('cs-corrupted');
-  const conflictCell=document.getElementById('csMini').children[6];
-  conflictCell.classList.add('conflict');
-  csStatus('⚠ CORRUPTED — cell[6] has conflicting values!');
-
-  await sleep(500);
   semLog('','');
-  semLog('💥 RACE CONDITION: cell[6] written by both simultaneously','el-err');
-  semLog('   P1 sees: XOXXO.X..   P2 sees: XOXXO.O..','el-err');
+  semLog('💥 RACE CONDITION: cell[6] written by BOTH threads simultaneously','el-err');
+  semLog('   T1 wrote X, T2 wrote O — last write wins (non-deterministic)','el-err');
   semLog('   Board integrity VIOLATED — game state undefined','el-err');
-
-  semSetProc(1,'idle');semSetProc(2,'idle');
-  semSetMutex('🔓','—','Race condition caused data corruption.','danger');
+  setProc(1,'idle',[]);setProc(2,'idle',[]);
+  setMutex('🔓','—','Race condition caused data corruption.');
 
   document.getElementById('verdictRow').classList.remove('hidden');
-  document.getElementById('unsafeText').textContent='Concurrent writes without mutex: both P1 and P2 wrote to cell[6] simultaneously, corrupting the shared board state.';
-  document.getElementById('safeText').textContent='Run "Semaphore Protected" to see the fix →';
+  document.getElementById('unsafeText').textContent=
+    'Both threads read cell[6]="." simultaneously, then both wrote. '+
+    'T2 overwrote T1. Board state is corrupted and undefined.';
+  document.getElementById('safeText').textContent=
+    'Run "Semaphore Safe" to see how P()/V() operations prevent this →';
   semRunning=false;
 });
 
 document.getElementById('safeBtn').addEventListener('click',async()=>{
   if(semRunning)return;semRunning=true;
-  clearSemLog();
-  document.getElementById('verdictRow').classList.add('hidden');
-  document.getElementById('csHighlight').classList.remove('cs-corrupted');
-
+  clearLog();document.getElementById('verdictRow').classList.add('hidden');
   const board=['X','O','X','X','O','.','.','.','.'];
-  initCSMini(board);csStatus('Shared board — XOXXO.....');
+  initCSBoard(board);document.getElementById('csStatus').textContent='Shared board: XOXXO.....';
 
-  semLog('[ SEMAPHORE PROTECTED — MUTEX ENFORCED ]','el-head');
+  semLog('[ SEMAPHORE PROTECTED DEMO — MUTUAL EXCLUSION ]','el-head');
+  semLog('Semaphore(1) created. S=1 means resource is FREE.','el-info');
   await sleep(400);
 
-  semSetProc(1,'waiting');semSetProc(2,'waiting');
-  semAddQueue(1,['1. P(wait) — acquire','2. read_board()','3. write cell[6]=X','4. V(signal) — release']);
-  semAddQueue(2,['1. P(wait) — acquire','2. read_board()','3. write cell[7]=O','4. V(signal) — release']);
-  semSetMutex('🔓','1','S=1 — semaphore available. Both threads call P()…');
+  setProc(1,'waiting',SAFE_P1_STEPS,-1);setProc(2,'waiting',SAFE_P2_STEPS,-1);
+  setMutex('🔓','1','S=1 — both threads call P(wait)…');
+  semLog('[T1] Calling P(wait): S=1 → S=0 — ACQUIRED lock ✓','el-safe');
+  await sleep(550);
 
-  semLog('[P1] Calling P(wait): S=1 → S=0 — lock ACQUIRED ✓','el-safe');
-  await sleep(600);
-
-  semSetProc(1,'running');semSetProc(2,'blocked');
-  semHighlightQueue(1,0);semHighlightQueue(2,0);
-  semSetMutex('🔒','0','P1 holds lock. P2 calls P() → S=0 → BLOCKED.','locked');
-  csStatus('P1 in critical section — board locked');
-
-  await sleep(400);
-  semLog('[P2] Calling P(wait): S=0 → BLOCKED — enters wait queue…','el-warn');
-  semHighlightQueue(2,-1); // none active
+  setProc(1,'running',SAFE_P1_STEPS,0);setProc(2,'blocked',SAFE_P2_STEPS,-1);
+  setMutex('🔒','0','T1 holds lock. T2 calls P() → S=0 → BLOCKED.','');
+  document.getElementById('csStatus').textContent='T1 in critical section — board locked 🔒';
+  semLog('[T2] Calling P(wait): S=0 → BLOCKED — enters wait queue ⏳','el-warn');
   await sleep(500);
 
-  semHighlightQueue(1,1);
-  semLog('[P1] read_board(): XOXXO..... ← consistent read ✓','el-safe');
-  await sleep(500);
+  setProc(1,'running',SAFE_P1_STEPS,1);
+  semLog('[T1] read_board(): XOXXO..... ← consistent read ✓','el-safe');
+  await sleep(450);
 
-  semHighlightQueue(1,2);
-  semLog('[P1] write(): cell[6] ← X  (no contention) ✓','el-safe');
-  const b2=['X','O','X','X','O','.','X','.','.']; initCSMini(b2);
-  csStatus('P1 wrote cell[6]=X safely');
-  await sleep(500);
+  setProc(1,'running',SAFE_P1_STEPS,2);
+  semLog('[T1] write(): cell[6] ← X  (no contention) ✓','el-safe');
+  const b2=['X','O','X','X','O','.','X','.','.']; initCSBoard(b2);
+  document.getElementById('csStatus').textContent='T1 wrote cell[6]=X safely ✓';
+  await sleep(450);
 
-  semHighlightQueue(1,3);
-  semLog('[P1] Calling V(signal): S=0 → S=1 — lock RELEASED ✓','el-safe');
-  semSetProc(1,'idle');semSetProc(2,'waiting');
-  semSetMutex('🔓','1','P1 released. P2 unblocked — calls P() again.','');
+  setProc(1,'running',SAFE_P1_STEPS,3);
+  semLog('[T1] Calling V(signal): S=0 → S=1 — RELEASED lock ✓','el-safe');
+  setProc(1,'idle',[]);setProc(2,'waiting',SAFE_P2_STEPS,-1);
+  setMutex('🔓','1','T1 released. T2 unblocked — calls P() again.');
   await sleep(400);
 
-  semLog('[P2] Unblocked — P(wait): S=1 → S=0 — lock ACQUIRED ✓','el-safe');
-  semSetProc(2,'running');semSetMutex('🔒','0','P2 holds lock. Critical section exclusive.','locked');
-  csStatus('P2 in critical section — board locked');
-  await sleep(400);
+  semLog('[T2] Unblocked — P(wait): S=1 → S=0 — ACQUIRED lock ✓','el-safe');
+  setProc(2,'running',SAFE_P2_STEPS,0);
+  setMutex('🔒','0','T2 holds lock. Critical section exclusive.','');
+  document.getElementById('csStatus').textContent='T2 in critical section — board locked 🔒';
+  await sleep(450);
 
-  semHighlightQueue(2,1);
-  semLog('[P2] read_board(): XOXXO.X.. ← sees P1\'s write ✓','el-safe');
-  await sleep(500);
+  setProc(2,'running',SAFE_P2_STEPS,1);
+  semLog('[T2] read_board(): XOXXO.X.. ← sees T1\'s write ✓','el-safe');
+  await sleep(450);
 
-  semHighlightQueue(2,2);
-  semLog('[P2] write(): cell[7] ← O  (correct slot) ✓','el-safe');
-  const b3=['X','O','X','X','O','.','X','O','.']; initCSMini(b3);
-  csStatus('P2 wrote cell[7]=O safely');
-  await sleep(500);
+  setProc(2,'running',SAFE_P2_STEPS,2);
+  semLog('[T2] write(): cell[7] ← O  (correct slot) ✓','el-safe');
+  const b3=['X','O','X','X','O','.','X','O','.']; initCSBoard(b3);
+  document.getElementById('csStatus').textContent='T2 wrote cell[7]=O safely ✓';
+  await sleep(450);
 
-  semHighlightQueue(2,3);
-  semLog('[P2] Calling V(signal): S=0 → S=1 — lock RELEASED ✓','el-safe');
-  semSetProc(2,'idle');
-  semSetMutex('🔓','1','Both processes done. Board consistent ✓','locked');
-  csStatus('Final board: XOXXO.XO. — fully consistent ✓');
+  setProc(2,'running',SAFE_P2_STEPS,3);
+  semLog('[T2] Calling V(signal): S=0 → S=1 — RELEASED lock ✓','el-safe');
+  setProc(2,'idle',[]);
+  setMutex('🔓','1','Both threads done. Board fully consistent ✓');
+  document.getElementById('csStatus').textContent='Final: XOXXO.XO. — consistent ✓';
   await sleep(400);
 
   semLog('','');
   semLog('✅ MUTUAL EXCLUSION ENFORCED — no corruption, board integrity preserved','el-safe');
-  semLog('   Sequential execution guaranteed by semaphore (S: 1→0→1→0→1)','el-safe');
+  semLog('   S transitions: 1→0 (T1 acquires) → 1 (T1 releases) → 0 (T2 acquires) → 1','el-info');
+  semLog('   Sequential execution guaranteed by semaphore P()/V() operations','el-safe');
 
   document.getElementById('verdictRow').classList.remove('hidden');
-  document.getElementById('unsafeText').textContent='Without semaphore: concurrent writes corrupt shared state (demonstrated in Race Condition demo).';
-  document.getElementById('safeText').textContent='With semaphore: P() enforces mutual exclusion, V() signals release. Board always consistent.';
+  document.getElementById('unsafeText').textContent=
+    'Without semaphore: concurrent writes corrupt shared state (see Race Condition demo).';
+  document.getElementById('safeText').textContent=
+    'With semaphore: P() enforces mutual exclusion, V() signals release. '+
+    'Board always consistent. S: 1→0→1→0→1.';
   semRunning=false;
 });
 
-// ──────────────────────────────────────────
-//  INIT
-// ──────────────────────────────────────────
-renderBoard();updateTurnUI();drawLCSChart();
-window.addEventListener('resize',drawLCSChart);
+// ── Init ──────────────────────────────────────────────────────
+renderBoard();updateTurnUI();drawChart();
+window.addEventListener('resize',drawChart);
 </script>
 </body>
 </html>

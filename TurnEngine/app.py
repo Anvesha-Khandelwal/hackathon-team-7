@@ -167,6 +167,18 @@ def history():
     })
 
 
+@app.route("/move_log", methods=["GET"])
+def move_log():
+    """Return full ordered move log with RC codes, states, analysis."""
+    return jsonify({
+        "move_log":    board.get_move_log(),
+        "total_moves": board.move_count,
+        "x_seq":       "".join(board.x_moves),
+        "o_seq":       "".join(board.o_moves),
+        "analysis":    board.get_full_analysis(),
+    })
+
+
 # ── Synchronization API ───────────────────────────────────────────────────────
 
 @app.route("/race_condition", methods=["GET"])
