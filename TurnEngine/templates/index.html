@@ -4,10 +4,234 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TurnEngine — Competitive Game Validator</title>
-  <meta name="description" content="TurnEngine: real-time board analysis using LCS, Edit Distance and semaphore-protected move submission." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+/* TurnEngine — inline style.css */
+:root {
+  --bg:#060810; --bg-panel:#0b0f1a; --bg-panel2:#0f1420;
+  --border:#1a2540; --border-glow:#1e3a6e;
+  --cyan:#00e5ff; --cyan-dim:#0099bb;
+  --gold:#ffc400; --gold-dim:#a07800;
+  --red:#ff3d57; --green:#00e676; --purple:#9c6bff;
+  --text:#c8d8f0; --text-dim:#4a6080; --text-faint:#1e2d45;
+  --font-display:'Orbitron',monospace; --font-mono:'Share Tech Mono',monospace;
+  --radius:4px;
+  --glow-cyan:0 0 12px rgba(0,229,255,.4),0 0 30px rgba(0,229,255,.15);
+  --glow-gold:0 0 12px rgba(255,196,0,.4),0 0 30px rgba(255,196,0,.15);
+  --glow-red:0 0 12px rgba(255,61,87,.4),0 0 30px rgba(255,61,87,.15);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:13px;min-height:100vh;overflow-x:hidden;position:relative}
+
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,229,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03)1px,transparent 1px);background-size:40px 40px}
+.bg-glow{position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(80px);opacity:.25}
+.glow-1{width:500px;height:500px;background:radial-gradient(circle,rgba(0,229,255,.3),transparent 70%);top:-150px;left:-100px}
+.glow-2{width:400px;height:400px;background:radial-gradient(circle,rgba(255,196,0,.2),transparent 70%);bottom:-100px;right:-80px}
+.scanline{position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06)2px,rgba(0,0,0,.06)4px)}
+
+/* Header */
+.header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(0,229,255,.04),transparent 60%)}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo-icon{font-size:28px;color:var(--cyan);text-shadow:var(--glow-cyan);animation:pulse-icon 3s ease-in-out infinite}
+@keyframes pulse-icon{0%,100%{opacity:1}50%{opacity:.55;text-shadow:none}}
+.logo-title{font-family:var(--font-display);font-size:18px;font-weight:900;letter-spacing:4px}
+.logo-title .accent,.accent{color:var(--cyan)}
+.logo-sub{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:2px}
+.header-center{flex:1;display:flex;justify-content:center}
+.header-right{display:flex;align-items:center;gap:10px}
+.turn-indicator{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;letter-spacing:2px;color:var(--text-dim)}
+.turn-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:var(--glow-cyan);animation:blink 1.2s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.status-badge{display:flex;align-items:center;gap:7px;padding:5px 12px;border:1px solid var(--border-glow);border-radius:2px;font-family:var(--font-display);font-size:9px;letter-spacing:2px;color:var(--cyan)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:var(--glow-cyan);animation:blink 1.5s step-end infinite}
+.stat-chip{padding:4px 10px;border:1px solid var(--border);border-radius:2px;font-family:var(--font-display);font-size:9px;letter-spacing:2px;color:var(--text-dim)}
+
+/* Buttons */
+.btn{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:2px;padding:9px 18px;border:1px solid var(--border-glow);border-radius:var(--radius);background:transparent;color:var(--cyan);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:var(--cyan);opacity:0;transition:opacity .2s}
+.btn:hover{border-color:var(--cyan);box-shadow:var(--glow-cyan)}
+.btn:hover::after{opacity:.08}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-sm{padding:6px 14px;font-size:9px}
+.btn-ghost{color:var(--text-dim);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--text-dim);box-shadow:none}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-danger:hover{box-shadow:var(--glow-red)}
+.btn-danger::after{background:var(--red)}
+.btn-success{border-color:var(--green);color:var(--green)}
+.btn-success:hover{box-shadow:0 0 12px rgba(0,230,118,.4)}
+.btn-success::after{background:var(--green)}
+
+/* Layout */
+.main-grid{position:relative;z-index:5;display:grid;grid-template-columns:320px 1fr 280px;gap:1px;background:var(--border);border-bottom:1px solid var(--border);min-height:520px}
+.bottom-grid{position:relative;z-index:5;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+
+/* Panel */
+.panel{background:var(--bg-panel);padding:20px;display:flex;flex-direction:column;gap:14px}
+.panel-header{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.panel-header h2{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:3px;flex:1}
+.panel-tag{font-family:var(--font-display);font-size:9px;color:var(--text-dim);border:1px solid var(--border);padding:2px 6px;border-radius:2px;letter-spacing:1px}
+.panel-tag.bonus{color:var(--gold);border-color:var(--gold-dim)}
+
+/* Player bar */
+.player-bar{display:flex;align-items:center;gap:10px}
+.player-chip{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-panel2);transition:all .3s}
+.player-chip.active{border-color:var(--cyan);box-shadow:var(--glow-cyan)}
+.player-chip.player-o.active{border-color:var(--gold);box-shadow:var(--glow-gold)}
+.chip-symbol{font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--text-dim)}
+.player-x .chip-symbol{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.player-o .chip-symbol{color:var(--gold);text-shadow:var(--glow-gold)}
+.chip-name{font-family:var(--font-display);font-size:9px;letter-spacing:2px;color:var(--text)}
+.chip-status{font-size:8px;color:var(--text-faint);letter-spacing:1px}
+.player-chip.active .chip-status{color:var(--cyan)}
+.player-o.active .chip-status{color:var(--gold)}
+.vs-badge{font-family:var(--font-display);font-size:11px;color:var(--text-dim);letter-spacing:2px}
+
+/* Board */
+.board-wrap{position:relative;display:flex;justify-content:center;align-items:center}
+.board{display:grid;grid-template-columns:repeat(3,88px);grid-template-rows:repeat(3,88px);gap:3px;position:relative;z-index:2}
+.board-overlay{position:absolute;inset:0;z-index:3;background:rgba(6,8,16,.6);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;letter-spacing:3px;color:var(--gold);text-shadow:var(--glow-gold)}
+.board-overlay.hidden{display:none}
+.cell{background:var(--bg-panel2);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:32px;font-weight:900;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+.cell::before{content:'';position:absolute;inset:0;background:var(--cyan);opacity:0;transition:opacity .2s}
+.cell:hover:not(.taken){border-color:var(--cyan);box-shadow:inset 0 0 20px rgba(0,229,255,.05)}
+.cell:hover:not(.taken)::before{opacity:.04}
+.cell.x{color:var(--cyan);text-shadow:var(--glow-cyan);border-color:var(--cyan-dim);animation:place-cell .35s cubic-bezier(.34,1.56,.64,1)}
+.cell.o{color:var(--gold);text-shadow:var(--glow-gold);border-color:var(--gold-dim);animation:place-cell .35s cubic-bezier(.34,1.56,.64,1)}
+.cell.win-cell.x{box-shadow:inset 0 0 30px rgba(0,229,255,.2);animation:win-pulse-x .6s ease infinite alternate}
+.cell.win-cell.o{box-shadow:inset 0 0 30px rgba(255,196,0,.2);animation:win-pulse-o .6s ease infinite alternate}
+.cell.taken{cursor:default}
+@keyframes place-cell{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes win-pulse-x{from{box-shadow:inset 0 0 20px rgba(0,229,255,.1)}to{box-shadow:inset 0 0 40px rgba(0,229,255,.4),var(--glow-cyan)}}
+@keyframes win-pulse-o{from{box-shadow:inset 0 0 20px rgba(255,196,0,.1)}to{box-shadow:inset 0 0 40px rgba(255,196,0,.4),var(--glow-gold)}}
+
+.state-row{display:flex;align-items:center;gap:10px}
+.state-label{font-size:9px;color:var(--text-dim);letter-spacing:2px}
+.state-str{font-family:var(--font-mono);font-size:12px;color:var(--cyan);letter-spacing:3px;transition:all .3s}
+
+.game-message{min-height:28px;text-align:center;font-family:var(--font-display);font-size:11px;letter-spacing:2px;color:var(--cyan);padding:6px;border:1px solid transparent;border-radius:var(--radius);transition:all .3s}
+.game-message.win{color:var(--gold);border-color:var(--gold-dim);background:rgba(255,196,0,.05);text-shadow:var(--glow-gold)}
+.game-message.draw{color:var(--red);border-color:rgba(255,61,87,.3);background:rgba(255,61,87,.05)}
+
+.action-bar{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Analysis */
+.metric-block{background:var(--bg-panel2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.metric-header-row{display:flex;justify-content:space-between;align-items:center}
+.metric-row{display:flex;justify-content:space-between;align-items:center}
+.metric-label{font-size:9px;color:var(--text-dim);letter-spacing:2px}
+.metric-val{font-size:16px;color:var(--text);font-family:var(--font-display);transition:all .3s}
+.metric-val.accent{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.metric-sub{font-size:9px;color:var(--text-faint);letter-spacing:1px}
+.meter-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.meter-fill{height:100%;background:linear-gradient(90deg,var(--cyan-dim),var(--cyan));box-shadow:0 0 8px var(--cyan);border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.meter-fill.danger{background:linear-gradient(90deg,#aa1122,var(--red));box-shadow:0 0 8px var(--red)}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-cell{background:var(--bg-panel2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.sc-label{font-size:8px;color:var(--text-dim);letter-spacing:2px}
+.sc-val{font-family:var(--font-display);font-size:18px;color:var(--text);transition:all .3s}
+.repeat-pips{display:flex;gap:5px;margin-top:2px}
+.repeat-pip{width:12px;height:12px;border-radius:2px;background:var(--border);border:1px solid var(--border);transition:all .4s}
+.repeat-pip.lit{background:var(--purple);border-color:var(--purple);box-shadow:0 0 8px var(--purple)}
+
+.alert-box{display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid rgba(255,196,0,.4);border-radius:var(--radius);background:rgba(255,196,0,.05);animation:alert-in .4s ease}
+.alert-box.alert-threefold{border-color:rgba(156,107,255,.5);background:rgba(156,107,255,.06)}
+@keyframes alert-in{0%{transform:translateX(-8px);opacity:0}100%{transform:translateX(0);opacity:1}}
+.alert-icon{font-size:18px;flex-shrink:0}
+.alert-title{font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:3px}
+.alert-threefold .alert-title{color:var(--purple)}
+.alert-sub{font-size:10px;color:var(--text-dim)}
+
+/* History */
+.history-section{flex:1;overflow:hidden}
+.history-list{display:flex;flex-direction:column;gap:3px;max-height:130px;overflow-y:auto}
+.history-item{font-size:10px;color:var(--text-dim);font-family:var(--font-mono);padding:3px 8px;border-left:2px solid var(--border);letter-spacing:2px;transition:border-color .2s}
+.history-item:last-child{border-left-color:var(--cyan);color:var(--text)}
+.history-item.repeat{border-left-color:var(--red);color:var(--red)}
+.history-empty,.log-empty{color:var(--text-faint);font-size:11px}
+
+/* Timeline */
+.panel-timeline .timeline{display:flex;flex-direction:column;gap:0;overflow-y:auto;flex:1;max-height:440px}
+.tl-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--text-faint)}
+.tl-index{font-size:9px;color:var(--text-dim);letter-spacing:1px;min-width:20px;padding-top:2px}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;margin-top:3px}
+.tl-dot.x{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.tl-dot.o{background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.tl-content{flex:1}
+.tl-state{font-size:11px;letter-spacing:3px;color:var(--text)}
+.tl-meta{font-size:10px;color:var(--text-dim);margin-top:2px;letter-spacing:1px}
+
+/* Sync */
+.sync-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.verdict-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.verdict-card{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid rgba(255,61,87,.35);border-radius:var(--radius);background:rgba(255,61,87,.05);font-size:10px;color:var(--red)}
+.verdict-card.verdict-safe{border-color:rgba(0,230,118,.35);background:rgba(0,230,118,.05);color:var(--green)}
+.verdict-icon{font-size:16px;flex-shrink:0}
+.verdict-text{font-size:10px;letter-spacing:1px;line-height:1.4}
+.sem-diagram{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-panel2);gap:10px}
+.sem-thread{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.thread-label{font-size:9px;color:var(--text-dim);letter-spacing:2px}
+.thread-icon{font-family:var(--font-display);font-size:22px;font-weight:900}
+.thread-icon.x{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.thread-icon.o{color:var(--gold);text-shadow:var(--glow-gold)}
+.thread-state{font-family:var(--font-display);font-size:10px;padding:4px 10px;border-radius:2px;border:1px solid var(--border);color:var(--text-dim);transition:all .3s;letter-spacing:1px}
+.thread-state.running{color:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(0,230,118,.3)}
+.thread-state.waiting{color:var(--gold);border-color:var(--gold-dim)}
+.thread-state.blocked{color:var(--red);border-color:rgba(255,61,87,.5)}
+.sem-center{text-align:center}
+.sem-title-label{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:4px}
+.mutex-lock{font-size:22px;transition:all .3s}
+.sem-counter{font-family:var(--font-display);font-size:11px;color:var(--cyan);letter-spacing:2px;margin-top:4px}
+.sem-ops{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:9px}
+.sem-op{padding:2px 6px;border-radius:2px;letter-spacing:1px}
+.p-op{color:var(--red);border:1px solid rgba(255,61,87,.3)}
+.v-op{color:var(--green);border:1px solid rgba(0,230,118,.3)}
+.sem-op-arrow{color:var(--text-dim)}
+.sem-note{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-align:center;min-height:20px}
+.log-label{font-size:9px;color:var(--text-dim);letter-spacing:2px}
+.log-box{flex:1;background:#040608;border:1px solid var(--border);border-radius:var(--radius);padding:10px;overflow-y:auto;max-height:200px;font-size:10px;line-height:1.8;font-family:var(--font-mono)}
+.log-line{display:block;color:var(--text-dim);border-bottom:1px solid var(--text-faint);padding:2px 0}
+.log-line.warn,.log-line.corrupt{color:var(--red)}
+.log-line.safe{color:var(--green)}
+.log-line.head{color:var(--cyan);font-family:var(--font-display);letter-spacing:2px;font-size:9px;border-color:var(--border)}
+
+/* Strategy */
+.strat-columns{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+.strat-player{background:var(--bg-panel2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.strat-x{border-color:var(--cyan-dim)}
+.strat-o{border-color:var(--gold-dim)}
+.strat-name{font-family:var(--font-display);font-size:10px;letter-spacing:3px;margin-bottom:8px}
+.strat-x .strat-name{color:var(--cyan)}
+.strat-o .strat-name{color:var(--gold)}
+.strat-moves{font-size:16px;letter-spacing:4px;color:var(--text);min-height:26px;transition:all .3s;word-break:break-all}
+.strat-label{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:5px}
+.strat-center{text-align:center}
+.strat-sim-val{font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--cyan);text-shadow:var(--glow-cyan);transition:all .4s}
+.strat-sim-label{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:4px;line-height:1.6}
+.strat-ed{font-size:10px;color:var(--text-dim);margin-top:7px;letter-spacing:1px}
+.strat-report{font-family:var(--font-display);font-size:11px;letter-spacing:2px;text-align:center;padding:10px;border:1px solid var(--border);border-radius:var(--radius);color:var(--text-dim);min-height:34px;transition:all .3s}
+.strat-report.similar{color:var(--red);border-color:rgba(255,61,87,.4);background:rgba(255,61,87,.04)}
+.strat-report.moderate{color:var(--gold);border-color:rgba(255,196,0,.4);background:rgba(255,196,0,.04)}
+.strat-report.distinct{color:var(--green);border-color:rgba(0,230,118,.4);background:rgba(0,230,118,.04)}
+
+/* Footer */
+.footer{position:relative;z-index:5;text-align:center;padding:14px;font-size:10px;color:var(--text-faint);letter-spacing:2px;border-top:1px solid var(--border)}
+
+/* Scrollbars */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:2px}
+
+.hidden{display:none!important}
+.mono{font-family:var(--font-mono)!important}
+.spinning{animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+  </style>
 </head>
 <body>
 
@@ -16,7 +240,7 @@
   <div class="bg-glow glow-2"></div>
   <div class="scanline"></div>
 
-  <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+  <!-- HEADER -->
   <header class="header">
     <div class="header-left">
       <span class="logo-icon">⚡</span>
@@ -37,14 +261,14 @@
         <span id="statusText">READY</span>
       </div>
       <div class="stat-chip">MOVE <span id="moveCount">0</span></div>
-      <button class="btn btn-ghost btn-sm" id="logoutBtn">↩ LOGOUT</button>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn" onclick="window.location.href='login.html'">↩ LOGOUT</button>
     </div>
   </header>
 
-  <!-- ══ MAIN 3-COLUMN GRID ════════════════════════════════════════ -->
+  <!-- MAIN 3-COLUMN GRID -->
   <main class="main-grid">
 
-    <!-- ── COL 1: GAME BOARD ──────────────────────────────────────── -->
+    <!-- COL 1: GAME BOARD -->
     <section class="panel panel-board">
       <div class="panel-header">
         <h2>⚔ ARENA</h2>
@@ -52,15 +276,15 @@
       </div>
 
       <div class="player-bar">
-        <div class="player-chip player-x" id="chipX">
+        <div class="player-chip player-x active" id="chipX">
           <span class="chip-symbol">X</span>
-          <span class="chip-name" id="nameX">{{ player1 }}</span>
+          <span class="chip-name" id="nameX">ALPHA-7</span>
           <span class="chip-status" id="statusX">YOUR TURN</span>
         </div>
         <div class="vs-badge">VS</div>
         <div class="player-chip player-o" id="chipO">
           <span class="chip-symbol">O</span>
-          <span class="chip-name" id="nameO">{{ player2 }}</span>
+          <span class="chip-name" id="nameO">OMEGA-3</span>
           <span class="chip-status" id="statusO">WAITING</span>
         </div>
       </div>
@@ -79,12 +303,12 @@
 
       <div class="action-bar">
         <button class="btn btn-danger btn-sm" id="resetBtn">↺ RESET</button>
-        <button class="btn btn-sm" id="analyseBtn">◈ ANALYSE</button>
-        <button class="btn btn-ghost btn-sm" id="historyBtn">≡ HISTORY</button>
+        <button class="btn btn-sm" id="autoSimBtn">▶ AUTO-SIM</button>
+        <button class="btn btn-ghost btn-sm" id="undoBtn">◁ UNDO</button>
       </div>
     </section>
 
-    <!-- ── COL 2: ANALYSIS ENGINE ─────────────────────────────────── -->
+    <!-- COL 2: ANALYSIS ENGINE -->
     <section class="panel panel-analysis">
       <div class="panel-header">
         <h2>◈ ANALYSIS ENGINE</h2>
@@ -94,13 +318,13 @@
       <!-- LCS Similarity Meter -->
       <div class="metric-block">
         <div class="metric-header-row">
-          <span class="metric-label">LCS SIMILARITY</span>
+          <span class="metric-label">LCS SIMILARITY (vs 2 moves back)</span>
           <span class="metric-val accent" id="simVal">—</span>
         </div>
         <div class="meter-track">
           <div class="meter-fill" id="simMeter" style="width:0%"></div>
         </div>
-        <div class="metric-sub">Longest Common Subsequence vs history (2+ moves back)</div>
+        <div class="metric-sub" id="simNote">Needs at least 3 states to compare</div>
       </div>
 
       <!-- Stats Grid -->
@@ -114,20 +338,20 @@
           <span class="sc-val" id="lcsVal">—</span>
         </div>
         <div class="stat-cell">
-          <span class="sc-label">REPEATS</span>
+          <span class="sc-label">STATE REPEATS</span>
           <span class="sc-val" id="repeatVal">—</span>
         </div>
         <div class="stat-cell">
           <span class="sc-label">THREEFOLD</span>
           <div class="repeat-pips" id="repeatPips">
-            <span class="repeat-pip"></span>
-            <span class="repeat-pip"></span>
-            <span class="repeat-pip"></span>
+            <span class="repeat-pip" id="pip0"></span>
+            <span class="repeat-pip" id="pip1"></span>
+            <span class="repeat-pip" id="pip2"></span>
           </div>
         </div>
       </div>
 
-      <!-- Draw Alerts -->
+      <!-- Draw Alerts (hidden by default) -->
       <div class="alert-box" id="drawAlert" style="display:none">
         <span class="alert-icon">⚠</span>
         <div>
@@ -152,7 +376,7 @@
       </div>
     </section>
 
-    <!-- ── COL 3: GAME LOG / TIMELINE ─────────────────────────────── -->
+    <!-- COL 3: GAME LOG / TIMELINE -->
     <section class="panel panel-timeline">
       <div class="panel-header">
         <h2>⏱ GAME LOG</h2>
@@ -165,10 +389,10 @@
 
   </main>
 
-  <!-- ══ BOTTOM GRID ═══════════════════════════════════════════════ -->
+  <!-- BOTTOM GRID -->
   <div class="bottom-grid">
 
-    <!-- ── OS SYNC DEMO ───────────────────────────────────────────── -->
+    <!-- OS SYNC DEMO -->
     <section class="panel">
       <div class="panel-header">
         <h2>⚙ OS SYNC DEMO</h2>
@@ -180,30 +404,22 @@
         <button class="btn btn-success btn-sm" id="safeBtn">🔒 SEMAPHORE SAFE</button>
       </div>
 
-      <!-- ── Semaphore State Machine ─────────────────────────── -->
       <div class="sem-diagram" id="semDiagram">
-        <!-- Thread P1 -->
         <div class="sem-thread">
           <div class="thread-label">PROCESS · P1</div>
           <div class="thread-icon x">X</div>
           <div class="thread-state" id="t1State">IDLE</div>
         </div>
-
-        <!-- Central Semaphore -->
         <div class="sem-center">
           <div class="sem-title-label">SEMAPHORE</div>
           <div class="mutex-lock" id="mutexLock">🔓</div>
-          <div class="sem-counter">
-            S = <span id="semValue">1</span>
-          </div>
+          <div class="sem-counter">S = <span id="semValue">1</span></div>
           <div class="sem-ops">
             <span class="sem-op p-op">P(wait)</span>
-            <span class="sem-op-arrow">⟵ · ⟶</span>
+            <span class="sem-op-arrow">⟵·⟶</span>
             <span class="sem-op v-op">V(signal)</span>
           </div>
         </div>
-
-        <!-- Thread P2 -->
         <div class="sem-thread">
           <div class="thread-label">PROCESS · P2</div>
           <div class="thread-icon o">O</div>
@@ -211,29 +427,26 @@
         </div>
       </div>
 
-      <!-- Sem note -->
       <div class="sem-note" id="semNote">Click a demo button to begin…</div>
 
-      <!-- Verdict -->
       <div class="verdict-row" id="verdictRow" style="display:none">
         <div class="verdict-card" id="unsafeCard">
           <span class="verdict-icon">💥</span>
-          <span class="verdict-text">—</span>
+          <span class="verdict-text" id="unsafeText">—</span>
         </div>
         <div class="verdict-card verdict-safe" id="safeCard">
           <span class="verdict-icon">✅</span>
-          <span class="verdict-text">—</span>
+          <span class="verdict-text" id="safeText">—</span>
         </div>
       </div>
 
-      <!-- Event Log -->
       <div class="log-label">EVENT LOG</div>
       <div class="log-box" id="logBox">
         <span class="log-line head">[ Click a demo button to begin… ]</span>
       </div>
     </section>
 
-    <!-- ── STRATEGY COMPARE ───────────────────────────────────────── -->
+    <!-- STRATEGY COMPARE -->
     <section class="panel">
       <div class="panel-header">
         <h2>⇄ STRATEGY COMPARE</h2>
@@ -242,7 +455,7 @@
 
       <div class="strat-columns">
         <div class="strat-player strat-x">
-          <div class="strat-name" id="stratNameX">{{ player1 }}</div>
+          <div class="strat-name" id="stratNameX">ALPHA-7</div>
           <div class="strat-moves mono" id="xMoves">—</div>
           <div class="strat-label">MOVE SEQUENCE</div>
         </div>
@@ -255,24 +468,568 @@
           </div>
         </div>
         <div class="strat-player strat-o">
-          <div class="strat-name" id="stratNameO">{{ player2 }}</div>
+          <div class="strat-name" id="stratNameO">OMEGA-3</div>
           <div class="strat-moves mono" id="oMoves">—</div>
           <div class="strat-label">MOVE SEQUENCE</div>
         </div>
       </div>
 
-      <div class="strat-report" id="stratReport">Run a full game then click Compare</div>
+      <div class="strat-report" id="stratReport">Play moves then click Compare</div>
       <button class="btn btn-sm" id="stratBtn">COMPARE ▶</button>
     </section>
 
   </div>
 
-  <!-- ══ FOOTER ════════════════════════════════════════════════════ -->
+  <!-- FOOTER -->
   <footer class="footer">
     TurnEngine &nbsp;·&nbsp; DAA: LCS / Edit Distance &nbsp;·&nbsp;
     OS: Semaphores / Mutual Exclusion &nbsp;·&nbsp; Hackathon Team 7
   </footer>
 
-  <script src="/static/script.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  TURNENGINE  —  script.js  (inline, self-contained)
+// ═══════════════════════════════════════════════════════════════
+
+/* ── Retrieve player names set by login page ── */
+const P1_NAME = sessionStorage.getItem('p1Name') || 'ALPHA-7';
+const P2_NAME = sessionStorage.getItem('p2Name') || 'OMEGA-3';
+document.getElementById('nameX').textContent = P1_NAME;
+document.getElementById('nameO').textContent = P2_NAME;
+document.getElementById('stratNameX').textContent = P1_NAME;
+document.getElementById('stratNameO').textContent = P2_NAME;
+
+// ─── Game State ──────────────────────────────────────────────
+const G = {
+  board: Array(9).fill('.'),   // '.' = empty, 'X', 'O'
+  turn: 'X',                   // 'X' or 'O'
+  over: false,
+  moveNum: 0,
+  // Arrays of cell-index strings: "0".."8"
+  xMoves: [],
+  oMoves: [],
+  // All board-state strings recorded after every move (including start)
+  stateLog: ['`````````'],     // DON'T use '.........' — use backtick so it's distinct
+  // Map: stateString -> repeat count
+  repeatMap: {},
+  history: []                  // for undo: [{board, turn, moveNum, xMoves, oMoves, stateLog, repeatMap}]
+};
+// Replace placeholder start state
+G.stateLog = [boardStr()];
+
+const WIN_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const SIM_THRESHOLD = 0.80;   // 80% triggers draw warning
+const DRAW_LOOKBACK  = 2;     // compare current state vs state from 2 moves ago
+
+// ─── Algorithms ──────────────────────────────────────────────
+
+/** LCS length of two strings */
+function lcsLen(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m + 1}, () => new Int32Array(n + 1));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+  return dp[m][n];
+}
+
+/** Similarity in [0,1] using LCS / max(len) */
+function lcsSim(a, b) {
+  if (!a || !b) return 0;
+  const l = lcsLen(a, b);
+  return l / Math.max(a.length, b.length);
+}
+
+/** Wagner-Fischer edit distance */
+function editDist(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m + 1}, (_, i) =>
+    Array.from({length: n + 1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1]
+        ? dp[i-1][j-1]
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+// ─── Board helpers ───────────────────────────────────────────
+
+function boardStr() { return G.board.join(''); }
+
+function checkWinner(board) {
+  for (const [a, b, c] of WIN_LINES)
+    if (board[a] !== '.' && board[a] === board[b] && board[b] === board[c])
+      return { winner: board[a], line: [a, b, c] };
+  return null;
+}
+
+function isBoardFull(board) { return board.every(c => c !== '.'); }
+
+// ─── Rendering ───────────────────────────────────────────────
+
+function renderBoard() {
+  const bEl = document.getElementById('gameBoard');
+  bEl.innerHTML = '';
+  G.board.forEach((val, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (val !== '.' ? ` ${val.toLowerCase()} taken` : '');
+    cell.textContent = val !== '.' ? val : '';
+    if (val === '.') cell.addEventListener('click', () => handleCellClick(i));
+    bEl.appendChild(cell);
+  });
+}
+
+function updateTurnUI() {
+  const isX = G.turn === 'X';
+  const chipX = document.getElementById('chipX');
+  const chipO = document.getElementById('chipO');
+  chipX.classList.toggle('active', isX);
+  chipO.classList.toggle('active', !isX);
+  document.getElementById('statusX').textContent = isX ? 'YOUR TURN' : 'WAITING';
+  document.getElementById('statusO').textContent = !isX ? 'YOUR TURN' : 'WAITING';
+  document.getElementById('turnText').textContent = isX
+    ? `${P1_NAME} (X) to move`
+    : `${P2_NAME} (O) to move`;
+  document.getElementById('stateStr').textContent = boardStr();
+  document.getElementById('moveCount').textContent = G.moveNum;
+}
+
+// ─── Analysis after every move ────────────────────────────────
+
+function runAnalysis() {
+  const log = G.stateLog;
+  const cur = log[log.length - 1];
+
+  // ── Repeat detection (threefold) ──────────────────────────
+  G.repeatMap[cur] = (G.repeatMap[cur] || 0) + 1;
+  const reps = G.repeatMap[cur];
+  document.getElementById('repeatVal').textContent = `${reps}×`;
+
+  // Light up threefold pips
+  for (let k = 0; k < 3; k++)
+    document.getElementById(`pip${k}`).classList.toggle('lit', k < reps);
+
+  if (reps >= 3) {
+    document.getElementById('threefoldAlert').style.display = 'flex';
+  } else {
+    document.getElementById('threefoldAlert').style.display = 'none';
+  }
+
+  // ── LCS similarity vs state LOOKBACK moves ago ────────────
+  // Only meaningful once we have enough history for a fair comparison
+  const compareIdx = log.length - 1 - DRAW_LOOKBACK;
+  if (compareIdx < 0) {
+    // Not enough history yet — show dashes, hide alert
+    document.getElementById('simVal').textContent = '—';
+    document.getElementById('simMeter').style.width = '0%';
+    document.getElementById('simMeter').classList.remove('danger');
+    document.getElementById('lcsVal').textContent = '—';
+    document.getElementById('edVal').textContent = '—';
+    document.getElementById('drawAlert').style.display = 'none';
+    document.getElementById('simNote').textContent =
+      `Need ${DRAW_LOOKBACK + 1} states to compare (have ${log.length})`;
+    return;
+  }
+
+  const prev = log[compareIdx];
+  const sim  = lcsSim(cur, prev);
+  const lLen = lcsLen(cur, prev);
+  const ed   = editDist(cur, prev);
+  const pct  = Math.round(sim * 100);
+
+  document.getElementById('simVal').textContent = pct + '%';
+  document.getElementById('simNote').textContent =
+    `Comparing move ${log.length - 1} vs move ${compareIdx}`;
+  document.getElementById('lcsVal').textContent = lLen;
+  document.getElementById('edVal').textContent = ed;
+
+  const fill = document.getElementById('simMeter');
+  fill.style.width = pct + '%';
+  fill.classList.toggle('danger', sim >= SIM_THRESHOLD);
+
+  // Draw alert
+  if (sim >= SIM_THRESHOLD) {
+    document.getElementById('drawAlert').style.display = 'flex';
+    document.getElementById('drawReason').textContent =
+      `Board similarity ${pct}% ≥ ${Math.round(SIM_THRESHOLD * 100)}% threshold — possible stalling`;
+  } else {
+    document.getElementById('drawAlert').style.display = 'none';
+  }
+}
+
+// ─── History panel ───────────────────────────────────────────
+
+function addHistoryItem(stateString, moveNum) {
+  const list = document.getElementById('historyList');
+  // Remove "no moves" placeholder on first move
+  const empty = list.querySelector('.history-empty');
+  if (empty) empty.remove();
+
+  // Remove 'last-child' highlight from previous last item
+  list.querySelectorAll('.history-item').forEach(el => el.classList.remove('last'));
+
+  const reps = G.repeatMap[stateString] || 1;
+  const item = document.createElement('div');
+  item.className = 'history-item' + (reps > 1 ? ' repeat' : '');
+  item.textContent = `#${String(moveNum).padStart(2,'0')}  ${stateString}` +
+    (reps > 1 ? `  [×${reps}]` : '');
+  list.appendChild(item);
+  list.scrollTop = list.scrollHeight;
+}
+
+// ─── Timeline panel ──────────────────────────────────────────
+
+function addTimelineItem(cellIdx, player, stateString, moveNum) {
+  const tl = document.getElementById('timeline');
+  const empty = tl.querySelector('.log-empty');
+  if (empty) empty.remove();
+
+  const item = document.createElement('div');
+  item.className = 'tl-item';
+  item.innerHTML = `
+    <span class="tl-index">#${String(moveNum).padStart(2,'0')}</span>
+    <span class="tl-dot ${player.toLowerCase()}"></span>
+    <div class="tl-content">
+      <div class="tl-state">${stateString}</div>
+      <div class="tl-meta">${player} → CELL[${cellIdx}]  ·  SIM:${document.getElementById('simVal').textContent}</div>
+    </div>`;
+  tl.appendChild(item);
+  tl.scrollTop = tl.scrollHeight;
+}
+
+// ─── Core move logic ─────────────────────────────────────────
+
+function handleCellClick(idx) {
+  if (G.over || G.board[idx] !== '.') return;
+  commitMove(idx);
+}
+
+function commitMove(idx) {
+  // Save undo snapshot
+  G.history.push({
+    board: [...G.board],
+    turn: G.turn,
+    moveNum: G.moveNum,
+    xMoves: [...G.xMoves],
+    oMoves: [...G.oMoves],
+    stateLog: [...G.stateLog],
+    repeatMap: { ...G.repeatMap }
+  });
+
+  // Apply move
+  G.board[idx] = G.turn;
+  G.moveNum++;
+  if (G.turn === 'X') G.xMoves.push(String(idx));
+  else G.oMoves.push(String(idx));
+
+  const s = boardStr();
+  G.stateLog.push(s);
+
+  renderBoard();
+  updateTurnUI();
+  runAnalysis();
+  addHistoryItem(s, G.moveNum);
+  addTimelineItem(idx, G.turn, s, G.moveNum);
+
+  // Check win
+  const result = checkWinner(G.board);
+  if (result) {
+    G.over = true;
+    highlightWinCells(result.line, result.winner);
+    const winName = result.winner === 'X' ? P1_NAME : P2_NAME;
+    const msg = document.getElementById('gameMessage');
+    msg.textContent = `🏆 ${winName} WINS!`;
+    msg.className = 'game-message win';
+    document.getElementById('boardOverlay').classList.remove('hidden');
+    document.getElementById('boardOverlay').textContent = `${winName} WINS`;
+    document.getElementById('statusText').textContent = 'GAME OVER';
+    return;
+  }
+
+  if (isBoardFull(G.board)) {
+    G.over = true;
+    const msg = document.getElementById('gameMessage');
+    msg.textContent = '⚖ DRAW — BOARD FULL';
+    msg.className = 'game-message draw';
+    document.getElementById('boardOverlay').classList.remove('hidden');
+    document.getElementById('boardOverlay').textContent = 'DRAW';
+    document.getElementById('statusText').textContent = 'DRAW';
+    return;
+  }
+
+  G.turn = G.turn === 'X' ? 'O' : 'X';
+  updateTurnUI();
+}
+
+function highlightWinCells(line, player) {
+  const cells = document.getElementById('gameBoard').children;
+  line.forEach(i => cells[i].classList.add('win-cell'));
+}
+
+// ─── Reset ───────────────────────────────────────────────────
+
+function resetGame() {
+  G.board = Array(9).fill('.');
+  G.turn = 'X'; G.over = false; G.moveNum = 0;
+  G.xMoves = []; G.oMoves = [];
+  G.stateLog = [boardStr()];
+  G.repeatMap = {}; G.history = [];
+
+  renderBoard();
+  updateTurnUI();
+
+  // Clear analysis
+  ['simVal','lcsVal','edVal','repeatVal'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('simMeter').style.width = '0%';
+  document.getElementById('simMeter').classList.remove('danger');
+  document.getElementById('simNote').textContent = 'Needs at least 3 states to compare';
+  document.getElementById('drawAlert').style.display = 'none';
+  document.getElementById('threefoldAlert').style.display = 'none';
+  [0,1,2].forEach(k => document.getElementById(`pip${k}`).classList.remove('lit'));
+
+  // Clear panels
+  document.getElementById('historyList').innerHTML = '<span class="history-empty">No moves yet</span>';
+  document.getElementById('timeline').innerHTML = '<span class="log-empty">No moves yet</span>';
+
+  // Clear game message & overlay
+  const msg = document.getElementById('gameMessage');
+  msg.textContent = ''; msg.className = 'game-message';
+  document.getElementById('boardOverlay').classList.add('hidden');
+  document.getElementById('statusText').textContent = 'READY';
+
+  // Clear strategy
+  document.getElementById('xMoves').textContent = '—';
+  document.getElementById('oMoves').textContent = '—';
+  document.getElementById('stratSim').textContent = '—';
+  document.getElementById('stratEd').textContent = 'EDIT DIST: —';
+  document.getElementById('stratBar').style.width = '0%';
+  document.getElementById('stratReport').textContent = 'Play moves then click Compare';
+  document.getElementById('stratReport').className = 'strat-report';
+}
+
+// ─── Undo ────────────────────────────────────────────────────
+
+document.getElementById('undoBtn').addEventListener('click', () => {
+  if (G.history.length === 0) return;
+  const snap = G.history.pop();
+  Object.assign(G, {
+    board: snap.board,
+    turn: snap.turn,
+    moveNum: snap.moveNum,
+    xMoves: snap.xMoves,
+    oMoves: snap.oMoves,
+    stateLog: snap.stateLog,
+    repeatMap: snap.repeatMap,
+    over: false
+  });
+  renderBoard();
+  updateTurnUI();
+  runAnalysis();
+  document.getElementById('gameMessage').textContent = '';
+  document.getElementById('gameMessage').className = 'game-message';
+  document.getElementById('boardOverlay').classList.add('hidden');
+  document.getElementById('statusText').textContent = 'READY';
+
+  // Rebuild history list from stateLog
+  const list = document.getElementById('historyList');
+  list.innerHTML = G.stateLog.length <= 1
+    ? '<span class="history-empty">No moves yet</span>'
+    : '';
+  G.stateLog.slice(1).forEach((s, i) => {
+    const reps = G.repeatMap[s] || 1;
+    const item = document.createElement('div');
+    item.className = 'history-item' + (reps > 1 ? ' repeat' : '');
+    item.textContent = `#${String(i+1).padStart(2,'0')}  ${s}` + (reps > 1 ? `  [×${reps}]` : '');
+    list.appendChild(item);
+  });
+});
+
+// ─── Auto-Simulation (20 moves) ──────────────────────────────
+// Strategy: intentionally revisit positions to show draw detection
+// We play a full 9-move game, reset, play 9 more to force repeats, then 2 extra
+
+document.getElementById('autoSimBtn').addEventListener('click', async () => {
+  resetGame();
+  await sleep(300);
+
+  // Game 1: play a full game that ends in draw
+  const game1 = [0,4,1,2,7,6,3,5,8]; // draw scenario
+  for (const idx of game1) {
+    if (G.over) break;
+    commitMove(idx);
+    await sleep(350);
+  }
+
+  await sleep(600);
+  // Record the state after move 3 (index 3 in game1) for later repeat
+  // We don't hard-reset — instead reset and replay SAME opening moves
+  // to guarantee exact state repeats (threefold demo)
+  const openingMoves = [0, 4, 8]; // these 3 moves from X side
+
+  resetGame();
+  await sleep(400);
+
+  // Round 2: same opening twice more
+  for (let round = 0; round < 2; round++) {
+    for (const idx of openingMoves) {
+      if (G.over) break;
+      commitMove(idx);
+      await sleep(350);
+    }
+    if (!G.over) {
+      // Undo the 3 moves to repeat the same position again
+      for (let k = 0; k < openingMoves.length; k++) {
+        if (G.history.length > 0) {
+          const snap = G.history.pop();
+          Object.assign(G, { board: snap.board, turn: snap.turn, moveNum: snap.moveNum,
+            xMoves: snap.xMoves, oMoves: snap.oMoves, stateLog: snap.stateLog,
+            repeatMap: snap.repeatMap, over: false });
+          renderBoard(); updateTurnUI(); runAnalysis();
+        }
+        await sleep(200);
+      }
+      await sleep(400);
+    }
+  }
+  // Final replay of the opening to hit 3× repeat
+  for (const idx of openingMoves) {
+    if (G.over) break;
+    commitMove(idx);
+    await sleep(350);
+  }
+});
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ─── Strategy Compare ────────────────────────────────────────
+
+document.getElementById('stratBtn').addEventListener('click', () => {
+  const xs = G.xMoves.join('');
+  const os = G.oMoves.join('');
+  document.getElementById('xMoves').textContent = xs || '—';
+  document.getElementById('oMoves').textContent = os || '—';
+
+  if (!xs || !os) {
+    document.getElementById('stratReport').textContent = 'Play at least one move each to compare';
+    return;
+  }
+
+  const sim = lcsSim(xs, os);
+  const ed  = editDist(xs, os);
+  const pct = Math.round(sim * 100);
+
+  document.getElementById('stratSim').textContent = pct + '%';
+  document.getElementById('stratEd').textContent = `EDIT DIST: ${ed}`;
+  document.getElementById('stratBar').style.width = pct + '%';
+
+  const report = document.getElementById('stratReport');
+  if (pct >= 70) {
+    report.className = 'strat-report similar';
+    report.textContent = `STRATEGIES HIGHLY SIMILAR (${pct}%) — Mirroring detected`;
+  } else if (pct >= 40) {
+    report.className = 'strat-report moderate';
+    report.textContent = `MODERATE OVERLAP (${pct}%) — Some shared patterns`;
+  } else {
+    report.className = 'strat-report distinct';
+    report.textContent = `DISTINCT STRATEGIES (${pct}%) — Divergent play styles`;
+  }
+});
+
+// ─── Semaphore Demo ──────────────────────────────────────────
+
+function logLine(text, cls = '') {
+  const box = document.getElementById('logBox');
+  const line = document.createElement('span');
+  line.className = 'log-line' + (cls ? ' ' + cls : '');
+  line.textContent = text;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('logBox').innerHTML = '';
+}
+
+function setState(t1, t2, lock, semVal, note) {
+  document.getElementById('t1State').className = 'thread-state ' + (t1 || '');
+  document.getElementById('t1State').textContent = t1.toUpperCase() || 'IDLE';
+  document.getElementById('t2State').className = 'thread-state ' + (t2 || '');
+  document.getElementById('t2State').textContent = t2.toUpperCase() || 'IDLE';
+  document.getElementById('mutexLock').textContent = lock;
+  document.getElementById('semValue').textContent = semVal;
+  document.getElementById('semNote').textContent = note;
+}
+
+document.getElementById('raceBtn').addEventListener('click', async () => {
+  clearLog();
+  document.getElementById('verdictRow').style.display = 'none';
+  logLine('[ RACE CONDITION DEMO — NO SEMAPHORE ]', 'head');
+  await sleep(300);
+
+  setState('running', 'running', '🔓', '—', 'Both threads enter critical section simultaneously!');
+  logLine('[P1] Reading board state: XOXXO....', 'warn');
+  await sleep(400);
+  logLine('[P2] Reading board state: XOXXO....', 'warn');
+  await sleep(400);
+  logLine('[P1] Writing cell[6] = X', 'warn');
+  logLine('[P2] Writing cell[6] = O  ← CONFLICT!', 'corrupt');
+  await sleep(500);
+  logLine('💥 RACE CONDITION: cell[6] corrupted — both wrote simultaneously', 'corrupt');
+  await sleep(400);
+  logLine('[P1] Board shows: XOXXO.X..', 'corrupt');
+  logLine('[P2] Board shows: XOXXO.O..', 'corrupt');
+  logLine('⚠ BOARD STATE INCONSISTENT — game integrity violated', 'corrupt');
+  await sleep(400);
+  setState('idle', 'idle', '🔓', '—', 'Race condition caused data corruption.');
+
+  document.getElementById('verdictRow').style.display = 'grid';
+  document.getElementById('unsafeText').textContent = 'Without semaphore: concurrent writes corrupt shared board state';
+  document.getElementById('safeText').textContent   = 'Run "Semaphore Safe" demo to see the fix →';
+});
+
+document.getElementById('safeBtn').addEventListener('click', async () => {
+  clearLog();
+  document.getElementById('verdictRow').style.display = 'none';
+  logLine('[ SEMAPHORE SAFE DEMO — MUTEX PROTECTION ]', 'head');
+  await sleep(300);
+
+  setState('waiting', 'waiting', '🔓', '1', 'Both threads try to acquire semaphore…');
+  logLine('[P1] Calling P(wait) — S=1 → S=0, lock acquired', 'safe');
+  await sleep(400);
+  setState('running', 'blocked', '🔒', '0', 'P1 in critical section. P2 blocked.');
+  logLine('[P2] Calling P(wait) — S=0 → BLOCKED, waiting…', 'warn');
+  await sleep(500);
+  logLine('[P1] Reading board state safely: XOXXO....', 'safe');
+  await sleep(300);
+  logLine('[P1] Writing cell[6] = X  ✓', 'safe');
+  await sleep(300);
+  logLine('[P1] Calling V(signal) — S=0 → S=1, lock released', 'safe');
+  setState('idle', 'waiting', '🔓', '1', 'P1 done. P2 unblocked.');
+  await sleep(400);
+  setState('idle', 'running', '🔒', '0', 'P2 now in critical section.');
+  logLine('[P2] Unblocked — P(wait) → S=0, lock acquired', 'safe');
+  await sleep(400);
+  logLine('[P2] Reading board state: XOXXO.X..  ← sees P1\'s write ✓', 'safe');
+  await sleep(300);
+  logLine('[P2] Writing cell[7] = O  ✓', 'safe');
+  await sleep(300);
+  logLine('[P2] Calling V(signal) — S=0 → S=1, lock released', 'safe');
+  setState('idle', 'idle', '🔓', '1', 'Both threads completed safely. Board consistent ✓');
+  logLine('✅ MUTUAL EXCLUSION ENFORCED — no corruption, board integrity preserved', 'safe');
+  await sleep(300);
+
+  document.getElementById('verdictRow').style.display = 'grid';
+  document.getElementById('unsafeText').textContent = 'Without semaphore: concurrent writes → data corruption';
+  document.getElementById('safeText').textContent   = 'With semaphore: mutual exclusion → board always consistent ✓';
+});
+
+// ─── Reset button ────────────────────────────────────────────
+document.getElementById('resetBtn').addEventListener('click', resetGame);
+
+// ─── Init ────────────────────────────────────────────────────
+renderBoard();
+updateTurnUI();
+</script>
 </body>
 </html>
