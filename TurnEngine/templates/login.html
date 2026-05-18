@@ -1,848 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>TurnEngine — Player Login</title>
-
-  <meta
-    name="description"
-    content="TurnEngine competitive turn-based game validator. Login to begin your match."
-  />
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap"
-    rel="stylesheet"
-  />
-
-  <style>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TurnEngine — Match Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
 :root{
-  --bg:#060810;
-  --bg-panel:#0b0f1a;
-  --bg-panel2:#0f1420;
-
-  --border:#1a2540;
-  --border-glow:#1e3a6e;
-
-  --cyan:#00e5ff;
-  --cyan-dim:#0099bb;
-
-  --gold:#ffc400;
-  --gold-dim:#a07800;
-
-  --red:#ff3d57;
-  --green:#00e676;
-
-  --text:#c8d8f0;
-  --text-dim:#4a6080;
-  --text-faint:#1e2d45;
-
-  --font-display:'Orbitron', monospace;
-  --font-mono:'Share Tech Mono', monospace;
-
-  --glow-cyan:
-    0 0 12px rgba(0,229,255,.4),
-    0 0 30px rgba(0,229,255,.15);
-
-  --glow-gold:
-    0 0 12px rgba(255,196,0,.4),
-    0 0 30px rgba(255,196,0,.15);
-
-  --glow-red:
-    0 0 12px rgba(255,61,87,.4),
-    0 0 30px rgba(255,61,87,.15);
+  --ink:#0e0f11;
+  --ink-2:#1a1c20;
+  --ink-3:#252830;
+  --ink-4:#3a3e48;
+  --mist:#9096a8;
+  --fog:#c8cdd8;
+  --paper:#eef0f4;
+  --amber:#e8a832;
+  --amber-pale:#f5c96a;
+  --amber-deep:#b07820;
+  --ivory:#f0ead8;
+  --green:#4caf82;
+  --red:#e05252;
+  --ff-display:'Syne',sans-serif;
+  --ff-serif:'DM Serif Display',serif;
+  --ff-mono:'DM Mono',monospace;
 }
-
-/* RESET */
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  min-height:100vh;
-  background:var(--bg);
-  overflow:hidden;
-  color:var(--text);
-  font-family:var(--font-mono);
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  position:relative;
-}
-
-/* BACKGROUND */
-
-.bg-grid{
-  position:fixed;
-  inset:0;
-
-  background-image:
-    linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
-
-  background-size:40px 40px;
-
-  pointer-events:none;
-}
-
-.bg-glow{
-  position:fixed;
-  border-radius:50%;
-  filter:blur(80px);
-  opacity:.25;
-  pointer-events:none;
-}
-
-.login-glow-1{
-  width:500px;
-  height:500px;
-
-  background:
-    radial-gradient(circle,
-      rgba(0,229,255,.3),
-      transparent 70%);
-
-  top:-150px;
-  left:-120px;
-}
-
-.login-glow-2{
-  width:400px;
-  height:400px;
-
-  background:
-    radial-gradient(circle,
-      rgba(255,196,0,.2),
-      transparent 70%);
-
-  bottom:-120px;
-  right:-80px;
-}
-
-.scanline{
-  position:fixed;
-  inset:0;
-
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,.06) 2px,
-      rgba(0,0,0,.06) 4px
-    );
-
-  pointer-events:none;
-}
-
-/* WRAPPER */
-
-.login-wrap{
-  position:relative;
-  z-index:5;
-
-  width:100%;
-  max-width:520px;
-
-  padding:30px;
-}
-
-/* LOGO */
-
-.login-logo{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:16px;
-
-  margin-bottom:28px;
-}
-
-.login-logo-icon{
-  font-size:42px;
-  color:var(--cyan);
-
-  text-shadow:var(--glow-cyan);
-
-  animation:pulse-icon 3s ease infinite;
-}
-
-@keyframes pulse-icon{
-  0%,100%{
-    opacity:1;
-  }
-
-  50%{
-    opacity:.5;
-  }
-}
-
-.login-logo-text{
-  display:flex;
-  flex-direction:column;
-}
-
-.login-brand{
-  font-family:var(--font-display);
-  font-size:28px;
-  font-weight:900;
-  letter-spacing:5px;
-}
-
-.accent{
-  color:var(--cyan);
-}
-
-.login-tagline{
-  font-size:10px;
-  letter-spacing:3px;
-  color:var(--text-dim);
-
-  margin-top:4px;
-}
-
-/* CARD */
-
-.login-card{
-  position:relative;
-
-  background:rgba(11,15,26,.95);
-
-  border:1px solid var(--border-glow);
-
-  border-radius:8px;
-
-  padding:32px;
-
-  overflow:hidden;
-
-  box-shadow:
-    0 0 25px rgba(0,229,255,.08),
-    inset 0 0 40px rgba(0,229,255,.03);
-}
-
-.lc-corner{
-  position:absolute;
-  width:18px;
-  height:18px;
-  border-color:var(--cyan);
-}
-
-.lc-corner.tl{
-  top:10px;
-  left:10px;
-
-  border-top:2px solid;
-  border-left:2px solid;
-}
-
-.lc-corner.tr{
-  top:10px;
-  right:10px;
-
-  border-top:2px solid;
-  border-right:2px solid;
-}
-
-.lc-corner.bl{
-  bottom:10px;
-  left:10px;
-
-  border-bottom:2px solid;
-  border-left:2px solid;
-}
-
-.lc-corner.br{
-  bottom:10px;
-  right:10px;
-
-  border-bottom:2px solid;
-  border-right:2px solid;
-}
-
-/* HEADER */
-
-.login-card-header{
-  text-align:center;
-  margin-bottom:30px;
-}
-
-.lc-badge{
-  display:inline-block;
-
-  padding:4px 10px;
-
-  border:1px solid var(--border-glow);
-
-  color:var(--cyan);
-
-  font-size:9px;
-  letter-spacing:2px;
-
-  margin-bottom:14px;
-}
-
-.lc-title{
-  font-family:var(--font-display);
-
-  font-size:22px;
-
-  letter-spacing:4px;
-
-  margin-bottom:8px;
-}
-
-.lc-sub{
-  color:var(--text-dim);
-
-  font-size:11px;
-  letter-spacing:2px;
-}
-
-/* FORM */
-
-.login-form{
-  display:flex;
-  flex-direction:column;
-  gap:22px;
-}
-
-.lf-field{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.lf-label{
-  display:flex;
-  align-items:center;
-  gap:8px;
-
-  color:var(--text-dim);
-
-  font-size:10px;
-  letter-spacing:2px;
-}
-
-.lf-marker{
-  width:22px;
-  height:22px;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  border-radius:50%;
-
-  font-family:var(--font-display);
-  font-weight:900;
-  font-size:12px;
-}
-
-.lf-marker.x{
-  border:1px solid var(--cyan);
-
-  background:rgba(0,229,255,.08);
-
-  color:var(--cyan);
-
-  text-shadow:var(--glow-cyan);
-}
-
-.lf-marker.o{
-  border:1px solid var(--gold);
-
-  background:rgba(255,196,0,.08);
-
-  color:var(--gold);
-
-  text-shadow:var(--glow-gold);
-}
-
-/* INPUT */
-
-.lf-input-wrap{
-  position:relative;
-}
-
-.lf-input{
-  width:100%;
-
-  background:var(--bg-panel2);
-
-  border:1px solid var(--border);
-
-  border-radius:4px;
-
-  padding:15px 16px;
-
-  color:var(--text);
-
-  font-size:14px;
-
-  font-family:var(--font-mono);
-
-  outline:none;
-
-  transition:.25s;
-}
-
-.lf-input:focus{
-  border-color:var(--cyan);
-
-  box-shadow:var(--glow-cyan);
-}
-
-.lf-input::placeholder{
-  color:var(--text-faint);
-}
-
-.lf-field-error .lf-input{
-  border-color:var(--red);
-
-  box-shadow:var(--glow-red);
-}
-
-/* ERRORS */
-
-.lf-error{
-  min-height:12px;
-
-  color:var(--red);
-
-  font-size:10px;
-
-  letter-spacing:1px;
-}
-
-.lf-global-error{
-  padding:12px;
-
-  border:1px solid rgba(255,61,87,.4);
-
-  background:rgba(255,61,87,.06);
-
-  border-radius:4px;
-
-  text-align:center;
-
-  color:var(--red);
-
-  font-size:11px;
-}
-
-.hidden{
-  display:none;
-}
-
-/* VS */
-
-.lf-vs{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
-.lf-vs-line{
-  flex:1;
-  height:1px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      var(--border-glow),
-      transparent
-    );
-}
-
-.lf-vs-badge{
-  color:var(--gold);
-
-  font-family:var(--font-display);
-
-  font-size:12px;
-
-  letter-spacing:3px;
-
-  text-shadow:var(--glow-gold);
-}
-
-/* BUTTON */
-
-.lf-submit{
-  margin-top:10px;
-
-  border:none;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(0,229,255,.12),
-      rgba(0,229,255,.22)
-    );
-
-  border:1px solid var(--cyan);
-
-  color:var(--cyan);
-
-  padding:16px;
-
-  border-radius:5px;
-
-  cursor:pointer;
-
-  font-family:var(--font-display);
-
-  font-size:12px;
-
-  font-weight:700;
-
-  letter-spacing:3px;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:12px;
-
-  transition:.25s;
-}
-
-.lf-submit:hover{
-  transform:translateY(-2px);
-
-  box-shadow:var(--glow-cyan);
-}
-
-.lf-submit:active{
-  transform:scale(.98);
-}
-
-.lf-submit:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-/* FOOTER */
-
-.login-footer{
-  margin-top:22px;
-
-  text-align:center;
-
-  color:var(--text-faint);
-
-  font-size:10px;
-
-  letter-spacing:2px;
-}
-
-/* MOBILE */
-
-@media(max-width:600px){
-
-  .login-wrap{
-    padding:20px;
-  }
-
-  .login-card{
-    padding:24px;
-  }
-
-  .login-brand{
-    font-size:22px;
-  }
-
-  .lc-title{
-    font-size:18px;
-  }
-}
-
-  </style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--ink);color:var(--fog);font-family:var(--ff-mono);overflow:hidden}
+
+/* ── Background ── */
+.bg{position:fixed;inset:0;z-index:0}
+.bg-noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:.5}
+.bg-lines{position:absolute;inset:0;background-image:linear-gradient(var(--ink-3) 1px,transparent 1px),linear-gradient(90deg,var(--ink-3) 1px,transparent 1px);background-size:64px 64px;opacity:.6}
+.bg-vignette{position:absolute;inset:0;background:radial-gradient(ellipse 120% 80% at 50% 50%,transparent 40%,rgba(14,15,17,.9) 100%)}
+.bg-accent{position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(232,168,50,.06),transparent 65%);top:-200px;right:-100px;pointer-events:none}
+.bg-accent2{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(76,175,130,.04),transparent 65%);bottom:-150px;left:-50px;pointer-events:none}
+
+/* ── Page shell ── */
+.page{position:relative;z-index:5;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+
+/* ── Logo block ── */
+.logo-block{display:flex;align-items:center;gap:18px;margin-bottom:44px}
+.logo-mark{width:50px;height:50px;border:2px solid var(--amber);display:flex;align-items:center;justify-content:center;position:relative}
+.logo-mark::before{content:'';position:absolute;inset:4px;border:1px solid rgba(232,168,50,.3)}
+.logo-mark svg{width:24px;height:24px;fill:var(--amber)}
+.logo-text h1{font-family:var(--ff-display);font-size:32px;font-weight:800;letter-spacing:6px;text-transform:uppercase;color:var(--paper)}
+.logo-text h1 span{color:var(--amber)}
+.logo-text p{font-size:9px;letter-spacing:4px;color:var(--mist);margin-top:3px;text-transform:uppercase}
+
+/* ── Card ── */
+.card{width:480px;background:var(--ink-2);border:1px solid var(--ink-4);position:relative}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+.card-head{padding:28px 32px 24px;border-bottom:1px solid var(--ink-3);display:flex;align-items:center;justify-content:space-between}
+.card-head-title{font-family:var(--ff-display);font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--fog)}
+.match-id{font-size:9px;letter-spacing:2px;color:var(--mist);font-family:var(--ff-mono)}
+.card-body{padding:28px 32px 32px;display:flex;flex-direction:column;gap:24px}
+
+/* ── VS Row ── */
+.vs-row{display:grid;grid-template-columns:1fr 48px 1fr;gap:0;align-items:center}
+.player-col{display:flex;flex-direction:column;gap:10px}
+.player-badge{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.player-sym{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-display);font-weight:700;font-size:14px}
+.sym-x{border:1px solid var(--amber);color:var(--amber);background:rgba(232,168,50,.08)}
+.sym-o{border:1px solid #6ab8e8;color:#6ab8e8;background:rgba(106,184,232,.08)}
+.player-label{font-size:9px;letter-spacing:3px;color:var(--mist);text-transform:uppercase}
+.field-wrap{position:relative}
+.field-input{width:100%;background:var(--ink-3);border:1px solid var(--ink-4);color:var(--paper);font-family:var(--ff-mono);font-size:13px;padding:11px 14px;outline:none;transition:border-color .2s,box-shadow .2s;letter-spacing:.5px}
+.field-input::placeholder{color:var(--ink-4);font-size:12px}
+.field-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,168,50,.1)}
+.field-input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(224,82,82,.1)}
+.field-err{font-size:9px;color:var(--red);letter-spacing:1px;min-height:14px;margin-top:4px}
+.vs-center{text-align:center}
+.vs-label{font-family:var(--ff-serif);font-size:18px;font-style:italic;color:var(--mist)}
+.vs-line{height:40px;width:1px;background:var(--ink-4);margin:4px auto}
+
+/* ── Global error ── */
+.global-err{background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.3);padding:10px 14px;font-size:11px;color:var(--red);letter-spacing:.5px;text-align:center;display:none}
+
+/* ── Submit ── */
+.submit-btn{width:100%;background:var(--amber);border:none;color:var(--ink);font-family:var(--ff-display);font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;padding:15px;cursor:pointer;transition:background .2s,transform .1s;position:relative;overflow:hidden;margin-top:4px}
+.submit-btn::after{content:'';position:absolute;inset:0;background:#fff;opacity:0;transition:opacity .2s}
+.submit-btn:hover{background:var(--amber-pale)}
+.submit-btn:active{transform:scale(.99)}
+.submit-btn:disabled{background:var(--ink-4);color:var(--mist);cursor:not-allowed}
+.submit-row{display:flex;align-items:center;gap:12px}
+.submit-btn{flex:1}
+.submit-arrow{width:46px;height:46px;background:transparent;border:1px solid var(--ink-4);color:var(--mist);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.submit-arrow:hover{border-color:var(--amber);color:var(--amber)}
+
+/* ── Footer ── */
+.page-footer{margin-top:28px;font-size:9px;letter-spacing:3px;color:var(--ink-4);text-transform:uppercase}
+
+/* ── Tick animation ── */
+@keyframes tick{0%,100%{opacity:1}50%{opacity:.3}}
+.tick{display:inline-block;color:var(--amber);animation:tick 2s ease infinite}
+</style>
 </head>
-
 <body>
+<div class="bg">
+  <div class="bg-noise"></div>
+  <div class="bg-lines"></div>
+  <div class="bg-vignette"></div>
+  <div class="bg-accent"></div>
+  <div class="bg-accent2"></div>
+</div>
 
-  <div class="bg-grid"></div>
-  <div class="bg-glow login-glow-1"></div>
-  <div class="bg-glow login-glow-2"></div>
-  <div class="scanline"></div>
+<div class="page">
 
-  <div class="login-wrap">
-
-    <!-- LOGO -->
-
-    <div class="login-logo">
-
-      <span class="login-logo-icon">⚡</span>
-
-      <div class="login-logo-text">
-
-        <span class="login-brand">
-          TURN<span class="accent">ENGINE</span>
-        </span>
-
-        <span class="login-tagline">
-          COMPETITIVE GAME VALIDATOR
-        </span>
-
-      </div>
+  <div class="logo-block">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
     </div>
+    <div class="logo-text">
+      <h1>TURN<span>ENGINE</span></h1>
+      <p>Competitive Game Validator <span class="tick">|</span></p>
+    </div>
+  </div>
 
-    <!-- CARD -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-head-title">Match Registration</span>
+      <span class="match-id" id="matchId">MATCH·—</span>
+    </div>
+    <div class="card-body">
 
-    <div class="login-card">
-
-      <span class="lc-corner tl"></span>
-      <span class="lc-corner tr"></span>
-      <span class="lc-corner bl"></span>
-      <span class="lc-corner br"></span>
-
-      <div class="login-card-header">
-
-        <div class="lc-badge">
-          MATCH SETUP
-        </div>
-
-        <h1 class="lc-title">
-          PLAYER REGISTRATION
-        </h1>
-
-        <p class="lc-sub">
-          Enter player callsigns to initialize match
-        </p>
-
-      </div>
-
-      <form class="login-form" id="loginForm">
-
-        <!-- PLAYER 1 -->
-
-        <div class="lf-field" id="field1">
-
-          <label class="lf-label">
-
-            <span class="lf-marker x">X</span>
-
-            PLAYER 1 CALLSIGN
-
-          </label>
-
-          <div class="lf-input-wrap">
-
-            <input
-              type="text"
-              class="lf-input"
-              id="p1Name"
-              maxlength="20"
-              placeholder="Enter callsign..."
-              autocomplete="off"
-            />
-
+      <div class="vs-row">
+        <!-- Player 1 -->
+        <div class="player-col">
+          <div class="player-badge">
+            <div class="player-sym sym-x">X</div>
+            <span class="player-label">Player 1</span>
           </div>
-
-          <span class="lf-error" id="err1"></span>
-
+          <div class="field-wrap">
+            <input type="text" class="field-input" id="p1Name" maxlength="16" placeholder="Enter callsign" autocomplete="off"/>
+          </div>
+          <span class="field-err" id="err1"></span>
         </div>
 
         <!-- VS -->
-
-        <div class="lf-vs">
-
-          <span class="lf-vs-line"></span>
-
-          <span class="lf-vs-badge">
-            VS
-          </span>
-
-          <span class="lf-vs-line"></span>
-
+        <div class="vs-center">
+          <div class="vs-line"></div>
+          <span class="vs-label">vs</span>
+          <div class="vs-line"></div>
         </div>
 
-        <!-- PLAYER 2 -->
-
-        <div class="lf-field" id="field2">
-
-          <label class="lf-label">
-
-            <span class="lf-marker o">O</span>
-
-            PLAYER 2 CALLSIGN
-
-          </label>
-
-          <div class="lf-input-wrap">
-
-            <input
-              type="text"
-              class="lf-input"
-              id="p2Name"
-              maxlength="20"
-              placeholder="Enter callsign..."
-              autocomplete="off"
-            />
-
+        <!-- Player 2 -->
+        <div class="player-col">
+          <div class="player-badge">
+            <div class="player-sym sym-o">O</div>
+            <span class="player-label">Player 2</span>
           </div>
-
-          <span class="lf-error" id="err2"></span>
-
+          <div class="field-wrap">
+            <input type="text" class="field-input" id="p2Name" maxlength="16" placeholder="Enter callsign" autocomplete="off"/>
+          </div>
+          <span class="field-err" id="err2"></span>
         </div>
+      </div>
 
-        <!-- GLOBAL ERROR -->
+      <div class="global-err" id="globalErr"></div>
 
-        <div
-          class="lf-global-error hidden"
-          id="globalErr"
-        ></div>
-
-        <!-- BUTTON -->
-
-        <button
-          class="lf-submit"
-          type="submit"
-          id="submitBtn"
-        >
-
-          <span class="lf-submit-text">
-            INITIALIZE MATCH
-          </span>
-
-          <span>
-            →
-          </span>
-
-        </button>
-
-      </form>
+      <div class="submit-row">
+        <button class="submit-btn" id="submitBtn" type="button">Initialize Match</button>
+      </div>
 
     </div>
-
-    <div class="login-footer">
-      DAA · OS CONCEPTS · DYNAMIC PROGRAMMING · SEMAPHORES
-    </div>
-
   </div>
 
+  <div class="page-footer">DAA · OS Concepts · Dynamic Programming · Semaphores</div>
+</div>
+
 <script>
+// Generate match ID
+document.getElementById('matchId').textContent =
+  'MATCH·' + Math.random().toString(36).slice(2,6).toUpperCase();
 
-const form      = document.getElementById('loginForm');
-const p1        = document.getElementById('p1Name');
-const p2        = document.getElementById('p2Name');
-
-const err1      = document.getElementById('err1');
-const err2      = document.getElementById('err2');
-
+const p1 = document.getElementById('p1Name');
+const p2 = document.getElementById('p2Name');
+const err1 = document.getElementById('err1');
+const err2 = document.getElementById('err2');
 const globalErr = document.getElementById('globalErr');
-
-const submitBtn = document.getElementById('submitBtn');
+const btn = document.getElementById('submitBtn');
 
 function clearErrors(){
-
-  err1.textContent = '';
-  err2.textContent = '';
-
-  globalErr.textContent = '';
-
-  globalErr.classList.add('hidden');
-
-  document
-    .getElementById('field1')
-    .classList.remove('lf-field-error');
-
-  document
-    .getElementById('field2')
-    .classList.remove('lf-field-error');
+  err1.textContent=''; err2.textContent='';
+  globalErr.textContent=''; globalErr.style.display='none';
+  p1.classList.remove('err'); p2.classList.remove('err');
 }
 
-function showGlobalError(msg){
-
-  globalErr.textContent = msg;
-
-  globalErr.classList.remove('hidden');
-}
-
-form.addEventListener('submit', (e)=>{
-
-  e.preventDefault();
-
+btn.addEventListener('click',()=>{
   clearErrors();
-
-  const v1 = p1.value.trim();
-  const v2 = p2.value.trim();
-
-  let valid = true;
-
-  if(!v1){
-
-    err1.textContent = 'Callsign required';
-
-    document
-      .getElementById('field1')
-      .classList.add('lf-field-error');
-
-    valid = false;
+  const v1=p1.value.trim(), v2=p2.value.trim();
+  let ok=true;
+  if(!v1){err1.textContent='Callsign required';p1.classList.add('err');ok=false;}
+  if(!v2){err2.textContent='Callsign required';p2.classList.add('err');ok=false;}
+  if(v1&&v2&&v1.toLowerCase()===v2.toLowerCase()){
+    err2.textContent='Must differ from Player 1';p2.classList.add('err');ok=false;
   }
-
-  if(!v2){
-
-    err2.textContent = 'Callsign required';
-
-    document
-      .getElementById('field2')
-      .classList.add('lf-field-error');
-
-    valid = false;
-  }
-
-  if(
-    v1 &&
-    v2 &&
-    v1.toLowerCase() === v2.toLowerCase()
-  ){
-
-    err2.textContent =
-      'Must differ from Player 1';
-
-    document
-      .getElementById('field2')
-      .classList.add('lf-field-error');
-
-    valid = false;
-  }
-
-  if(!valid) return;
-
-  submitBtn.disabled = true;
-
-  submitBtn.querySelector(
-    '.lf-submit-text'
-  ).textContent = 'INITIALIZING...';
-
-  // STORE PLAYER NAMES
-
-  sessionStorage.setItem('p1Name', v1);
-  sessionStorage.setItem('p2Name', v2);
-
-  // REDIRECT
-
-  setTimeout(()=>{
-
-    window.location.href = 'index.html';
-
-  }, 1000);
-
+  if(!ok)return;
+  btn.disabled=true; btn.textContent='Initializing…';
+  sessionStorage.setItem('p1Name',v1);
+  sessionStorage.setItem('p2Name',v2);
+  setTimeout(()=>window.location.href='index.html',900);
 });
 
+[p1,p2].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')btn.click();}));
 </script>
-
 </body>
 </html>

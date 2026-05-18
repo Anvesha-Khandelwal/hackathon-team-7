@@ -1,1035 +1,1335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TurnEngine — Competitive Game Validator</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-  <style>
-/* TurnEngine — inline style.css */
-:root {
-  --bg:#060810; --bg-panel:#0b0f1a; --bg-panel2:#0f1420;
-  --border:#1a2540; --border-glow:#1e3a6e;
-  --cyan:#00e5ff; --cyan-dim:#0099bb;
-  --gold:#ffc400; --gold-dim:#a07800;
-  --red:#ff3d57; --green:#00e676; --purple:#9c6bff;
-  --text:#c8d8f0; --text-dim:#4a6080; --text-faint:#1e2d45;
-  --font-display:'Orbitron',monospace; --font-mono:'Share Tech Mono',monospace;
-  --radius:4px;
-  --glow-cyan:0 0 12px rgba(0,229,255,.4),0 0 30px rgba(0,229,255,.15);
-  --glow-gold:0 0 12px rgba(255,196,0,.4),0 0 30px rgba(255,196,0,.15);
-  --glow-red:0 0 12px rgba(255,61,87,.4),0 0 30px rgba(255,61,87,.15);
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TurnEngine — Competitive Game Validator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#0e0f11;
+  --ink-2:#14161a;
+  --ink-3:#1c1f26;
+  --ink-4:#282d38;
+  --ink-5:#343a48;
+  --mist:#7a8296;
+  --fog:#b0b8cc;
+  --paper:#dde2ec;
+  --amber:#e8a832;
+  --amber-pale:#f5c96a;
+  --amber-deep:#a07020;
+  --blue:#6ab8e8;
+  --blue-dim:#3a7aaa;
+  --green:#4caf82;
+  --red:#e05252;
+  --purple:#9b72e8;
+  --ff-display:'Syne',sans-serif;
+  --ff-serif:'DM Serif Display',serif;
+  --ff-mono:'DM Mono',monospace;
+  --r:3px;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:13px;min-height:100vh;overflow-x:hidden;position:relative}
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+body{height:100vh;background:var(--ink);color:var(--fog);font-family:var(--ff-mono);font-size:12px;overflow:hidden;display:flex;flex-direction:column}
 
-.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,229,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03)1px,transparent 1px);background-size:40px 40px}
-.bg-glow{position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(80px);opacity:.25}
-.glow-1{width:500px;height:500px;background:radial-gradient(circle,rgba(0,229,255,.3),transparent 70%);top:-150px;left:-100px}
-.glow-2{width:400px;height:400px;background:radial-gradient(circle,rgba(255,196,0,.2),transparent 70%);bottom:-100px;right:-80px}
-.scanline{position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06)2px,rgba(0,0,0,.06)4px)}
+/* ── BG ── */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.bg-noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(var(--ink-3) 1px,transparent 1px),linear-gradient(90deg,var(--ink-3) 1px,transparent 1px);background-size:48px 48px;opacity:.5}
 
-/* Header */
-.header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(0,229,255,.04),transparent 60%)}
-.header-left{display:flex;align-items:center;gap:14px}
-.logo-icon{font-size:28px;color:var(--cyan);text-shadow:var(--glow-cyan);animation:pulse-icon 3s ease-in-out infinite}
-@keyframes pulse-icon{0%,100%{opacity:1}50%{opacity:.55;text-shadow:none}}
-.logo-title{font-family:var(--font-display);font-size:18px;font-weight:900;letter-spacing:4px}
-.logo-title .accent,.accent{color:var(--cyan)}
-.logo-sub{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:2px}
-.header-center{flex:1;display:flex;justify-content:center}
-.header-right{display:flex;align-items:center;gap:10px}
-.turn-indicator{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;letter-spacing:2px;color:var(--text-dim)}
-.turn-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:var(--glow-cyan);animation:blink 1.2s step-end infinite}
+/* ── HEADER ── */
+header{position:relative;z-index:20;display:flex;align-items:center;padding:0 20px;height:52px;background:var(--ink-2);border-bottom:1px solid var(--ink-4);flex-shrink:0;gap:16px}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.hdr-logo-mark{width:32px;height:32px;border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-logo-mark svg{width:16px;height:16px;fill:var(--amber)}
+.hdr-title{font-family:var(--ff-display);font-size:15px;font-weight:800;letter-spacing:4px;color:var(--paper);line-height:1}
+.hdr-title span{color:var(--amber)}
+.hdr-sep{width:1px;height:28px;background:var(--ink-4);margin:0 4px}
+.hdr-center{flex:1;display:flex;align-items:center;justify-content:center;gap:20px}
+.turn-chip{display:flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid var(--ink-4);background:var(--ink-3)}
+.turn-pip{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0}
+.turn-pip.blue{background:var(--blue)}
+.turn-pip.off{background:var(--ink-5)}
+.turn-pip.blink{animation:blink .9s step-end infinite}
 @keyframes blink{50%{opacity:0}}
-.status-badge{display:flex;align-items:center;gap:7px;padding:5px 12px;border:1px solid var(--border-glow);border-radius:2px;font-family:var(--font-display);font-size:9px;letter-spacing:2px;color:var(--cyan)}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:var(--glow-cyan);animation:blink 1.5s step-end infinite}
-.stat-chip{padding:4px 10px;border:1px solid var(--border);border-radius:2px;font-family:var(--font-display);font-size:9px;letter-spacing:2px;color:var(--text-dim)}
+.turn-name{font-family:var(--ff-display);font-size:11px;font-weight:600;letter-spacing:2px;color:var(--paper)}
+.turn-sym{font-size:10px;color:var(--mist);letter-spacing:1px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.hdr-stat{padding:4px 10px;border:1px solid var(--ink-4);font-family:var(--ff-display);font-size:9px;letter-spacing:2px;color:var(--mist)}
+.hdr-stat span{color:var(--fog)}
+.hdr-btn{padding:6px 14px;border:1px solid var(--ink-4);background:transparent;color:var(--mist);font-family:var(--ff-display);font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .2s}
+.hdr-btn:hover{border-color:var(--fog);color:var(--paper)}
 
-/* Buttons */
-.btn{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:2px;padding:9px 18px;border:1px solid var(--border-glow);border-radius:var(--radius);background:transparent;color:var(--cyan);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.btn::after{content:'';position:absolute;inset:0;background:var(--cyan);opacity:0;transition:opacity .2s}
-.btn:hover{border-color:var(--cyan);box-shadow:var(--glow-cyan)}
-.btn:hover::after{opacity:.08}
-.btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn-sm{padding:6px 14px;font-size:9px}
-.btn-ghost{color:var(--text-dim);border-color:var(--border)}
-.btn-ghost:hover{color:var(--text);border-color:var(--text-dim);box-shadow:none}
-.btn-danger{border-color:var(--red);color:var(--red)}
-.btn-danger:hover{box-shadow:var(--glow-red)}
-.btn-danger::after{background:var(--red)}
-.btn-success{border-color:var(--green);color:var(--green)}
-.btn-success:hover{box-shadow:0 0 12px rgba(0,230,118,.4)}
-.btn-success::after{background:var(--green)}
+/* ── TABS ── */
+.tabs-bar{position:relative;z-index:15;display:flex;background:var(--ink-2);border-bottom:1px solid var(--ink-4);flex-shrink:0}
+.tab{padding:10px 20px;font-family:var(--ff-display);font-size:10px;font-weight:600;letter-spacing:3px;color:var(--mist);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;white-space:nowrap}
+.tab:hover{color:var(--fog)}
+.tab.active{color:var(--amber);border-bottom-color:var(--amber)}
+.tab-badge{font-size:8px;padding:1px 5px;border-radius:10px;background:var(--purple);color:#fff;margin-left:6px;vertical-align:middle;display:none}
+.tab-badge.show{display:inline}
 
-/* Layout */
-.main-grid{position:relative;z-index:5;display:grid;grid-template-columns:320px 1fr 280px;gap:1px;background:var(--border);border-bottom:1px solid var(--border);min-height:520px}
-.bottom-grid{position:relative;z-index:5;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+/* ── VIEWS ── */
+.view{display:none;position:relative;z-index:10;flex:1;overflow:hidden}
+.view.active{display:flex}
+
+/* ══════════════════════════════════════════
+   VIEW 1: GAME
+══════════════════════════════════════════ */
+#view-game{display:none;grid-template-columns:310px 1fr 300px;gap:1px;background:var(--ink-4)}
+#view-game.active{display:grid}
 
 /* Panel */
-.panel{background:var(--bg-panel);padding:20px;display:flex;flex-direction:column;gap:14px}
-.panel-header{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--border)}
-.panel-header h2{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:3px;flex:1}
-.panel-tag{font-family:var(--font-display);font-size:9px;color:var(--text-dim);border:1px solid var(--border);padding:2px 6px;border-radius:2px;letter-spacing:1px}
-.panel-tag.bonus{color:var(--gold);border-color:var(--gold-dim)}
+.panel{background:var(--ink-2);display:flex;flex-direction:column;overflow:hidden}
+.ph{padding:14px 16px;border-bottom:1px solid var(--ink-4);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ph-title{font-family:var(--ff-display);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--fog);flex:1;text-transform:uppercase}
+.ph-tag{font-size:8px;letter-spacing:2px;padding:2px 7px;border:1px solid var(--ink-5);color:var(--mist);text-transform:uppercase}
+.ph-tag.gold{border-color:var(--amber-deep);color:var(--amber)}
+.pb{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
 
-/* Player bar */
-.player-bar{display:flex;align-items:center;gap:10px}
-.player-chip{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-panel2);transition:all .3s}
-.player-chip.active{border-color:var(--cyan);box-shadow:var(--glow-cyan)}
-.player-chip.player-o.active{border-color:var(--gold);box-shadow:var(--glow-gold)}
-.chip-symbol{font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--text-dim)}
-.player-x .chip-symbol{color:var(--cyan);text-shadow:var(--glow-cyan)}
-.player-o .chip-symbol{color:var(--gold);text-shadow:var(--glow-gold)}
-.chip-name{font-family:var(--font-display);font-size:9px;letter-spacing:2px;color:var(--text)}
-.chip-status{font-size:8px;color:var(--text-faint);letter-spacing:1px}
-.player-chip.active .chip-status{color:var(--cyan)}
-.player-o.active .chip-status{color:var(--gold)}
-.vs-badge{font-family:var(--font-display);font-size:11px;color:var(--text-dim);letter-spacing:2px}
+/* ── Player chips ── */
+.player-strip{display:grid;grid-template-columns:1fr 36px 1fr;align-items:center;gap:0;border:1px solid var(--ink-4)}
+.pchip{padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:background .3s}
+.pchip.active-x{background:rgba(232,168,50,.06);border-right:2px solid var(--amber)}
+.pchip.active-o{background:rgba(106,184,232,.06);border-left:2px solid var(--blue)}
+.pchip-sym{font-family:var(--ff-display);font-size:22px;font-weight:700;line-height:1}
+.pchip.p-x .pchip-sym{color:var(--amber)}
+.pchip.p-o .pchip-sym{color:var(--blue)}
+.pchip-name{font-family:var(--ff-display);font-size:9px;letter-spacing:2px;color:var(--fog);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+.pchip-status{font-size:8px;color:var(--mist);letter-spacing:1px}
+.pchip.active-x .pchip-status{color:var(--amber)}
+.pchip.active-o .pchip-status{color:var(--blue)}
+.vs-mid{text-align:center;font-family:var(--ff-serif);font-style:italic;color:var(--mist);font-size:15px}
 
-/* Board */
-.board-wrap{position:relative;display:flex;justify-content:center;align-items:center}
-.board{display:grid;grid-template-columns:repeat(3,88px);grid-template-rows:repeat(3,88px);gap:3px;position:relative;z-index:2}
-.board-overlay{position:absolute;inset:0;z-index:3;background:rgba(6,8,16,.6);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;letter-spacing:3px;color:var(--gold);text-shadow:var(--glow-gold)}
-.board-overlay.hidden{display:none}
-.cell{background:var(--bg-panel2);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:32px;font-weight:900;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
-.cell::before{content:'';position:absolute;inset:0;background:var(--cyan);opacity:0;transition:opacity .2s}
-.cell:hover:not(.taken){border-color:var(--cyan);box-shadow:inset 0 0 20px rgba(0,229,255,.05)}
-.cell:hover:not(.taken)::before{opacity:.04}
-.cell.x{color:var(--cyan);text-shadow:var(--glow-cyan);border-color:var(--cyan-dim);animation:place-cell .35s cubic-bezier(.34,1.56,.64,1)}
-.cell.o{color:var(--gold);text-shadow:var(--glow-gold);border-color:var(--gold-dim);animation:place-cell .35s cubic-bezier(.34,1.56,.64,1)}
-.cell.win-cell.x{box-shadow:inset 0 0 30px rgba(0,229,255,.2);animation:win-pulse-x .6s ease infinite alternate}
-.cell.win-cell.o{box-shadow:inset 0 0 30px rgba(255,196,0,.2);animation:win-pulse-o .6s ease infinite alternate}
+/* ── Board ── */
+.board-wrap{position:relative;display:flex;align-items:center;justify-content:center;padding:8px 0}
+.board{display:grid;grid-template-columns:repeat(3,86px);grid-template-rows:repeat(3,86px);gap:2px;background:var(--ink-4)}
+.cell{background:var(--ink-3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;position:relative;font-family:var(--ff-display);font-size:30px;font-weight:700}
+.cell:hover:not(.taken){background:var(--ink-4)}
+.cell::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s}
+.cell.cx{color:var(--amber);animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+.cell.co{color:var(--blue);animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+.cell.win-x{background:rgba(232,168,50,.12)!important;animation:pulse-x .7s ease infinite alternate}
+.cell.win-o{background:rgba(106,184,232,.12)!important;animation:pulse-o .7s ease infinite alternate}
 .cell.taken{cursor:default}
-@keyframes place-cell{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
-@keyframes win-pulse-x{from{box-shadow:inset 0 0 20px rgba(0,229,255,.1)}to{box-shadow:inset 0 0 40px rgba(0,229,255,.4),var(--glow-cyan)}}
-@keyframes win-pulse-o{from{box-shadow:inset 0 0 20px rgba(255,196,0,.1)}to{box-shadow:inset 0 0 40px rgba(255,196,0,.4),var(--glow-gold)}}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes pulse-x{to{background:rgba(232,168,50,.22)!important}}
+@keyframes pulse-o{to{background:rgba(106,184,232,.22)!important}}
+.board-msg{min-height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-display);font-size:11px;letter-spacing:3px;color:var(--mist);border:1px solid transparent;transition:all .3s}
+.board-msg.win-msg{color:var(--amber);border-color:rgba(232,168,50,.3);background:rgba(232,168,50,.05)}
+.board-msg.draw-msg{color:var(--red);border-color:rgba(224,82,82,.3);background:rgba(224,82,82,.05)}
+.board-overlay{position:absolute;inset:0;background:rgba(14,15,17,.75);display:flex;align-items:center;justify-content:center;font-family:var(--ff-display);font-size:16px;letter-spacing:4px;color:var(--amber);display:none}
 
-.state-row{display:flex;align-items:center;gap:10px}
-.state-label{font-size:9px;color:var(--text-dim);letter-spacing:2px}
-.state-str{font-family:var(--font-mono);font-size:12px;color:var(--cyan);letter-spacing:3px;transition:all .3s}
+/* ── State row ── */
+.state-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--ink-3);border:1px solid var(--ink-4)}
+.state-lbl{font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase}
+.state-val{font-family:var(--ff-mono);font-size:12px;color:var(--amber);letter-spacing:3px}
 
-.game-message{min-height:28px;text-align:center;font-family:var(--font-display);font-size:11px;letter-spacing:2px;color:var(--cyan);padding:6px;border:1px solid transparent;border-radius:var(--radius);transition:all .3s}
-.game-message.win{color:var(--gold);border-color:var(--gold-dim);background:rgba(255,196,0,.05);text-shadow:var(--glow-gold)}
-.game-message.draw{color:var(--red);border-color:rgba(255,61,87,.3);background:rgba(255,61,87,.05)}
+/* ── Action buttons ── */
+.action-row{display:flex;gap:6px;flex-wrap:wrap}
+.btn{font-family:var(--ff-display);font-size:9px;font-weight:600;letter-spacing:2px;padding:8px 14px;border:1px solid var(--ink-5);background:transparent;color:var(--mist);cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn:hover{border-color:var(--fog);color:var(--paper)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-amber{border-color:var(--amber-deep);color:var(--amber)}
+.btn-amber:hover{border-color:var(--amber);background:rgba(232,168,50,.08)}
+.btn-red{border-color:rgba(224,82,82,.5);color:var(--red)}
+.btn-red:hover{background:rgba(224,82,82,.07)}
+.btn-green{border-color:rgba(76,175,130,.5);color:var(--green)}
+.btn-green:hover{background:rgba(76,175,130,.07)}
 
-.action-bar{display:flex;gap:8px;flex-wrap:wrap}
+/* ── Analysis panel ── */
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric-card{background:var(--ink-3);border:1px solid var(--ink-4);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.mc-lbl{font-size:8px;letter-spacing:2px;color:var(--mist);text-transform:uppercase}
+.mc-val{font-family:var(--ff-display);font-size:20px;font-weight:600;color:var(--paper);transition:all .3s}
+.mc-val.amber{color:var(--amber)}
+.mc-val.blue{color:var(--blue)}
+.mc-val.red{color:var(--red)}
+.mc-val.green{color:var(--green)}
+.mc-sub{font-size:9px;color:var(--mist);letter-spacing:.5px}
 
-/* Analysis */
-.metric-block{background:var(--bg-panel2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-.metric-header-row{display:flex;justify-content:space-between;align-items:center}
-.metric-row{display:flex;justify-content:space-between;align-items:center}
-.metric-label{font-size:9px;color:var(--text-dim);letter-spacing:2px}
-.metric-val{font-size:16px;color:var(--text);font-family:var(--font-display);transition:all .3s}
-.metric-val.accent{color:var(--cyan);text-shadow:var(--glow-cyan)}
-.metric-sub{font-size:9px;color:var(--text-faint);letter-spacing:1px}
-.meter-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-.meter-fill{height:100%;background:linear-gradient(90deg,var(--cyan-dim),var(--cyan));box-shadow:0 0 8px var(--cyan);border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.meter-fill.danger{background:linear-gradient(90deg,#aa1122,var(--red));box-shadow:0 0 8px var(--red)}
+/* ── Similarity Meter ── */
+.sim-block{background:var(--ink-3);border:1px solid var(--ink-4);padding:12px}
+.sim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.sim-title{font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase}
+.sim-pct{font-family:var(--ff-display);font-size:16px;font-weight:700;color:var(--paper);transition:all .3s}
+.sim-pct.danger{color:var(--red)}
+.track{height:5px;background:var(--ink-4);border-radius:2px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,var(--blue-dim),var(--blue));transition:width .5s cubic-bezier(.4,0,.2,1);border-radius:2px}
+.fill.danger{background:linear-gradient(90deg,#a02020,var(--red))}
+.sim-note{font-size:9px;color:var(--mist);letter-spacing:.5px;margin-top:5px}
 
-/* Stats grid */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.stat-cell{background:var(--bg-panel2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
-.sc-label{font-size:8px;color:var(--text-dim);letter-spacing:2px}
-.sc-val{font-family:var(--font-display);font-size:18px;color:var(--text);transition:all .3s}
-.repeat-pips{display:flex;gap:5px;margin-top:2px}
-.repeat-pip{width:12px;height:12px;border-radius:2px;background:var(--border);border:1px solid var(--border);transition:all .4s}
-.repeat-pip.lit{background:var(--purple);border-color:var(--purple);box-shadow:0 0 8px var(--purple)}
+/* ── LCS Chart ── */
+.chart-block{background:var(--ink-3);border:1px solid var(--ink-4);padding:12px;flex-shrink:0}
+.chart-title{font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase;margin-bottom:8px}
+.lcs-chart-wrap{height:70px;position:relative}
+canvas.lcs-canvas{width:100%;height:100%}
+.chart-legend{display:flex;gap:12px;margin-top:5px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:8px;color:var(--mist);letter-spacing:1px}
+.leg-dot{width:8px;height:3px;border-radius:1px}
+.leg-amber{background:var(--amber)}
+.leg-blue{background:var(--blue)}
+.leg-red{background:var(--red);border:1px dashed var(--red)}
 
-.alert-box{display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid rgba(255,196,0,.4);border-radius:var(--radius);background:rgba(255,196,0,.05);animation:alert-in .4s ease}
-.alert-box.alert-threefold{border-color:rgba(156,107,255,.5);background:rgba(156,107,255,.06)}
-@keyframes alert-in{0%{transform:translateX(-8px);opacity:0}100%{transform:translateX(0);opacity:1}}
-.alert-icon{font-size:18px;flex-shrink:0}
-.alert-title{font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:3px}
-.alert-threefold .alert-title{color:var(--purple)}
-.alert-sub{font-size:10px;color:var(--text-dim)}
+/* ── Threefold pips ── */
+.threefold-row{display:flex;align-items:center;gap:10px}
+.tf-lbl{font-size:9px;letter-spacing:2px;color:var(--mist)}
+.tf-pips{display:flex;gap:5px}
+.tf-pip{width:22px;height:22px;border:1px solid var(--ink-5);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-5);transition:all .4s;border-radius:2px}
+.tf-pip.lit{border-color:var(--purple);color:var(--purple);background:rgba(155,114,232,.12);box-shadow:0 0 8px rgba(155,114,232,.3)}
 
-/* History */
-.history-section{flex:1;overflow:hidden}
-.history-list{display:flex;flex-direction:column;gap:3px;max-height:130px;overflow-y:auto}
-.history-item{font-size:10px;color:var(--text-dim);font-family:var(--font-mono);padding:3px 8px;border-left:2px solid var(--border);letter-spacing:2px;transition:border-color .2s}
-.history-item:last-child{border-left-color:var(--cyan);color:var(--text)}
-.history-item.repeat{border-left-color:var(--red);color:var(--red)}
-.history-empty,.log-empty{color:var(--text-faint);font-size:11px}
+/* ── Alerts ── */
+.alert{padding:10px 12px;border-radius:2px;display:flex;gap:10px;align-items:flex-start;animation:slide-in .3s ease}
+@keyframes slide-in{0%{transform:translateY(-6px);opacity:0}100%{transform:translateY(0);opacity:1}}
+.alert-draw{background:rgba(232,168,50,.06);border:1px solid rgba(232,168,50,.3)}
+.alert-3fold{background:rgba(155,114,232,.06);border:1px solid rgba(155,114,232,.4)}
+.alert-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.alert-title{font-family:var(--ff-display);font-size:9px;letter-spacing:2px;color:var(--amber);margin-bottom:2px}
+.alert-3fold .alert-title{color:var(--purple)}
+.alert-body{font-size:10px;color:var(--mist)}
 
-/* Timeline */
-.panel-timeline .timeline{display:flex;flex-direction:column;gap:0;overflow-y:auto;flex:1;max-height:440px}
-.tl-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--text-faint)}
-.tl-index{font-size:9px;color:var(--text-dim);letter-spacing:1px;min-width:20px;padding-top:2px}
-.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;margin-top:3px}
-.tl-dot.x{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
-.tl-dot.o{background:var(--gold);box-shadow:0 0 6px var(--gold)}
+/* ── Game Log (Timeline) ── */
+.tl-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ink-4);animation:slide-in .25s ease}
+.tl-num{font-size:9px;color:var(--mist);min-width:22px;padding-top:2px;letter-spacing:1px}
+.tl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-dot-x{background:var(--amber)}
+.tl-dot-o{background:var(--blue)}
 .tl-content{flex:1}
-.tl-state{font-size:11px;letter-spacing:3px;color:var(--text)}
-.tl-meta{font-size:10px;color:var(--text-dim);margin-top:2px;letter-spacing:1px}
+.tl-state{font-size:11px;letter-spacing:3px;color:var(--paper)}
+.tl-meta{font-size:9px;color:var(--mist);margin-top:2px;letter-spacing:.5px}
+.tl-badge{display:inline-block;font-size:8px;padding:1px 5px;margin-left:5px;letter-spacing:1px;border-radius:1px}
+.tl-badge-rep{background:rgba(155,114,232,.15);color:var(--purple);border:1px solid rgba(155,114,232,.3)}
+.tl-empty{font-size:11px;color:var(--mist);padding:20px 0;text-align:center}
 
-/* Sync */
-.sync-buttons{display:flex;gap:8px;flex-wrap:wrap}
-.verdict-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.verdict-card{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid rgba(255,61,87,.35);border-radius:var(--radius);background:rgba(255,61,87,.05);font-size:10px;color:var(--red)}
-.verdict-card.verdict-safe{border-color:rgba(0,230,118,.35);background:rgba(0,230,118,.05);color:var(--green)}
-.verdict-icon{font-size:16px;flex-shrink:0}
-.verdict-text{font-size:10px;letter-spacing:1px;line-height:1.4}
-.sem-diagram{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-panel2);gap:10px}
-.sem-thread{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
-.thread-label{font-size:9px;color:var(--text-dim);letter-spacing:2px}
-.thread-icon{font-family:var(--font-display);font-size:22px;font-weight:900}
-.thread-icon.x{color:var(--cyan);text-shadow:var(--glow-cyan)}
-.thread-icon.o{color:var(--gold);text-shadow:var(--glow-gold)}
-.thread-state{font-family:var(--font-display);font-size:10px;padding:4px 10px;border-radius:2px;border:1px solid var(--border);color:var(--text-dim);transition:all .3s;letter-spacing:1px}
-.thread-state.running{color:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(0,230,118,.3)}
-.thread-state.waiting{color:var(--gold);border-color:var(--gold-dim)}
-.thread-state.blocked{color:var(--red);border-color:rgba(255,61,87,.5)}
-.sem-center{text-align:center}
-.sem-title-label{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:4px}
-.mutex-lock{font-size:22px;transition:all .3s}
-.sem-counter{font-family:var(--font-display);font-size:11px;color:var(--cyan);letter-spacing:2px;margin-top:4px}
-.sem-ops{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:9px}
-.sem-op{padding:2px 6px;border-radius:2px;letter-spacing:1px}
-.p-op{color:var(--red);border:1px solid rgba(255,61,87,.3)}
-.v-op{color:var(--green);border:1px solid rgba(0,230,118,.3)}
-.sem-op-arrow{color:var(--text-dim)}
-.sem-note{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-align:center;min-height:20px}
-.log-label{font-size:9px;color:var(--text-dim);letter-spacing:2px}
-.log-box{flex:1;background:#040608;border:1px solid var(--border);border-radius:var(--radius);padding:10px;overflow-y:auto;max-height:200px;font-size:10px;line-height:1.8;font-family:var(--font-mono)}
-.log-line{display:block;color:var(--text-dim);border-bottom:1px solid var(--text-faint);padding:2px 0}
-.log-line.warn,.log-line.corrupt{color:var(--red)}
-.log-line.safe{color:var(--green)}
-.log-line.head{color:var(--cyan);font-family:var(--font-display);letter-spacing:2px;font-size:9px;border-color:var(--border)}
+/* ══════════════════════════════════════════
+   VIEW 2: SEMAPHORE
+══════════════════════════════════════════ */
+#view-sem{display:none;flex-direction:column;overflow-y:auto}
+#view-sem.active{display:flex}
+.sem-wrap{max-width:900px;width:100%;margin:0 auto;padding:24px 20px;display:flex;flex-direction:column;gap:20px}
+.sem-section{background:var(--ink-2);border:1px solid var(--ink-4)}
+.sem-sh{padding:12px 18px;border-bottom:1px solid var(--ink-4);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sem-sh-title{font-family:var(--ff-display);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--fog);text-transform:uppercase}
+.sem-sb{padding:18px;display:flex;flex-direction:column;gap:16px}
+.sem-btns{display:flex;gap:8px;flex-wrap:wrap}
 
-/* Strategy */
-.strat-columns{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
-.strat-player{background:var(--bg-panel2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
-.strat-x{border-color:var(--cyan-dim)}
-.strat-o{border-color:var(--gold-dim)}
-.strat-name{font-family:var(--font-display);font-size:10px;letter-spacing:3px;margin-bottom:8px}
-.strat-x .strat-name{color:var(--cyan)}
-.strat-o .strat-name{color:var(--gold)}
-.strat-moves{font-size:16px;letter-spacing:4px;color:var(--text);min-height:26px;transition:all .3s;word-break:break-all}
-.strat-label{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:5px}
-.strat-center{text-align:center}
-.strat-sim-val{font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--cyan);text-shadow:var(--glow-cyan);transition:all .4s}
-.strat-sim-label{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:4px;line-height:1.6}
-.strat-ed{font-size:10px;color:var(--text-dim);margin-top:7px;letter-spacing:1px}
-.strat-report{font-family:var(--font-display);font-size:11px;letter-spacing:2px;text-align:center;padding:10px;border:1px solid var(--border);border-radius:var(--radius);color:var(--text-dim);min-height:34px;transition:all .3s}
-.strat-report.similar{color:var(--red);border-color:rgba(255,61,87,.4);background:rgba(255,61,87,.04)}
-.strat-report.moderate{color:var(--gold);border-color:rgba(255,196,0,.4);background:rgba(255,196,0,.04)}
-.strat-report.distinct{color:var(--green);border-color:rgba(0,230,118,.4);background:rgba(0,230,118,.04)}
+/* Semaphore visualizer */
+.sem-viz{display:grid;grid-template-columns:1fr 180px 1fr;gap:0;background:var(--ink-4);border:1px solid var(--ink-4)}
+.sem-proc{background:var(--ink-3);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.sem-proc-title{font-size:8px;letter-spacing:3px;color:var(--mist);text-transform:uppercase}
+.sem-proc-sym{font-family:var(--ff-display);font-size:28px;font-weight:700}
+.sem-proc-sym.sx{color:var(--amber)}
+.sem-proc-sym.so{color:var(--blue)}
+.proc-state-badge{padding:4px 12px;font-family:var(--ff-display);font-size:9px;letter-spacing:2px;border:1px solid var(--ink-5);color:var(--mist);transition:all .4s}
+.proc-state-badge.running{border-color:var(--green);color:var(--green);background:rgba(76,175,130,.1)}
+.proc-state-badge.waiting{border-color:var(--amber);color:var(--amber);background:rgba(232,168,50,.08)}
+.proc-state-badge.blocked{border-color:var(--red);color:var(--red);background:rgba(224,82,82,.08)}
+.proc-state-badge.idle{border-color:var(--ink-5);color:var(--mist)}
+.proc-queue{display:flex;flex-direction:column;gap:4px;width:100%;min-height:30px}
+.proc-queue-item{font-size:9px;color:var(--mist);padding:3px 6px;border-left:2px solid var(--ink-5);letter-spacing:.5px;transition:all .3s}
+.proc-queue-item.active{border-left-color:var(--amber);color:var(--fog)}
 
-/* Footer */
-.footer{position:relative;z-index:5;text-align:center;padding:14px;font-size:10px;color:var(--text-faint);letter-spacing:2px;border-top:1px solid var(--border)}
+/* Central mutex */
+.sem-mutex{background:var(--ink-2);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;border-left:1px solid var(--ink-4);border-right:1px solid var(--ink-4)}
+.mutex-title{font-size:8px;letter-spacing:3px;color:var(--mist);text-transform:uppercase}
+.mutex-icon{font-size:38px;transition:all .4s}
+.mutex-icon.locked{filter:drop-shadow(0 0 8px rgba(76,175,130,.5))}
+.mutex-icon.danger{filter:drop-shadow(0 0 8px rgba(224,82,82,.5))}
+.mutex-s{font-family:var(--ff-display);font-size:13px;letter-spacing:2px;color:var(--fog)}
+.mutex-ops{display:flex;gap:8px;margin-top:4px}
+.mutex-op{font-size:9px;padding:3px 8px;letter-spacing:1px;border-radius:2px}
+.op-p{color:var(--red);border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.05)}
+.op-v{color:var(--green);border:1px solid rgba(76,175,130,.3);background:rgba(76,175,130,.05)}
+.mutex-note{font-size:10px;color:var(--mist);text-align:center;min-height:30px;line-height:1.6;letter-spacing:.3px}
+
+/* Critical section highlight */
+.cs-highlight{border:1px solid var(--ink-4);background:var(--ink-3);padding:12px;position:relative;overflow:hidden}
+.cs-highlight::before{content:'CRITICAL SECTION';position:absolute;top:8px;right:10px;font-size:8px;letter-spacing:2px;color:var(--mist)}
+.cs-board-mini{display:grid;grid-template-columns:repeat(3,28px);gap:2px;margin:14px auto 0}
+.cs-cell{width:28px;height:28px;background:var(--ink-4);display:flex;align-items:center;justify-content:center;font-family:var(--ff-display);font-size:12px;font-weight:700}
+.cs-cell.cx{color:var(--amber)}
+.cs-cell.co{color:var(--blue)}
+.cs-corrupted .cs-cell.conflict{background:rgba(224,82,82,.25);animation:glitch .2s step-end infinite}
+@keyframes glitch{0%{opacity:1}50%{opacity:.3;transform:translateX(1px)}100%{opacity:1}}
+
+/* Verdict cards */
+.verdict-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.verdict-card{padding:12px 14px;display:flex;gap:10px;align-items:flex-start;border-radius:2px}
+.vc-unsafe{border:1px solid rgba(224,82,82,.35);background:rgba(224,82,82,.05)}
+.vc-safe{border:1px solid rgba(76,175,130,.35);background:rgba(76,175,130,.05)}
+.vc-icon{font-size:18px;flex-shrink:0}
+.vc-title{font-family:var(--ff-display);font-size:9px;letter-spacing:2px;margin-bottom:3px}
+.vc-unsafe .vc-title{color:var(--red)}
+.vc-safe .vc-title{color:var(--green)}
+.vc-body{font-size:10px;color:var(--mist);line-height:1.6}
+
+/* Event log */
+.event-log{background:#080a0d;border:1px solid var(--ink-4);padding:10px;max-height:200px;overflow-y:auto;font-size:10px;line-height:2;font-family:var(--ff-mono)}
+.el-line{display:block;letter-spacing:.3px;padding:1px 0;border-bottom:1px solid rgba(255,255,255,.02)}
+.el-head{color:var(--amber);font-family:var(--ff-display);font-size:8px;letter-spacing:3px;border-bottom:1px solid var(--ink-4)!important}
+.el-safe{color:var(--green)}
+.el-warn{color:var(--amber)}
+.el-err{color:var(--red)}
+
+/* ══════════════════════════════════════════
+   VIEW 3: ANALYTICS
+══════════════════════════════════════════ */
+#view-analytics{display:none;flex-direction:column;overflow-y:auto}
+#view-analytics.active{display:flex}
+.ana-wrap{max-width:960px;width:100%;margin:0 auto;padding:24px 20px;display:flex;flex-direction:column;gap:18px}
+.ana-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ana-card{background:var(--ink-2);border:1px solid var(--ink-4)}
+.ana-head{padding:11px 16px;border-bottom:1px solid var(--ink-4);display:flex;align-items:center;justify-content:space-between}
+.ana-head-title{font-family:var(--ff-display);font-size:9px;font-weight:700;letter-spacing:3px;color:var(--fog);text-transform:uppercase}
+.ana-body{padding:16px}
+
+/* Strategy compare */
+.strat-grid{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;background:var(--ink-4)}
+.strat-col{background:var(--ink-3);padding:14px 12px;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
+.strat-sym{font-family:var(--ff-display);font-size:20px;font-weight:700;margin-bottom:2px}
+.strat-sym.sx{color:var(--amber)}
+.strat-sym.so{color:var(--blue)}
+.strat-name{font-family:var(--ff-display);font-size:9px;letter-spacing:2px;color:var(--fog)}
+.strat-seq{font-size:12px;letter-spacing:3px;color:var(--paper);min-height:22px;word-break:break-all}
+.strat-seq-lbl{font-size:8px;letter-spacing:1px;color:var(--mist)}
+.strat-center{background:var(--ink-2);padding:14px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-left:1px solid var(--ink-4);border-right:1px solid var(--ink-4)}
+.strat-pct{font-family:var(--ff-display);font-size:24px;font-weight:700;color:var(--paper);transition:all .4s}
+.strat-pct-lbl{font-size:8px;letter-spacing:2px;color:var(--mist)}
+.strat-report{margin-top:10px;padding:10px 12px;font-family:var(--ff-display);font-size:10px;letter-spacing:2px;text-align:center;border-radius:2px}
+.strat-similar{color:var(--red);border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.05)}
+.strat-moderate{color:var(--amber);border:1px solid rgba(232,168,50,.3);background:rgba(232,168,50,.05)}
+.strat-distinct{color:var(--green);border:1px solid rgba(76,175,130,.3);background:rgba(76,175,130,.05)}
+.strat-neutral{color:var(--mist);border:1px solid var(--ink-4);background:var(--ink-3)}
+
+/* Heatmap */
+.heatmap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.hm-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:2px;transition:all .4s}
+.hm-n{font-family:var(--ff-display);font-size:14px;font-weight:700;color:var(--paper)}
+.hm-lbl{font-size:8px;letter-spacing:1px;color:rgba(255,255,255,.4)}
+
+/* Stats table */
+.stats-tbl{width:100%;border-collapse:collapse}
+.stats-tbl tr{border-bottom:1px solid var(--ink-4)}
+.stats-tbl td{padding:8px 4px;font-size:10px;vertical-align:middle}
+.stats-tbl td:first-child{color:var(--mist);font-size:9px;letter-spacing:1px;width:120px}
+.stats-tbl td:last-child{text-align:right;font-family:var(--ff-display);font-size:12px;color:var(--paper)}
+
+/* Move distribution bars */
+.dist-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.dist-lbl{font-size:8px;letter-spacing:1px;color:var(--mist);width:16px;text-align:right}
+.dist-bar-wrap{flex:1;height:14px;background:var(--ink-4);border-radius:1px;overflow:hidden;position:relative}
+.dist-bar{height:100%;border-radius:1px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.dist-bar-x{background:linear-gradient(90deg,var(--amber-deep),var(--amber))}
+.dist-bar-o{background:linear-gradient(90deg,var(--blue-dim),var(--blue))}
+.dist-val{font-size:8px;letter-spacing:1px;color:var(--mist);width:20px;text-align:right}
 
 /* Scrollbars */
 ::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:2px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--ink-5);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--mist)}
 
 .hidden{display:none!important}
-.mono{font-family:var(--font-mono)!important}
-.spinning{animation:spin .8s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
-  </style>
+@keyframes fade-in{0%{opacity:0}100%{opacity:1}}
+.fade-in{animation:fade-in .3s ease}
+</style>
 </head>
 <body>
 
-  <div class="bg-grid"></div>
-  <div class="bg-glow glow-1"></div>
-  <div class="bg-glow glow-2"></div>
-  <div class="scanline"></div>
+<div class="bg"><div class="bg-noise"></div><div class="bg-grid"></div></div>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-left">
-      <span class="logo-icon">⚡</span>
-      <div>
-        <div class="logo-title">TURN<span class="accent">ENGINE</span></div>
-        <div class="logo-sub">COMPETITIVE GAME VALIDATOR</div>
-      </div>
+<!-- HEADER -->
+<header>
+  <div class="hdr-brand">
+    <div class="hdr-logo-mark"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+    <div>
+      <div class="hdr-title">TURN<span>ENGINE</span></div>
     </div>
-    <div class="header-center">
-      <div class="turn-indicator">
-        <span class="turn-dot" id="turnDot"></span>
-        <span id="turnText">Waiting…</span>
-      </div>
+  </div>
+  <div class="hdr-sep"></div>
+  <div class="hdr-center">
+    <div class="turn-chip">
+      <div class="turn-pip blink" id="turnPip"></div>
+      <span class="turn-name" id="turnName">—</span>
+      <span class="turn-sym" id="turnSym"></span>
     </div>
-    <div class="header-right">
-      <div class="status-badge">
-        <span class="status-dot" id="statusDot"></span>
-        <span id="statusText">READY</span>
-      </div>
-      <div class="stat-chip">MOVE <span id="moveCount">0</span></div>
-      <button class="btn btn-ghost btn-sm" id="logoutBtn" onclick="window.location.href='login.html'">↩ LOGOUT</button>
-    </div>
-  </header>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-stat">MOVE <span id="hdrMove">0</span></div>
+    <div class="hdr-stat">STATUS <span id="hdrStatus">READY</span></div>
+    <button class="hdr-btn" onclick="window.location.href='login.html'">↩ LOGOUT</button>
+  </div>
+</header>
 
-  <!-- MAIN 3-COLUMN GRID -->
-  <main class="main-grid">
+<!-- TABS -->
+<nav class="tabs-bar">
+  <div class="tab active" data-tab="game">⚔ Arena</div>
+  <div class="tab" data-tab="sem">⚙ Semaphore Demo</div>
+  <div class="tab" data-tab="analytics">◈ Analytics <span class="tab-badge" id="anaAlert">!</span></div>
+</nav>
 
-    <!-- COL 1: GAME BOARD -->
-    <section class="panel panel-board">
-      <div class="panel-header">
-        <h2>⚔ ARENA</h2>
-        <span class="panel-tag">3×3 GRID</span>
-      </div>
+<!-- ═══════════ VIEW: GAME ═══════════ -->
+<div class="view" id="view-game">
 
-      <div class="player-bar">
-        <div class="player-chip player-x active" id="chipX">
-          <span class="chip-symbol">X</span>
-          <span class="chip-name" id="nameX">ALPHA-7</span>
-          <span class="chip-status" id="statusX">YOUR TURN</span>
+  <!-- COL 1: BOARD -->
+  <div class="panel">
+    <div class="ph"><span class="ph-title">Arena</span><span class="ph-tag">3×3 GRID</span></div>
+    <div class="pb">
+
+      <div class="player-strip">
+        <div class="pchip p-x active-x" id="chipX">
+          <div class="pchip-sym">X</div>
+          <div class="pchip-name" id="nameX">ALPHA</div>
+          <div class="pchip-status" id="statX">YOUR TURN</div>
         </div>
-        <div class="vs-badge">VS</div>
-        <div class="player-chip player-o" id="chipO">
-          <span class="chip-symbol">O</span>
-          <span class="chip-name" id="nameO">OMEGA-3</span>
-          <span class="chip-status" id="statusO">WAITING</span>
+        <div class="vs-mid">vs</div>
+        <div class="pchip p-o" id="chipO">
+          <div class="pchip-sym">O</div>
+          <div class="pchip-name" id="nameO">OMEGA</div>
+          <div class="pchip-status" id="statO">WAITING</div>
         </div>
       </div>
 
       <div class="board-wrap">
         <div class="board" id="gameBoard"></div>
-        <div class="board-overlay hidden" id="boardOverlay"></div>
+        <div class="board-overlay" id="boardOverlay"></div>
       </div>
 
       <div class="state-row">
-        <span class="state-label">BOARD STATE</span>
-        <span class="state-str mono" id="stateStr">.........</span>
+        <span class="state-lbl">STATE</span>
+        <span class="state-val" id="stateStr">·········</span>
       </div>
 
-      <div class="game-message" id="gameMessage"></div>
+      <div class="board-msg" id="boardMsg"></div>
 
-      <div class="action-bar">
-        <button class="btn btn-danger btn-sm" id="resetBtn">↺ RESET</button>
-        <button class="btn btn-sm" id="autoSimBtn">▶ AUTO-SIM</button>
-        <button class="btn btn-ghost btn-sm" id="undoBtn">◁ UNDO</button>
+      <div class="action-row">
+        <button class="btn btn-red" id="resetBtn">↺ Reset</button>
+        <button class="btn btn-amber" id="autoSimBtn">▶ Auto-Sim</button>
+        <button class="btn" id="undoBtn">◁ Undo</button>
       </div>
-    </section>
-
-    <!-- COL 2: ANALYSIS ENGINE -->
-    <section class="panel panel-analysis">
-      <div class="panel-header">
-        <h2>◈ ANALYSIS ENGINE</h2>
-        <span class="panel-tag">DAA</span>
-      </div>
-
-      <!-- LCS Similarity Meter -->
-      <div class="metric-block">
-        <div class="metric-header-row">
-          <span class="metric-label">LCS SIMILARITY (vs 2 moves back)</span>
-          <span class="metric-val accent" id="simVal">—</span>
-        </div>
-        <div class="meter-track">
-          <div class="meter-fill" id="simMeter" style="width:0%"></div>
-        </div>
-        <div class="metric-sub" id="simNote">Needs at least 3 states to compare</div>
-      </div>
-
-      <!-- Stats Grid -->
-      <div class="stats-grid">
-        <div class="stat-cell">
-          <span class="sc-label">EDIT DIST</span>
-          <span class="sc-val" id="edVal">—</span>
-        </div>
-        <div class="stat-cell">
-          <span class="sc-label">LCS LENGTH</span>
-          <span class="sc-val" id="lcsVal">—</span>
-        </div>
-        <div class="stat-cell">
-          <span class="sc-label">STATE REPEATS</span>
-          <span class="sc-val" id="repeatVal">—</span>
-        </div>
-        <div class="stat-cell">
-          <span class="sc-label">THREEFOLD</span>
-          <div class="repeat-pips" id="repeatPips">
-            <span class="repeat-pip" id="pip0"></span>
-            <span class="repeat-pip" id="pip1"></span>
-            <span class="repeat-pip" id="pip2"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Draw Alerts (hidden by default) -->
-      <div class="alert-box" id="drawAlert" style="display:none">
-        <span class="alert-icon">⚠</span>
-        <div>
-          <div class="alert-title">POTENTIAL DRAW DETECTED</div>
-          <div class="alert-sub" id="drawReason">Similarity threshold crossed</div>
-        </div>
-      </div>
-      <div class="alert-box alert-threefold" id="threefoldAlert" style="display:none">
-        <span class="alert-icon">♻</span>
-        <div>
-          <div class="alert-title">THREEFOLD REPETITION</div>
-          <div class="alert-sub">Same board state appeared 3× — draw rule applies</div>
-        </div>
-      </div>
-
-      <!-- State History -->
-      <div class="history-section">
-        <div class="metric-label" style="margin-bottom:6px">STATE HISTORY</div>
-        <div class="history-list" id="historyList">
-          <span class="history-empty">No moves yet</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- COL 3: GAME LOG / TIMELINE -->
-    <section class="panel panel-timeline">
-      <div class="panel-header">
-        <h2>⏱ GAME LOG</h2>
-        <span class="panel-tag">TIMELINE</span>
-      </div>
-      <div class="timeline" id="timeline">
-        <span class="log-empty">No moves yet</span>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- BOTTOM GRID -->
-  <div class="bottom-grid">
-
-    <!-- OS SYNC DEMO -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2>⚙ OS SYNC DEMO</h2>
-        <span class="panel-tag">SEMAPHORE</span>
-      </div>
-
-      <div class="sync-buttons">
-        <button class="btn btn-danger btn-sm" id="raceBtn">⚡ RACE CONDITION</button>
-        <button class="btn btn-success btn-sm" id="safeBtn">🔒 SEMAPHORE SAFE</button>
-      </div>
-
-      <div class="sem-diagram" id="semDiagram">
-        <div class="sem-thread">
-          <div class="thread-label">PROCESS · P1</div>
-          <div class="thread-icon x">X</div>
-          <div class="thread-state" id="t1State">IDLE</div>
-        </div>
-        <div class="sem-center">
-          <div class="sem-title-label">SEMAPHORE</div>
-          <div class="mutex-lock" id="mutexLock">🔓</div>
-          <div class="sem-counter">S = <span id="semValue">1</span></div>
-          <div class="sem-ops">
-            <span class="sem-op p-op">P(wait)</span>
-            <span class="sem-op-arrow">⟵·⟶</span>
-            <span class="sem-op v-op">V(signal)</span>
-          </div>
-        </div>
-        <div class="sem-thread">
-          <div class="thread-label">PROCESS · P2</div>
-          <div class="thread-icon o">O</div>
-          <div class="thread-state" id="t2State">IDLE</div>
-        </div>
-      </div>
-
-      <div class="sem-note" id="semNote">Click a demo button to begin…</div>
-
-      <div class="verdict-row" id="verdictRow" style="display:none">
-        <div class="verdict-card" id="unsafeCard">
-          <span class="verdict-icon">💥</span>
-          <span class="verdict-text" id="unsafeText">—</span>
-        </div>
-        <div class="verdict-card verdict-safe" id="safeCard">
-          <span class="verdict-icon">✅</span>
-          <span class="verdict-text" id="safeText">—</span>
-        </div>
-      </div>
-
-      <div class="log-label">EVENT LOG</div>
-      <div class="log-box" id="logBox">
-        <span class="log-line head">[ Click a demo button to begin… ]</span>
-      </div>
-    </section>
-
-    <!-- STRATEGY COMPARE -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2>⇄ STRATEGY COMPARE</h2>
-        <span class="panel-tag bonus">BONUS</span>
-      </div>
-
-      <div class="strat-columns">
-        <div class="strat-player strat-x">
-          <div class="strat-name" id="stratNameX">ALPHA-7</div>
-          <div class="strat-moves mono" id="xMoves">—</div>
-          <div class="strat-label">MOVE SEQUENCE</div>
-        </div>
-        <div class="strat-center">
-          <div class="strat-sim-val" id="stratSim">—</div>
-          <div class="strat-sim-label">STRATEGY<br>SIMILARITY</div>
-          <div class="strat-ed" id="stratEd">EDIT DIST: —</div>
-          <div class="meter-track" style="margin-top:8px">
-            <div class="meter-fill" id="stratBar" style="width:0%"></div>
-          </div>
-        </div>
-        <div class="strat-player strat-o">
-          <div class="strat-name" id="stratNameO">OMEGA-3</div>
-          <div class="strat-moves mono" id="oMoves">—</div>
-          <div class="strat-label">MOVE SEQUENCE</div>
-        </div>
-      </div>
-
-      <div class="strat-report" id="stratReport">Play moves then click Compare</div>
-      <button class="btn btn-sm" id="stratBtn">COMPARE ▶</button>
-    </section>
-
+    </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    TurnEngine &nbsp;·&nbsp; DAA: LCS / Edit Distance &nbsp;·&nbsp;
-    OS: Semaphores / Mutual Exclusion &nbsp;·&nbsp; Hackathon Team 7
-  </footer>
+  <!-- COL 2: ANALYSIS ENGINE -->
+  <div class="panel">
+    <div class="ph"><span class="ph-title">Analysis Engine</span><span class="ph-tag">DAA — DP</span></div>
+    <div class="pb" style="overflow-y:auto">
+
+      <!-- LCS Similarity Meter -->
+      <div class="sim-block">
+        <div class="sim-header">
+          <span class="sim-title">LCS Similarity (vs −2 states)</span>
+          <span class="sim-pct" id="simPct">—</span>
+        </div>
+        <div class="track"><div class="fill" id="simFill" style="width:0%"></div></div>
+        <div class="sim-note" id="simNote">Needs 3+ states to compare</div>
+      </div>
+
+      <!-- Dynamic LCS Chart -->
+      <div class="chart-block">
+        <div class="chart-title">Live Similarity History</div>
+        <div class="lcs-chart-wrap"><canvas id="lcsCanvas" class="lcs-canvas"></canvas></div>
+        <div class="chart-legend">
+          <div class="leg-item"><div class="leg-dot leg-amber"></div>LCS %</div>
+          <div class="leg-item"><div class="leg-dot leg-blue"></div>Edit Dist (norm)</div>
+          <div class="leg-item"><div class="leg-dot leg-red"></div>80% threshold</div>
+        </div>
+      </div>
+
+      <!-- Metrics Grid -->
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="mc-lbl">Edit Distance</div>
+          <div class="mc-val amber" id="edVal">—</div>
+          <div class="mc-sub">Δ current vs −2</div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-lbl">LCS Length</div>
+          <div class="mc-val blue" id="lcsVal">—</div>
+          <div class="mc-sub">common chars</div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-lbl">State Repeats</div>
+          <div class="mc-val" id="repVal">—</div>
+          <div class="mc-sub">current state</div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-lbl">Unique States</div>
+          <div class="mc-val green" id="uniqueVal">1</div>
+          <div class="mc-sub">in this match</div>
+        </div>
+      </div>
+
+      <!-- Threefold -->
+      <div class="threefold-row">
+        <span class="tf-lbl">THREEFOLD</span>
+        <div class="tf-pips">
+          <div class="tf-pip" id="pip0">1</div>
+          <div class="tf-pip" id="pip1">2</div>
+          <div class="tf-pip" id="pip2">3</div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="alert alert-draw hidden" id="drawAlert">
+        <div class="alert-icon">⚠</div>
+        <div><div class="alert-title">Potential Draw Detected</div><div class="alert-body" id="drawAlertTxt">—</div></div>
+      </div>
+      <div class="alert alert-3fold hidden" id="threefoldAlert">
+        <div class="alert-icon">♻</div>
+        <div><div class="alert-title">Threefold Repetition</div><div class="alert-body">Same position appeared 3× — draw rule applies</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COL 3: GAME LOG -->
+  <div class="panel">
+    <div class="ph"><span class="ph-title">Game Log</span><span class="ph-tag">TIMELINE</span></div>
+    <div class="pb" style="padding:10px 12px">
+      <div class="tl-scroll" id="timeline">
+        <div class="tl-empty">No moves yet</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /view-game -->
+
+<!-- ═══════════ VIEW: SEMAPHORE ═══════════ -->
+<div class="view" id="view-sem">
+<div class="sem-wrap">
+
+  <div class="sem-section">
+    <div class="sem-sh">
+      <span class="sem-sh-title">OS Sync Demo — Mutual Exclusion</span>
+      <span class="ph-tag">SEMAPHORE</span>
+    </div>
+    <div class="sem-sb">
+
+      <div class="sem-btns">
+        <button class="btn btn-red" id="raceBtn">⚡ Race Condition (No Semaphore)</button>
+        <button class="btn btn-green" id="safeBtn">🔒 Semaphore Protected</button>
+        <button class="btn" id="semResetBtn">↺ Reset</button>
+      </div>
+
+      <div class="sem-viz" id="semViz">
+        <!-- Process P1 -->
+        <div class="sem-proc" id="proc1">
+          <div class="sem-proc-title">Process · P1 (X)</div>
+          <div class="sem-proc-sym sx" id="p1Sym">X</div>
+          <div class="proc-state-badge idle" id="p1Badge">IDLE</div>
+          <div style="font-size:9px;color:var(--mist);letter-spacing:1px;margin-top:6px;text-align:center">Action Queue</div>
+          <div class="proc-queue" id="p1Queue"></div>
+        </div>
+
+        <!-- Mutex -->
+        <div class="sem-mutex">
+          <div class="mutex-title">Semaphore</div>
+          <div class="mutex-icon" id="mutexIcon">🔓</div>
+          <div class="mutex-s">S = <span id="semS">1</span></div>
+          <div class="mutex-ops">
+            <span class="mutex-op op-p">P()</span>
+            <span style="color:var(--mist);font-size:10px">⟵·⟶</span>
+            <span class="mutex-op op-v">V()</span>
+          </div>
+          <div class="mutex-note" id="mutexNote">Click a demo to begin</div>
+        </div>
+
+        <!-- Process P2 -->
+        <div class="sem-proc" id="proc2">
+          <div class="sem-proc-title">Process · P2 (O)</div>
+          <div class="sem-proc-sym so" id="p2Sym">O</div>
+          <div class="proc-state-badge idle" id="p2Badge">IDLE</div>
+          <div style="font-size:9px;color:var(--mist);letter-spacing:1px;margin-top:6px;text-align:center">Action Queue</div>
+          <div class="proc-queue" id="p2Queue"></div>
+        </div>
+      </div>
+
+      <!-- Critical Section board mini -->
+      <div class="cs-highlight" id="csHighlight">
+        <div style="font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase;margin-bottom:6px">Shared Resource — Game Board</div>
+        <div class="cs-board-mini" id="csMini"></div>
+        <div style="font-size:9px;color:var(--mist);margin-top:8px;text-align:center;letter-spacing:.5px" id="csStatus">Board state: idle</div>
+      </div>
+
+      <div class="verdict-row hidden" id="verdictRow">
+        <div class="verdict-card vc-unsafe">
+          <div class="vc-icon">💥</div>
+          <div><div class="vc-title">Without Semaphore</div><div class="vc-body" id="unsafeText">—</div></div>
+        </div>
+        <div class="verdict-card vc-safe">
+          <div class="vc-icon">✅</div>
+          <div><div class="vc-title">With Semaphore</div><div class="vc-body" id="safeText">—</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:9px;letter-spacing:2px;color:var(--mist);text-transform:uppercase;margin-bottom:6px">Event Log</div>
+        <div class="event-log" id="eventLog"><span class="el-line el-head">[ Waiting for demo… ]</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div><!-- /view-sem -->
+
+<!-- ═══════════ VIEW: ANALYTICS ═══════════ -->
+<div class="view" id="view-analytics">
+<div class="ana-wrap">
+
+  <!-- Strategy Compare (full width) -->
+  <div class="ana-card">
+    <div class="ana-head">
+      <span class="ana-head-title">Strategy Comparison — Edit Distance Analysis</span>
+      <button class="btn btn-amber" id="stratCompareBtn" style="padding:5px 12px;font-size:9px">Compare ▶</button>
+    </div>
+    <div class="ana-body" style="display:flex;flex-direction:column;gap:12px">
+      <div class="strat-grid">
+        <div class="strat-col">
+          <div class="strat-sym sx">X</div>
+          <div class="strat-name" id="anaNameX">—</div>
+          <div class="strat-seq" id="xSeq">—</div>
+          <div class="strat-seq-lbl">Move Sequence</div>
+        </div>
+        <div class="strat-center">
+          <div class="strat-pct" id="stratPct">—</div>
+          <div class="strat-pct-lbl">SIMILARITY</div>
+          <div style="font-size:9px;color:var(--mist);margin-top:3px">ED: <span id="stratEd">—</span></div>
+          <div class="track" style="margin-top:6px;width:60px"><div class="fill" id="stratFill" style="width:0%"></div></div>
+        </div>
+        <div class="strat-col">
+          <div class="strat-sym so">O</div>
+          <div class="strat-name" id="anaNameO">—</div>
+          <div class="strat-seq" id="oSeq">—</div>
+          <div class="strat-seq-lbl">Move Sequence</div>
+        </div>
+      </div>
+      <div class="strat-report strat-neutral" id="stratReport">Play moves then click Compare</div>
+    </div>
+  </div>
+
+  <div class="ana-grid">
+
+    <!-- Heatmap -->
+    <div class="ana-card">
+      <div class="ana-head"><span class="ana-head-title">Move Frequency Heatmap</span></div>
+      <div class="ana-body">
+        <div class="heatmap-grid" id="heatmap"></div>
+        <div style="display:flex;gap:16px;margin-top:10px;font-size:9px;color:var(--mist)">
+          <span>■ <span style="color:var(--amber)">X moves</span></span>
+          <span>■ <span style="color:var(--blue)">O moves</span></span>
+          <span>■ Mixed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Stats -->
+    <div class="ana-card">
+      <div class="ana-head"><span class="ana-head-title">Match Statistics</span></div>
+      <div class="ana-body">
+        <table class="stats-tbl" id="statsTable">
+          <tr><td>Total Moves</td><td id="sTotalMoves">0</td></tr>
+          <tr><td>X Moves</td><td id="sXMoves">0</td></tr>
+          <tr><td>O Moves</td><td id="sOMoves">0</td></tr>
+          <tr><td>Unique States</td><td id="sUnique">1</td></tr>
+          <tr><td>Max Repeat</td><td id="sMaxRep">1×</td></tr>
+          <tr><td>Peak Similarity</td><td id="sPeakSim">—</td></tr>
+          <tr><td>Min Edit Dist</td><td id="sMinEd">—</td></tr>
+          <tr><td>Draw Warnings</td><td id="sDrawWarn">0</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Move Distribution -->
+    <div class="ana-card" style="grid-column:1/-1">
+      <div class="ana-head"><span class="ana-head-title">Cell Play Distribution</span></div>
+      <div class="ana-body" id="distBody" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px">
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- /view-analytics -->
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-//  TURNENGINE  —  script.js  (inline, self-contained)
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════
+//  TURNENGINE — main script
+// ══════════════════════════════════════════
 
-/* ── Retrieve player names set by login page ── */
-const P1_NAME = sessionStorage.getItem('p1Name') || 'ALPHA-7';
-const P2_NAME = sessionStorage.getItem('p2Name') || 'OMEGA-3';
-document.getElementById('nameX').textContent = P1_NAME;
-document.getElementById('nameO').textContent = P2_NAME;
-document.getElementById('stratNameX').textContent = P1_NAME;
-document.getElementById('stratNameO').textContent = P2_NAME;
+const P1 = sessionStorage.getItem('p1Name') || 'ALPHA';
+const P2 = sessionStorage.getItem('p2Name') || 'OMEGA';
+['nameX','anaNameX'].forEach(id=>document.getElementById(id).textContent=P1);
+['nameO','anaNameO'].forEach(id=>document.getElementById(id).textContent=P2);
+document.getElementById('stratNameX') && (document.getElementById('stratNameX').textContent=P1);
+document.getElementById('stratNameO') && (document.getElementById('stratNameO').textContent=P2);
 
-// ─── Game State ──────────────────────────────────────────────
-const G = {
-  board: Array(9).fill('.'),   // '.' = empty, 'X', 'O'
-  turn: 'X',                   // 'X' or 'O'
-  over: false,
-  moveNum: 0,
-  // Arrays of cell-index strings: "0".."8"
-  xMoves: [],
-  oMoves: [],
-  // All board-state strings recorded after every move (including start)
-  stateLog: ['`````````'],     // DON'T use '.........' — use backtick so it's distinct
-  // Map: stateString -> repeat count
-  repeatMap: {},
-  history: []                  // for undo: [{board, turn, moveNum, xMoves, oMoves, stateLog, repeatMap}]
+// ── Tabs ──
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('view-'+t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='analytics') refreshAnalytics();
+  });
+});
+// init first view
+document.getElementById('view-game').classList.add('active');
+
+// ──────────────────────────────────────────
+//  GAME STATE
+// ──────────────────────────────────────────
+const G={
+  board:Array(9).fill('.'),
+  turn:'X', over:false, moveNum:0,
+  xMoves:[], oMoves:[],
+  stateLog:[], repeatMap:{}, history:[],
+  simHistory:[], edHistory:[],
+  drawWarnCount:0,
+  cellCount:Array(10).fill(0) // index 0 unused; 1-9 for X; then reuse with 'O'
 };
-// Replace placeholder start state
-G.stateLog = [boardStr()];
+const xCell=Array(9).fill(0);
+const oCell=Array(9).fill(0);
+const WIN_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const SIM_THRESH=0.80;
 
-const WIN_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-const SIM_THRESHOLD = 0.80;   // 80% triggers draw warning
-const DRAW_LOOKBACK  = 2;     // compare current state vs state from 2 moves ago
+function bStr(){return G.board.join('')}
 
-// ─── Algorithms ──────────────────────────────────────────────
+G.stateLog=[bStr()];
 
-/** LCS length of two strings */
-function lcsLen(a, b) {
-  const m = a.length, n = b.length;
-  const dp = Array.from({length: m + 1}, () => new Int32Array(n + 1));
-  for (let i = 1; i <= m; i++)
-    for (let j = 1; j <= n; j++)
-      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+// ──────────────────────────────────────────
+//  ALGORITHMS
+// ──────────────────────────────────────────
+function lcsLen(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},()=>new Int32Array(n+1));
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  return dp[m][n];
+}
+function lcsSim(a,b){if(!a||!b)return 0;return lcsLen(a,b)/Math.max(a.length,b.length);}
+function editDist(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
   return dp[m][n];
 }
 
-/** Similarity in [0,1] using LCS / max(len) */
-function lcsSim(a, b) {
-  if (!a || !b) return 0;
-  const l = lcsLen(a, b);
-  return l / Math.max(a.length, b.length);
+// ──────────────────────────────────────────
+//  RENDER BOARD
+// ──────────────────────────────────────────
+function renderBoard(){
+  const el=document.getElementById('gameBoard');
+  el.innerHTML='';
+  G.board.forEach((v,i)=>{
+    const c=document.createElement('div');
+    c.className='cell'+(v!=='.'?' '+(v==='X'?'cx':'co')+' taken':'');
+    c.textContent=v!=='.'?v:'';
+    if(v==='.')c.addEventListener('click',()=>handleClick(i));
+    el.appendChild(c);
+  });
 }
 
-/** Wagner-Fischer edit distance */
-function editDist(a, b) {
-  const m = a.length, n = b.length;
-  const dp = Array.from({length: m + 1}, (_, i) =>
-    Array.from({length: n + 1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
-  for (let i = 1; i <= m; i++)
-    for (let j = 1; j <= n; j++)
-      dp[i][j] = a[i-1] === b[j-1]
-        ? dp[i-1][j-1]
-        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
-  return dp[m][n];
+function updateTurnUI(){
+  const isX=G.turn==='X';
+  const cx=document.getElementById('chipX'),co=document.getElementById('chipO');
+  cx.className='pchip p-x'+(isX?' active-x':'');
+  co.className='pchip p-o'+(isX?'':' active-o');
+  document.getElementById('statX').textContent=isX?'YOUR TURN':'WAITING';
+  document.getElementById('statO').textContent=isX?'WAITING':'YOUR TURN';
+  document.getElementById('turnName').textContent=isX?P1:P2;
+  document.getElementById('turnSym').textContent=isX?'(X)':'(O)';
+  document.getElementById('turnPip').className='turn-pip blink '+(isX?'':'blue');
+  document.getElementById('stateStr').textContent=bStr();
+  document.getElementById('hdrMove').textContent=G.moveNum;
 }
 
-// ─── Board helpers ───────────────────────────────────────────
+// ──────────────────────────────────────────
+//  LCS CHART (canvas)
+// ──────────────────────────────────────────
+function drawLCSChart(){
+  const canvas=document.getElementById('lcsCanvas');
+  const wrap=canvas.parentElement;
+  canvas.width=wrap.offsetWidth||260;
+  canvas.height=wrap.offsetHeight||70;
+  const W=canvas.width,H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
 
-function boardStr() { return G.board.join(''); }
+  // threshold line
+  ctx.beginPath();ctx.setLineDash([3,3]);
+  ctx.strokeStyle='rgba(224,82,82,0.4)';ctx.lineWidth=1;
+  const ty=(1-SIM_THRESH)*H;ctx.moveTo(0,ty);ctx.lineTo(W,ty);ctx.stroke();
+  ctx.setLineDash([]);
 
-function checkWinner(board) {
-  for (const [a, b, c] of WIN_LINES)
-    if (board[a] !== '.' && board[a] === board[b] && board[b] === board[c])
-      return { winner: board[a], line: [a, b, c] };
+  const simD=G.simHistory;
+  const edD=G.edHistory;
+
+  function drawLine(data,color,maxVal=1){
+    if(data.length<2)return;
+    const step=W/(data.length-1);
+    ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;
+    data.forEach((v,i)=>{
+      const x=i*step;const y=(1-(v/maxVal))*H;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    // dots
+    ctx.fillStyle=color;
+    data.forEach((v,i)=>{
+      const x=i*step;const y=(1-(v/maxVal))*H;
+      ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fill();
+    });
+  }
+
+  const maxED=Math.max(...edD,1);
+  drawLine(simD,'rgba(232,168,50,0.85)',1);
+  drawLine(edD.map(v=>v/maxED),'rgba(106,184,232,0.65)',1);
+}
+
+// ──────────────────────────────────────────
+//  ANALYSIS
+// ──────────────────────────────────────────
+function runAnalysis(){
+  const log=G.stateLog;
+  const cur=log[log.length-1];
+  G.repeatMap[cur]=(G.repeatMap[cur]||0)+1;
+  const reps=G.repeatMap[cur];
+  document.getElementById('repVal').textContent=reps+'×';
+  document.getElementById('repVal').className='mc-val'+(reps>=3?' red':reps>=2?' amber':'');
+  // pips
+  for(let k=0;k<3;k++)document.getElementById('pip'+k).classList.toggle('lit',k<reps);
+  // threefold
+  const tfAlert=document.getElementById('threefoldAlert');
+  reps>=3?tfAlert.classList.remove('hidden'):tfAlert.classList.add('hidden');
+
+  // unique
+  const uq=Object.keys(G.repeatMap).length;
+  document.getElementById('uniqueVal').textContent=uq;
+
+  // LCS vs -2
+  const ci=log.length-1-2;
+  if(ci<0){
+    ['simPct','edVal','lcsVal'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('simFill').style.width='0%';
+    document.getElementById('simNote').textContent=`Need 3+ states (have ${log.length})`;
+    document.getElementById('drawAlert').classList.add('hidden');
+    drawLCSChart();
+    return;
+  }
+  const prev=log[ci];
+  const sim=lcsSim(cur,prev);
+  const ll=lcsLen(cur,prev);
+  const ed=editDist(cur,prev);
+  const pct=Math.round(sim*100);
+
+  G.simHistory.push(sim);
+  G.edHistory.push(ed);
+
+  document.getElementById('simPct').textContent=pct+'%';
+  document.getElementById('simPct').className='sim-pct'+(sim>=SIM_THRESH?' danger':'');
+  document.getElementById('simFill').style.width=pct+'%';
+  document.getElementById('simFill').className='fill'+(sim>=SIM_THRESH?' danger':'');
+  document.getElementById('simNote').textContent=`Comparing state #${log.length-1} vs #${ci+1}`;
+  document.getElementById('lcsVal').textContent=ll;
+  document.getElementById('edVal').textContent=ed;
+
+  const da=document.getElementById('drawAlert');
+  if(sim>=SIM_THRESH){
+    da.classList.remove('hidden');
+    document.getElementById('drawAlertTxt').textContent=`Similarity ${pct}% ≥ ${Math.round(SIM_THRESH*100)}% threshold — possible stalling`;
+    G.drawWarnCount++;
+  } else {
+    da.classList.add('hidden');
+  }
+
+  drawLCSChart();
+}
+
+// ──────────────────────────────────────────
+//  TIMELINE
+// ──────────────────────────────────────────
+function addTL(idx,player,state,num){
+  const tl=document.getElementById('timeline');
+  const em=tl.querySelector('.tl-empty');if(em)em.remove();
+  const reps=G.repeatMap[state]||1;
+  const repBadge=reps>1?`<span class="tl-badge tl-badge-rep">×${reps}</span>`:'';
+  const item=document.createElement('div');
+  item.className='tl-item';
+  item.innerHTML=`
+    <span class="tl-num">#${String(num).padStart(2,'0')}</span>
+    <span class="tl-dot tl-dot-${player.toLowerCase()}"></span>
+    <div class="tl-content">
+      <div class="tl-state">${state}${repBadge}</div>
+      <div class="tl-meta">${player} → cell[${idx}] · sim:${document.getElementById('simPct').textContent}</div>
+    </div>`;
+  tl.appendChild(item);
+  tl.scrollTop=tl.scrollHeight;
+}
+
+// ──────────────────────────────────────────
+//  MOVE LOGIC
+// ──────────────────────────────────────────
+function handleClick(idx){if(G.over||G.board[idx]!=='.')return;commitMove(idx);}
+
+function commitMove(idx){
+  G.history.push({board:[...G.board],turn:G.turn,moveNum:G.moveNum,
+    xMoves:[...G.xMoves],oMoves:[...G.oMoves],
+    stateLog:[...G.stateLog],repeatMap:{...G.repeatMap},
+    simHistory:[...G.simHistory],edHistory:[...G.edHistory],
+    drawWarnCount:G.drawWarnCount});
+  G.board[idx]=G.turn;G.moveNum++;
+  if(G.turn==='X'){G.xMoves.push(String(idx));xCell[idx]++;}
+  else{G.oMoves.push(String(idx));oCell[idx]++;}
+  const s=bStr();G.stateLog.push(s);
+  renderBoard();updateTurnUI();runAnalysis();addTL(idx,G.turn,s,G.moveNum);
+
+  const win=checkWin();
+  if(win){
+    G.over=true;
+    highlightWin(win.line);
+    const wn=win.w==='X'?P1:P2;
+    const msg=document.getElementById('boardMsg');
+    msg.textContent=`🏆 ${wn} wins!`;msg.className='board-msg win-msg';
+    const ov=document.getElementById('boardOverlay');
+    ov.textContent=`${wn} WINS`;ov.style.display='flex';
+    document.getElementById('hdrStatus').textContent='GAME OVER';
+    return;
+  }
+  if(G.board.every(c=>c!=='.')){
+    G.over=true;
+    const msg=document.getElementById('boardMsg');
+    msg.textContent='⚖ Draw — board full';msg.className='board-msg draw-msg';
+    const ov=document.getElementById('boardOverlay');
+    ov.textContent='DRAW';ov.style.display='flex';
+    document.getElementById('hdrStatus').textContent='DRAW';
+    return;
+  }
+  G.turn=G.turn==='X'?'O':'X';
+  updateTurnUI();
+}
+
+function checkWin(){
+  for(const [a,b,c] of WIN_LINES)
+    if(G.board[a]!=='.'&&G.board[a]===G.board[b]&&G.board[b]===G.board[c])
+      return{w:G.board[a],line:[a,b,c]};
   return null;
 }
 
-function isBoardFull(board) { return board.every(c => c !== '.'); }
-
-// ─── Rendering ───────────────────────────────────────────────
-
-function renderBoard() {
-  const bEl = document.getElementById('gameBoard');
-  bEl.innerHTML = '';
-  G.board.forEach((val, i) => {
-    const cell = document.createElement('div');
-    cell.className = 'cell' + (val !== '.' ? ` ${val.toLowerCase()} taken` : '');
-    cell.textContent = val !== '.' ? val : '';
-    if (val === '.') cell.addEventListener('click', () => handleCellClick(i));
-    bEl.appendChild(cell);
-  });
+function highlightWin(line){
+  const cells=document.getElementById('gameBoard').children;
+  const cls=G.board[line[0]]==='X'?'win-x':'win-o';
+  line.forEach(i=>cells[i].classList.add(cls));
 }
 
-function updateTurnUI() {
-  const isX = G.turn === 'X';
-  const chipX = document.getElementById('chipX');
-  const chipO = document.getElementById('chipO');
-  chipX.classList.toggle('active', isX);
-  chipO.classList.toggle('active', !isX);
-  document.getElementById('statusX').textContent = isX ? 'YOUR TURN' : 'WAITING';
-  document.getElementById('statusO').textContent = !isX ? 'YOUR TURN' : 'WAITING';
-  document.getElementById('turnText').textContent = isX
-    ? `${P1_NAME} (X) to move`
-    : `${P2_NAME} (O) to move`;
-  document.getElementById('stateStr').textContent = boardStr();
-  document.getElementById('moveCount').textContent = G.moveNum;
+// ──────────────────────────────────────────
+//  RESET
+// ──────────────────────────────────────────
+function resetGame(){
+  Object.assign(G,{board:Array(9).fill('.'),turn:'X',over:false,moveNum:0,
+    xMoves:[],oMoves:[],stateLog:[],repeatMap:{},history:[],
+    simHistory:[],edHistory:[],drawWarnCount:0});
+  xCell.fill(0);oCell.fill(0);
+  G.stateLog=[bStr()];
+  renderBoard();updateTurnUI();
+  ['simPct','edVal','lcsVal','repVal'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('uniqueVal').textContent='1';
+  document.getElementById('simFill').style.width='0%';
+  document.getElementById('simNote').textContent='Needs 3+ states to compare';
+  ['drawAlert','threefoldAlert'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  for(let k=0;k<3;k++)document.getElementById('pip'+k).classList.remove('lit');
+  document.getElementById('timeline').innerHTML='<div class="tl-empty">No moves yet</div>';
+  const msg=document.getElementById('boardMsg');msg.textContent='';msg.className='board-msg';
+  document.getElementById('boardOverlay').style.display='none';
+  document.getElementById('hdrStatus').textContent='READY';
+  document.getElementById('anaAlert').classList.remove('show');
+  drawLCSChart();
 }
 
-// ─── Analysis after every move ────────────────────────────────
-
-function runAnalysis() {
-  const log = G.stateLog;
-  const cur = log[log.length - 1];
-
-  // ── Repeat detection (threefold) ──────────────────────────
-  G.repeatMap[cur] = (G.repeatMap[cur] || 0) + 1;
-  const reps = G.repeatMap[cur];
-  document.getElementById('repeatVal').textContent = `${reps}×`;
-
-  // Light up threefold pips
-  for (let k = 0; k < 3; k++)
-    document.getElementById(`pip${k}`).classList.toggle('lit', k < reps);
-
-  if (reps >= 3) {
-    document.getElementById('threefoldAlert').style.display = 'flex';
+// ──────────────────────────────────────────
+//  UNDO
+// ──────────────────────────────────────────
+document.getElementById('undoBtn').addEventListener('click',()=>{
+  if(!G.history.length)return;
+  const s=G.history.pop();
+  Object.assign(G,{board:s.board,turn:s.turn,moveNum:s.moveNum,
+    xMoves:s.xMoves,oMoves:s.oMoves,stateLog:s.stateLog,
+    repeatMap:s.repeatMap,simHistory:s.simHistory,edHistory:s.edHistory,
+    drawWarnCount:s.drawWarnCount,over:false});
+  // rebuild xCell/oCell
+  xCell.fill(0);oCell.fill(0);
+  G.xMoves.forEach(m=>xCell[+m]++);
+  G.oMoves.forEach(m=>oCell[+m]++);
+  renderBoard();updateTurnUI();
+  const msg=document.getElementById('boardMsg');msg.textContent='';msg.className='board-msg';
+  document.getElementById('boardOverlay').style.display='none';
+  document.getElementById('hdrStatus').textContent='READY';
+  // Re-run analysis on last recorded state
+  if(G.stateLog.length>1){
+    // just refresh metrics from last known values
+    const log=G.stateLog;
+    const cur=log[log.length-1];
+    const reps=G.repeatMap[cur]||0;
+    document.getElementById('repVal').textContent=reps?reps+'×':'—';
+    document.getElementById('uniqueVal').textContent=Object.keys(G.repeatMap).length;
+    for(let k=0;k<3;k++)document.getElementById('pip'+k).classList.toggle('lit',k<reps);
+    if(reps<3)document.getElementById('threefoldAlert').classList.add('hidden');
+    const ci=log.length-1-2;
+    if(ci>=0){
+      const prev=log[ci];
+      const sim=lcsSim(cur,prev);
+      const ll=lcsLen(cur,prev);
+      const ed=editDist(cur,prev);
+      const pct=Math.round(sim*100);
+      document.getElementById('simPct').textContent=pct+'%';
+      document.getElementById('simFill').style.width=pct+'%';
+      document.getElementById('lcsVal').textContent=ll;
+      document.getElementById('edVal').textContent=ed;
+    }
+    drawLCSChart();
   } else {
-    document.getElementById('threefoldAlert').style.display = 'none';
+    ['simPct','edVal','lcsVal'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('simFill').style.width='0%';
+    document.getElementById('drawAlert').classList.add('hidden');
+    drawLCSChart();
   }
-
-  // ── LCS similarity vs state LOOKBACK moves ago ────────────
-  // Only meaningful once we have enough history for a fair comparison
-  const compareIdx = log.length - 1 - DRAW_LOOKBACK;
-  if (compareIdx < 0) {
-    // Not enough history yet — show dashes, hide alert
-    document.getElementById('simVal').textContent = '—';
-    document.getElementById('simMeter').style.width = '0%';
-    document.getElementById('simMeter').classList.remove('danger');
-    document.getElementById('lcsVal').textContent = '—';
-    document.getElementById('edVal').textContent = '—';
-    document.getElementById('drawAlert').style.display = 'none';
-    document.getElementById('simNote').textContent =
-      `Need ${DRAW_LOOKBACK + 1} states to compare (have ${log.length})`;
-    return;
-  }
-
-  const prev = log[compareIdx];
-  const sim  = lcsSim(cur, prev);
-  const lLen = lcsLen(cur, prev);
-  const ed   = editDist(cur, prev);
-  const pct  = Math.round(sim * 100);
-
-  document.getElementById('simVal').textContent = pct + '%';
-  document.getElementById('simNote').textContent =
-    `Comparing move ${log.length - 1} vs move ${compareIdx}`;
-  document.getElementById('lcsVal').textContent = lLen;
-  document.getElementById('edVal').textContent = ed;
-
-  const fill = document.getElementById('simMeter');
-  fill.style.width = pct + '%';
-  fill.classList.toggle('danger', sim >= SIM_THRESHOLD);
-
-  // Draw alert
-  if (sim >= SIM_THRESHOLD) {
-    document.getElementById('drawAlert').style.display = 'flex';
-    document.getElementById('drawReason').textContent =
-      `Board similarity ${pct}% ≥ ${Math.round(SIM_THRESHOLD * 100)}% threshold — possible stalling`;
-  } else {
-    document.getElementById('drawAlert').style.display = 'none';
-  }
-}
-
-// ─── History panel ───────────────────────────────────────────
-
-function addHistoryItem(stateString, moveNum) {
-  const list = document.getElementById('historyList');
-  // Remove "no moves" placeholder on first move
-  const empty = list.querySelector('.history-empty');
-  if (empty) empty.remove();
-
-  // Remove 'last-child' highlight from previous last item
-  list.querySelectorAll('.history-item').forEach(el => el.classList.remove('last'));
-
-  const reps = G.repeatMap[stateString] || 1;
-  const item = document.createElement('div');
-  item.className = 'history-item' + (reps > 1 ? ' repeat' : '');
-  item.textContent = `#${String(moveNum).padStart(2,'0')}  ${stateString}` +
-    (reps > 1 ? `  [×${reps}]` : '');
-  list.appendChild(item);
-  list.scrollTop = list.scrollHeight;
-}
-
-// ─── Timeline panel ──────────────────────────────────────────
-
-function addTimelineItem(cellIdx, player, stateString, moveNum) {
-  const tl = document.getElementById('timeline');
-  const empty = tl.querySelector('.log-empty');
-  if (empty) empty.remove();
-
-  const item = document.createElement('div');
-  item.className = 'tl-item';
-  item.innerHTML = `
-    <span class="tl-index">#${String(moveNum).padStart(2,'0')}</span>
-    <span class="tl-dot ${player.toLowerCase()}"></span>
-    <div class="tl-content">
-      <div class="tl-state">${stateString}</div>
-      <div class="tl-meta">${player} → CELL[${cellIdx}]  ·  SIM:${document.getElementById('simVal').textContent}</div>
-    </div>`;
-  tl.appendChild(item);
-  tl.scrollTop = tl.scrollHeight;
-}
-
-// ─── Core move logic ─────────────────────────────────────────
-
-function handleCellClick(idx) {
-  if (G.over || G.board[idx] !== '.') return;
-  commitMove(idx);
-}
-
-function commitMove(idx) {
-  // Save undo snapshot
-  G.history.push({
-    board: [...G.board],
-    turn: G.turn,
-    moveNum: G.moveNum,
-    xMoves: [...G.xMoves],
-    oMoves: [...G.oMoves],
-    stateLog: [...G.stateLog],
-    repeatMap: { ...G.repeatMap }
-  });
-
-  // Apply move
-  G.board[idx] = G.turn;
-  G.moveNum++;
-  if (G.turn === 'X') G.xMoves.push(String(idx));
-  else G.oMoves.push(String(idx));
-
-  const s = boardStr();
-  G.stateLog.push(s);
-
-  renderBoard();
-  updateTurnUI();
-  runAnalysis();
-  addHistoryItem(s, G.moveNum);
-  addTimelineItem(idx, G.turn, s, G.moveNum);
-
-  // Check win
-  const result = checkWinner(G.board);
-  if (result) {
-    G.over = true;
-    highlightWinCells(result.line, result.winner);
-    const winName = result.winner === 'X' ? P1_NAME : P2_NAME;
-    const msg = document.getElementById('gameMessage');
-    msg.textContent = `🏆 ${winName} WINS!`;
-    msg.className = 'game-message win';
-    document.getElementById('boardOverlay').classList.remove('hidden');
-    document.getElementById('boardOverlay').textContent = `${winName} WINS`;
-    document.getElementById('statusText').textContent = 'GAME OVER';
-    return;
-  }
-
-  if (isBoardFull(G.board)) {
-    G.over = true;
-    const msg = document.getElementById('gameMessage');
-    msg.textContent = '⚖ DRAW — BOARD FULL';
-    msg.className = 'game-message draw';
-    document.getElementById('boardOverlay').classList.remove('hidden');
-    document.getElementById('boardOverlay').textContent = 'DRAW';
-    document.getElementById('statusText').textContent = 'DRAW';
-    return;
-  }
-
-  G.turn = G.turn === 'X' ? 'O' : 'X';
-  updateTurnUI();
-}
-
-function highlightWinCells(line, player) {
-  const cells = document.getElementById('gameBoard').children;
-  line.forEach(i => cells[i].classList.add('win-cell'));
-}
-
-// ─── Reset ───────────────────────────────────────────────────
-
-function resetGame() {
-  G.board = Array(9).fill('.');
-  G.turn = 'X'; G.over = false; G.moveNum = 0;
-  G.xMoves = []; G.oMoves = [];
-  G.stateLog = [boardStr()];
-  G.repeatMap = {}; G.history = [];
-
-  renderBoard();
-  updateTurnUI();
-
-  // Clear analysis
-  ['simVal','lcsVal','edVal','repeatVal'].forEach(id => document.getElementById(id).textContent = '—');
-  document.getElementById('simMeter').style.width = '0%';
-  document.getElementById('simMeter').classList.remove('danger');
-  document.getElementById('simNote').textContent = 'Needs at least 3 states to compare';
-  document.getElementById('drawAlert').style.display = 'none';
-  document.getElementById('threefoldAlert').style.display = 'none';
-  [0,1,2].forEach(k => document.getElementById(`pip${k}`).classList.remove('lit'));
-
-  // Clear panels
-  document.getElementById('historyList').innerHTML = '<span class="history-empty">No moves yet</span>';
-  document.getElementById('timeline').innerHTML = '<span class="log-empty">No moves yet</span>';
-
-  // Clear game message & overlay
-  const msg = document.getElementById('gameMessage');
-  msg.textContent = ''; msg.className = 'game-message';
-  document.getElementById('boardOverlay').classList.add('hidden');
-  document.getElementById('statusText').textContent = 'READY';
-
-  // Clear strategy
-  document.getElementById('xMoves').textContent = '—';
-  document.getElementById('oMoves').textContent = '—';
-  document.getElementById('stratSim').textContent = '—';
-  document.getElementById('stratEd').textContent = 'EDIT DIST: —';
-  document.getElementById('stratBar').style.width = '0%';
-  document.getElementById('stratReport').textContent = 'Play moves then click Compare';
-  document.getElementById('stratReport').className = 'strat-report';
-}
-
-// ─── Undo ────────────────────────────────────────────────────
-
-document.getElementById('undoBtn').addEventListener('click', () => {
-  if (G.history.length === 0) return;
-  const snap = G.history.pop();
-  Object.assign(G, {
-    board: snap.board,
-    turn: snap.turn,
-    moveNum: snap.moveNum,
-    xMoves: snap.xMoves,
-    oMoves: snap.oMoves,
-    stateLog: snap.stateLog,
-    repeatMap: snap.repeatMap,
-    over: false
-  });
-  renderBoard();
-  updateTurnUI();
-  runAnalysis();
-  document.getElementById('gameMessage').textContent = '';
-  document.getElementById('gameMessage').className = 'game-message';
-  document.getElementById('boardOverlay').classList.add('hidden');
-  document.getElementById('statusText').textContent = 'READY';
-
-  // Rebuild history list from stateLog
-  const list = document.getElementById('historyList');
-  list.innerHTML = G.stateLog.length <= 1
-    ? '<span class="history-empty">No moves yet</span>'
-    : '';
-  G.stateLog.slice(1).forEach((s, i) => {
-    const reps = G.repeatMap[s] || 1;
-    const item = document.createElement('div');
-    item.className = 'history-item' + (reps > 1 ? ' repeat' : '');
-    item.textContent = `#${String(i+1).padStart(2,'0')}  ${s}` + (reps > 1 ? `  [×${reps}]` : '');
-    list.appendChild(item);
+  // rebuild timeline
+  const tl=document.getElementById('timeline');
+  tl.innerHTML=G.moveNum===0?'<div class="tl-empty">No moves yet</div>':'';
+  const moves=[...G.xMoves.map((m,i)=>({idx:+m,p:'X',n:i*2+1})),...G.oMoves.map((m,i)=>({idx:+m,p:'O',n:i*2+2}))].sort((a,b)=>a.n-b.n);
+  moves.forEach(mv=>{
+    const st=G.stateLog[mv.n];if(!st)return;
+    const reps=G.repeatMap[st]||1;
+    const repB=reps>1?`<span class="tl-badge tl-badge-rep">×${reps}</span>`:'';
+    const item=document.createElement('div');item.className='tl-item';
+    item.innerHTML=`<span class="tl-num">#${String(mv.n).padStart(2,'0')}</span><span class="tl-dot tl-dot-${mv.p.toLowerCase()}"></span><div class="tl-content"><div class="tl-state">${st}${repB}</div><div class="tl-meta">${mv.p} → cell[${mv.idx}]</div></div>`;
+    tl.appendChild(item);
   });
 });
 
-// ─── Auto-Simulation (20 moves) ──────────────────────────────
-// Strategy: intentionally revisit positions to show draw detection
-// We play a full 9-move game, reset, play 9 more to force repeats, then 2 extra
+// ──────────────────────────────────────────
+//  AUTO-SIM (20+ moves, shows threefold)
+// ──────────────────────────────────────────
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
-document.getElementById('autoSimBtn').addEventListener('click', async () => {
-  resetGame();
-  await sleep(300);
-
-  // Game 1: play a full game that ends in draw
-  const game1 = [0,4,1,2,7,6,3,5,8]; // draw scenario
-  for (const idx of game1) {
-    if (G.over) break;
-    commitMove(idx);
-    await sleep(350);
-  }
-
-  await sleep(600);
-  // Record the state after move 3 (index 3 in game1) for later repeat
-  // We don't hard-reset — instead reset and replay SAME opening moves
-  // to guarantee exact state repeats (threefold demo)
-  const openingMoves = [0, 4, 8]; // these 3 moves from X side
-
-  resetGame();
-  await sleep(400);
-
-  // Round 2: same opening twice more
-  for (let round = 0; round < 2; round++) {
-    for (const idx of openingMoves) {
-      if (G.over) break;
-      commitMove(idx);
-      await sleep(350);
-    }
-    if (!G.over) {
-      // Undo the 3 moves to repeat the same position again
-      for (let k = 0; k < openingMoves.length; k++) {
-        if (G.history.length > 0) {
-          const snap = G.history.pop();
-          Object.assign(G, { board: snap.board, turn: snap.turn, moveNum: snap.moveNum,
-            xMoves: snap.xMoves, oMoves: snap.oMoves, stateLog: snap.stateLog,
-            repeatMap: snap.repeatMap, over: false });
-          renderBoard(); updateTurnUI(); runAnalysis();
+document.getElementById('autoSimBtn').addEventListener('click',async()=>{
+  resetGame();await sleep(300);
+  // Play a game that creates repeating states
+  const seq1=[0,4,1,3,8,6,2,5,7]; // draw
+  for(const i of seq1){if(G.over)break;commitMove(i);await sleep(280);}
+  await sleep(500);resetGame();await sleep(300);
+  // Repeat opening to force threefold
+  const opening=[0,4,8];
+  for(let r=0;r<3;r++){
+    for(const i of opening){commitMove(i);await sleep(300);}
+    if(r<2){// undo all
+      for(let k=0;k<opening.length;k++){
+        if(G.history.length){
+          const s=G.history.pop();
+          Object.assign(G,{board:s.board,turn:s.turn,moveNum:s.moveNum,
+            xMoves:s.xMoves,oMoves:s.oMoves,stateLog:s.stateLog,
+            repeatMap:s.repeatMap,simHistory:s.simHistory,edHistory:s.edHistory,
+            drawWarnCount:s.drawWarnCount,over:false});
+          xCell.fill(0);oCell.fill(0);G.xMoves.forEach(m=>xCell[+m]++);G.oMoves.forEach(m=>oCell[+m]++);
+          renderBoard();updateTurnUI();drawLCSChart();
         }
-        await sleep(200);
+        await sleep(180);
       }
-      await sleep(400);
+      await sleep(300);
     }
   }
-  // Final replay of the opening to hit 3× repeat
-  for (const idx of openingMoves) {
-    if (G.over) break;
-    commitMove(idx);
-    await sleep(350);
-  }
+  // Continue to fill board
+  const fills=[2,3,5,6,7,1];
+  for(const i of fills){if(G.over)break;commitMove(i);await sleep(300);}
+  document.getElementById('anaAlert').classList.add('show');
 });
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+// ──────────────────────────────────────────
+//  RESET BUTTON
+// ──────────────────────────────────────────
+document.getElementById('resetBtn').addEventListener('click',resetGame);
 
-// ─── Strategy Compare ────────────────────────────────────────
+// ──────────────────────────────────────────
+//  ANALYTICS
+// ──────────────────────────────────────────
+function refreshAnalytics(){
+  document.getElementById('sTotalMoves').textContent=G.moveNum;
+  document.getElementById('sXMoves').textContent=G.xMoves.length;
+  document.getElementById('sOMoves').textContent=G.oMoves.length;
+  document.getElementById('sUnique').textContent=Object.keys(G.repeatMap).length;
+  const maxRep=Math.max(...Object.values(G.repeatMap),1);
+  document.getElementById('sMaxRep').textContent=maxRep+'×';
+  const peakSim=G.simHistory.length?Math.round(Math.max(...G.simHistory)*100)+'%':'—';
+  document.getElementById('sPeakSim').textContent=peakSim;
+  const minEd=G.edHistory.length?Math.min(...G.edHistory):'—';
+  document.getElementById('sMinEd').textContent=minEd;
+  document.getElementById('sDrawWarn').textContent=G.drawWarnCount;
 
-document.getElementById('stratBtn').addEventListener('click', () => {
-  const xs = G.xMoves.join('');
-  const os = G.oMoves.join('');
-  document.getElementById('xMoves').textContent = xs || '—';
-  document.getElementById('oMoves').textContent = os || '—';
-
-  if (!xs || !os) {
-    document.getElementById('stratReport').textContent = 'Play at least one move each to compare';
-    return;
+  // heatmap
+  const hm=document.getElementById('heatmap');hm.innerHTML='';
+  const maxV=Math.max(...xCell,...oCell,1);
+  for(let i=0;i<9;i++){
+    const xv=xCell[i],ov=oCell[i],total=xv+ov;
+    const intX=xv/maxV,intO=ov/maxV;
+    let bg,col;
+    if(xv>0&&ov>0){bg=`rgba(150,128,100,${0.1+total/maxV*.5})`;col='#ccc';}
+    else if(xv>0){bg=`rgba(232,168,50,${0.1+intX*.6})`;col='var(--amber)';}
+    else if(ov>0){bg=`rgba(106,184,232,${0.1+intO*.6})`;col='var(--blue)';}
+    else{bg='var(--ink-4)';col='var(--mist)';}
+    const c=document.createElement('div');
+    c.className='hm-cell';c.style.background=bg;
+    c.innerHTML=`<div class="hm-n" style="color:${col}">${total||'·'}</div><div class="hm-lbl">CELL ${i}</div>`;
+    hm.appendChild(c);
   }
 
-  const sim = lcsSim(xs, os);
-  const ed  = editDist(xs, os);
-  const pct = Math.round(sim * 100);
-
-  document.getElementById('stratSim').textContent = pct + '%';
-  document.getElementById('stratEd').textContent = `EDIT DIST: ${ed}`;
-  document.getElementById('stratBar').style.width = pct + '%';
-
-  const report = document.getElementById('stratReport');
-  if (pct >= 70) {
-    report.className = 'strat-report similar';
-    report.textContent = `STRATEGIES HIGHLY SIMILAR (${pct}%) — Mirroring detected`;
-  } else if (pct >= 40) {
-    report.className = 'strat-report moderate';
-    report.textContent = `MODERATE OVERLAP (${pct}%) — Some shared patterns`;
-  } else {
-    report.className = 'strat-report distinct';
-    report.textContent = `DISTINCT STRATEGIES (${pct}%) — Divergent play styles`;
+  // distribution
+  const db=document.getElementById('distBody');db.innerHTML='';
+  const names=['Top-L','Top-C','Top-R','Mid-L','Center','Mid-R','Bot-L','Bot-C','Bot-R'];
+  for(let i=0;i<9;i++){
+    const totX=xCell[i],totO=oCell[i],mx=Math.max(...xCell,...oCell,1);
+    const wrap=document.createElement('div');
+    wrap.innerHTML=`
+      <div style="font-size:9px;color:var(--mist);letter-spacing:1px;margin-bottom:3px">${names[i]} (${i})</div>
+      <div class="dist-row"><span class="dist-lbl">X</span><div class="dist-bar-wrap"><div class="dist-bar dist-bar-x" style="width:${totX/mx*100}%"></div></div><span class="dist-val">${totX}</span></div>
+      <div class="dist-row"><span class="dist-lbl">O</span><div class="dist-bar-wrap"><div class="dist-bar dist-bar-o" style="width:${totO/mx*100}%"></div></div><span class="dist-val">${totO}</span></div>`;
+    db.appendChild(wrap);
   }
+
+  // strategy
+  document.getElementById('xSeq').textContent=G.xMoves.join('')||'—';
+  document.getElementById('oSeq').textContent=G.oMoves.join('')||'—';
+  document.getElementById('anaNameX').textContent=P1;
+  document.getElementById('anaNameO').textContent=P2;
+}
+
+// Strategy compare
+document.getElementById('stratCompareBtn').addEventListener('click',()=>{
+  const xs=G.xMoves.join(''),os=G.oMoves.join('');
+  if(!xs||!os){document.getElementById('stratReport').textContent='Need moves from both players';return;}
+  const sim=lcsSim(xs,os);
+  const ed=editDist(xs,os);
+  const pct=Math.round(sim*100);
+  document.getElementById('stratPct').textContent=pct+'%';
+  document.getElementById('stratEd').textContent=ed;
+  document.getElementById('stratFill').style.width=pct+'%';
+  const rp=document.getElementById('stratReport');
+  if(pct>=70){rp.className='strat-report strat-similar';rp.textContent=`Highly similar strategies (${pct}%) — mirroring detected`;}
+  else if(pct>=40){rp.className='strat-report strat-moderate';rp.textContent=`Moderate overlap (${pct}%) — some shared patterns`;}
+  else{rp.className='strat-report strat-distinct';rp.textContent=`Distinct strategies (${pct}%) — divergent play styles`;}
 });
 
-// ─── Semaphore Demo ──────────────────────────────────────────
+// ══════════════════════════════════════════
+//  SEMAPHORE DEMO
+// ══════════════════════════════════════════
+let semRunning=false;
 
-function logLine(text, cls = '') {
-  const box = document.getElementById('logBox');
-  const line = document.createElement('span');
-  line.className = 'log-line' + (cls ? ' ' + cls : '');
-  line.textContent = text;
-  box.appendChild(line);
-  box.scrollTop = box.scrollHeight;
+function semSetProc(p,state){
+  const badge=document.getElementById('p'+p+'Badge');
+  badge.className='proc-state-badge '+state;
+  badge.textContent=state.toUpperCase();
 }
 
-function clearLog() {
-  document.getElementById('logBox').innerHTML = '';
+function semSetMutex(icon,sVal,note,cls=''){
+  const mi=document.getElementById('mutexIcon');
+  mi.textContent=icon;mi.className='mutex-icon'+(cls?' '+cls:'');
+  document.getElementById('semS').textContent=sVal;
+  document.getElementById('mutexNote').textContent=note;
 }
 
-function setState(t1, t2, lock, semVal, note) {
-  document.getElementById('t1State').className = 'thread-state ' + (t1 || '');
-  document.getElementById('t1State').textContent = t1.toUpperCase() || 'IDLE';
-  document.getElementById('t2State').className = 'thread-state ' + (t2 || '');
-  document.getElementById('t2State').textContent = t2.toUpperCase() || 'IDLE';
-  document.getElementById('mutexLock').textContent = lock;
-  document.getElementById('semValue').textContent = semVal;
-  document.getElementById('semNote').textContent = note;
+function semLog(txt,cls=''){
+  const lb=document.getElementById('eventLog');
+  const line=document.createElement('span');
+  line.className='el-line'+(cls?' '+cls:'');
+  line.textContent=txt;
+  lb.appendChild(line);lb.scrollTop=lb.scrollHeight;
 }
 
-document.getElementById('raceBtn').addEventListener('click', async () => {
-  clearLog();
-  document.getElementById('verdictRow').style.display = 'none';
-  logLine('[ RACE CONDITION DEMO — NO SEMAPHORE ]', 'head');
-  await sleep(300);
+function clearSemLog(){document.getElementById('eventLog').innerHTML='';}
 
-  setState('running', 'running', '🔓', '—', 'Both threads enter critical section simultaneously!');
-  logLine('[P1] Reading board state: XOXXO....', 'warn');
+function semAddQueue(p,items){
+  const q=document.getElementById('p'+p+'Queue');q.innerHTML='';
+  items.forEach((t,i)=>{
+    const d=document.createElement('div');
+    d.className='proc-queue-item'+(i===0?' active':'');
+    d.textContent=t;q.appendChild(d);
+  });
+}
+
+function semHighlightQueue(p,idx){
+  const items=document.getElementById('p'+p+'Queue').children;
+  [...items].forEach((el,i)=>el.classList.toggle('active',i===idx));
+}
+
+function initCSMini(board){
+  const el=document.getElementById('csMini');el.innerHTML='';
+  (board||Array(9).fill('.')).forEach(v=>{
+    const c=document.createElement('div');
+    c.className='cs-cell'+(v==='X'?' cx':v==='O'?' co':'');
+    c.textContent=v!=='.'?v:'';el.appendChild(c);
+  });
+}
+initCSMini();
+
+function csStatus(txt){document.getElementById('csStatus').textContent=txt;}
+
+function setBoard(board){
+  initCSMini(board);
+  if(board[6]==='X'&&board[6]==='O'){}// conflict handled elsewhere
+}
+
+document.getElementById('semResetBtn').addEventListener('click',()=>{
+  semRunning=false;
+  semSetProc(1,'idle');semSetProc(2,'idle');
+  semSetMutex('🔓',1,'Click a demo to begin');
+  document.getElementById('verdictRow').classList.add('hidden');
+  clearSemLog();
+  document.getElementById('eventLog').innerHTML='<span class="el-line el-head">[ Waiting for demo… ]</span>';
+  initCSMini();csStatus('Board state: idle');
+  document.getElementById('csHighlight').classList.remove('cs-corrupted');
+});
+
+document.getElementById('raceBtn').addEventListener('click',async()=>{
+  if(semRunning)return;semRunning=true;
+  clearSemLog();
+  document.getElementById('verdictRow').classList.add('hidden');
+  document.getElementById('csHighlight').classList.remove('cs-corrupted');
+  semLog('[ RACE CONDITION — NO SEMAPHORE PROTECTION ]','el-head');
   await sleep(400);
-  logLine('[P2] Reading board state: XOXXO....', 'warn');
-  await sleep(400);
-  logLine('[P1] Writing cell[6] = X', 'warn');
-  logLine('[P2] Writing cell[6] = O  ← CONFLICT!', 'corrupt');
+
+  const board=['X','O','X','X','O','.','.','.','.'];
+  initCSMini(board);csStatus('Shared board — XOXXO.....');
+
+  semSetProc(1,'running');semSetProc(2,'running');
+  semAddQueue(1,['1. read_board()','2. write cell[6]=X','3. done']);
+  semAddQueue(2,['1. read_board()','2. write cell[6]=O','3. done']);
+  semSetMutex('🔓','—','⚠ No semaphore — both threads run freely!','danger');
+
+  semLog('[P1] Spawned — reading board state…','el-warn');
+  semLog('[P2] Spawned — reading board state…','el-warn');
+  await sleep(600);
+
+  semHighlightQueue(1,0);semHighlightQueue(2,0);
+  semLog('[P1] read(): XOXXO..... → plans to write cell[6]=X','el-warn');
   await sleep(500);
-  logLine('💥 RACE CONDITION: cell[6] corrupted — both wrote simultaneously', 'corrupt');
-  await sleep(400);
-  logLine('[P1] Board shows: XOXXO.X..', 'corrupt');
-  logLine('[P2] Board shows: XOXXO.O..', 'corrupt');
-  logLine('⚠ BOARD STATE INCONSISTENT — game integrity violated', 'corrupt');
-  await sleep(400);
-  setState('idle', 'idle', '🔓', '—', 'Race condition caused data corruption.');
-
-  document.getElementById('verdictRow').style.display = 'grid';
-  document.getElementById('unsafeText').textContent = 'Without semaphore: concurrent writes corrupt shared board state';
-  document.getElementById('safeText').textContent   = 'Run "Semaphore Safe" demo to see the fix →';
-});
-
-document.getElementById('safeBtn').addEventListener('click', async () => {
-  clearLog();
-  document.getElementById('verdictRow').style.display = 'none';
-  logLine('[ SEMAPHORE SAFE DEMO — MUTEX PROTECTION ]', 'head');
-  await sleep(300);
-
-  setState('waiting', 'waiting', '🔓', '1', 'Both threads try to acquire semaphore…');
-  logLine('[P1] Calling P(wait) — S=1 → S=0, lock acquired', 'safe');
-  await sleep(400);
-  setState('running', 'blocked', '🔒', '0', 'P1 in critical section. P2 blocked.');
-  logLine('[P2] Calling P(wait) — S=0 → BLOCKED, waiting…', 'warn');
+  semLog('[P2] read(): XOXXO..... → plans to write cell[6]=O','el-warn');
   await sleep(500);
-  logLine('[P1] Reading board state safely: XOXXO....', 'safe');
-  await sleep(300);
-  logLine('[P1] Writing cell[6] = X  ✓', 'safe');
-  await sleep(300);
-  logLine('[P1] Calling V(signal) — S=0 → S=1, lock released', 'safe');
-  setState('idle', 'waiting', '🔓', '1', 'P1 done. P2 unblocked.');
-  await sleep(400);
-  setState('idle', 'running', '🔒', '0', 'P2 now in critical section.');
-  logLine('[P2] Unblocked — P(wait) → S=0, lock acquired', 'safe');
-  await sleep(400);
-  logLine('[P2] Reading board state: XOXXO.X..  ← sees P1\'s write ✓', 'safe');
-  await sleep(300);
-  logLine('[P2] Writing cell[7] = O  ✓', 'safe');
-  await sleep(300);
-  logLine('[P2] Calling V(signal) — S=0 → S=1, lock released', 'safe');
-  setState('idle', 'idle', '🔓', '1', 'Both threads completed safely. Board consistent ✓');
-  logLine('✅ MUTUAL EXCLUSION ENFORCED — no corruption, board integrity preserved', 'safe');
-  await sleep(300);
 
-  document.getElementById('verdictRow').style.display = 'grid';
-  document.getElementById('unsafeText').textContent = 'Without semaphore: concurrent writes → data corruption';
-  document.getElementById('safeText').textContent   = 'With semaphore: mutual exclusion → board always consistent ✓';
+  semHighlightQueue(1,1);semHighlightQueue(2,1);
+  semLog('[P1] write(): cell[6] ← X','el-warn');
+  await sleep(350);
+  semLog('[P2] write(): cell[6] ← O  ← OVERWRITE CONFLICT!','el-err');
+
+  // Show conflict on board
+  const b1=['X','O','X','X','O','.','X','.','.']; // P1's view
+  const b2=['X','O','X','X','O','.','O','.','.']; // P2's view
+  initCSMini(b2);
+  document.getElementById('csHighlight').classList.add('cs-corrupted');
+  const conflictCell=document.getElementById('csMini').children[6];
+  conflictCell.classList.add('conflict');
+  csStatus('⚠ CORRUPTED — cell[6] has conflicting values!');
+
+  await sleep(500);
+  semLog('','');
+  semLog('💥 RACE CONDITION: cell[6] written by both simultaneously','el-err');
+  semLog('   P1 sees: XOXXO.X..   P2 sees: XOXXO.O..','el-err');
+  semLog('   Board integrity VIOLATED — game state undefined','el-err');
+
+  semSetProc(1,'idle');semSetProc(2,'idle');
+  semSetMutex('🔓','—','Race condition caused data corruption.','danger');
+
+  document.getElementById('verdictRow').classList.remove('hidden');
+  document.getElementById('unsafeText').textContent='Concurrent writes without mutex: both P1 and P2 wrote to cell[6] simultaneously, corrupting the shared board state.';
+  document.getElementById('safeText').textContent='Run "Semaphore Protected" to see the fix →';
+  semRunning=false;
 });
 
-// ─── Reset button ────────────────────────────────────────────
-document.getElementById('resetBtn').addEventListener('click', resetGame);
+document.getElementById('safeBtn').addEventListener('click',async()=>{
+  if(semRunning)return;semRunning=true;
+  clearSemLog();
+  document.getElementById('verdictRow').classList.add('hidden');
+  document.getElementById('csHighlight').classList.remove('cs-corrupted');
 
-// ─── Init ────────────────────────────────────────────────────
-renderBoard();
-updateTurnUI();
+  const board=['X','O','X','X','O','.','.','.','.'];
+  initCSMini(board);csStatus('Shared board — XOXXO.....');
+
+  semLog('[ SEMAPHORE PROTECTED — MUTEX ENFORCED ]','el-head');
+  await sleep(400);
+
+  semSetProc(1,'waiting');semSetProc(2,'waiting');
+  semAddQueue(1,['1. P(wait) — acquire','2. read_board()','3. write cell[6]=X','4. V(signal) — release']);
+  semAddQueue(2,['1. P(wait) — acquire','2. read_board()','3. write cell[7]=O','4. V(signal) — release']);
+  semSetMutex('🔓','1','S=1 — semaphore available. Both threads call P()…');
+
+  semLog('[P1] Calling P(wait): S=1 → S=0 — lock ACQUIRED ✓','el-safe');
+  await sleep(600);
+
+  semSetProc(1,'running');semSetProc(2,'blocked');
+  semHighlightQueue(1,0);semHighlightQueue(2,0);
+  semSetMutex('🔒','0','P1 holds lock. P2 calls P() → S=0 → BLOCKED.','locked');
+  csStatus('P1 in critical section — board locked');
+
+  await sleep(400);
+  semLog('[P2] Calling P(wait): S=0 → BLOCKED — enters wait queue…','el-warn');
+  semHighlightQueue(2,-1); // none active
+  await sleep(500);
+
+  semHighlightQueue(1,1);
+  semLog('[P1] read_board(): XOXXO..... ← consistent read ✓','el-safe');
+  await sleep(500);
+
+  semHighlightQueue(1,2);
+  semLog('[P1] write(): cell[6] ← X  (no contention) ✓','el-safe');
+  const b2=['X','O','X','X','O','.','X','.','.']; initCSMini(b2);
+  csStatus('P1 wrote cell[6]=X safely');
+  await sleep(500);
+
+  semHighlightQueue(1,3);
+  semLog('[P1] Calling V(signal): S=0 → S=1 — lock RELEASED ✓','el-safe');
+  semSetProc(1,'idle');semSetProc(2,'waiting');
+  semSetMutex('🔓','1','P1 released. P2 unblocked — calls P() again.','');
+  await sleep(400);
+
+  semLog('[P2] Unblocked — P(wait): S=1 → S=0 — lock ACQUIRED ✓','el-safe');
+  semSetProc(2,'running');semSetMutex('🔒','0','P2 holds lock. Critical section exclusive.','locked');
+  csStatus('P2 in critical section — board locked');
+  await sleep(400);
+
+  semHighlightQueue(2,1);
+  semLog('[P2] read_board(): XOXXO.X.. ← sees P1\'s write ✓','el-safe');
+  await sleep(500);
+
+  semHighlightQueue(2,2);
+  semLog('[P2] write(): cell[7] ← O  (correct slot) ✓','el-safe');
+  const b3=['X','O','X','X','O','.','X','O','.']; initCSMini(b3);
+  csStatus('P2 wrote cell[7]=O safely');
+  await sleep(500);
+
+  semHighlightQueue(2,3);
+  semLog('[P2] Calling V(signal): S=0 → S=1 — lock RELEASED ✓','el-safe');
+  semSetProc(2,'idle');
+  semSetMutex('🔓','1','Both processes done. Board consistent ✓','locked');
+  csStatus('Final board: XOXXO.XO. — fully consistent ✓');
+  await sleep(400);
+
+  semLog('','');
+  semLog('✅ MUTUAL EXCLUSION ENFORCED — no corruption, board integrity preserved','el-safe');
+  semLog('   Sequential execution guaranteed by semaphore (S: 1→0→1→0→1)','el-safe');
+
+  document.getElementById('verdictRow').classList.remove('hidden');
+  document.getElementById('unsafeText').textContent='Without semaphore: concurrent writes corrupt shared state (demonstrated in Race Condition demo).';
+  document.getElementById('safeText').textContent='With semaphore: P() enforces mutual exclusion, V() signals release. Board always consistent.';
+  semRunning=false;
+});
+
+// ──────────────────────────────────────────
+//  INIT
+// ──────────────────────────────────────────
+renderBoard();updateTurnUI();drawLCSChart();
+window.addEventListener('resize',drawLCSChart);
 </script>
 </body>
 </html>
