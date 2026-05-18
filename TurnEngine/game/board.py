@@ -1,3 +1,4 @@
+from typing import Optional
 """
 game/board.py
 -------------
@@ -205,7 +206,7 @@ class Board:
         self,
         success: bool,
         message: str,
-        winner: str | None = None,
+        winner: Optional[str] = None,
         draw:   bool       = False,
         analysis: dict     = None,
     ) -> dict:
