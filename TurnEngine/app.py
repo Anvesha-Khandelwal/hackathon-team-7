@@ -22,7 +22,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from flask import Flask, jsonify, request, render_template
 from game.board import Board
-from synchronization.semaphore_demo import run_demo
+# AFTER
+from synchronization.semaphore_demo import run_full_demo as run_demo
 
 app = Flask(__name__)
 
