@@ -14,7 +14,7 @@ Responsibilities
 6. Detect repeated-state / stalling situations using LCS & Edit Distance
 """
 
-from algorithms.lcs import lcs_length, similarity_percentage
+from algorithms.lcs import lcs_length, lcs_similarity
 from algorithms.edit_distance import edit_distance
 
 # ── Constants ────────────────────────────────────────────────────────────────
@@ -142,7 +142,7 @@ class Board:
         previous_states = self.history[:-1]
 
         for prev in previous_states:
-            sim   = similarity_percentage(current_state, prev)
+            sim   = lcs_similarity(current_state, prev)
             edist = edit_distance(current_state, prev)
             similarities.append(sim)
             edit_distances.append(edist)
@@ -161,9 +161,9 @@ class Board:
             for prev, sim, edist in zip(previous_states, similarities, edit_distances)
         ]
 
+        threefold     = repeat_count >= REPEAT_LIMIT
         potential_draw = (
-            max_similarity >= SIMILARITY_THRESHOLD or
-            repeat_count   >= REPEAT_LIMIT
+            max_similarity >= SIMILARITY_THRESHOLD or threefold
         )
 
         return {
@@ -171,7 +171,9 @@ class Board:
             "similarity":    max_similarity,
             "edit_distance": min_edit_dist,
             "repeat_count":  repeat_count,
+            "threefold":     threefold,
             "potential_draw": potential_draw,
+            "threshold":     SIMILARITY_THRESHOLD,
             "details":       details,
         }
 

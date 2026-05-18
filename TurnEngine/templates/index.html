@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TurnEngine — Competitive Game Validator</title>
+  <meta name="description" content="TurnEngine: real-time board analysis using LCS, Edit Distance and semaphore-protected move submission." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+  <div class="scanline"></div>
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-left">
+      <span class="logo-icon">⚡</span>
+      <div>
+        <div class="logo-title">TURN<span class="accent">ENGINE</span></div>
+        <div class="logo-sub">COMPETITIVE GAME VALIDATOR</div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="turn-indicator" id="turnIndicator">
+        <span class="turn-dot" id="turnDot"></span>
+        <span id="turnText">Waiting…</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="status-badge">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">READY</span>
+      </div>
+      <div class="stat-chip">MOVE <span id="moveCount">0</span></div>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn">↩ LOGOUT</button>
+    </div>
+  </header>
+
+  <!-- ══ MAIN 3-COLUMN GRID ═══════════════════════════════════════════════ -->
+  <main class="main-grid">
+
+    <!-- ── COL 1 : GAME BOARD ───────────────────────────────────────────── -->
+    <section class="panel panel-board">
+      <div class="panel-header">
+        <h2>ARENA</h2>
+        <span class="panel-tag">3×3 GRID</span>
+      </div>
+
+      <!-- Player chips -->
+      <div class="player-bar">
+        <div class="player-chip player-x" id="chipX">
+          <span class="chip-symbol">X</span>
+          <span class="chip-name" id="nameX">{{ player1 }}</span>
+          <span class="chip-status" id="statusX">YOUR TURN</span>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="player-chip player-o" id="chipO">
+          <span class="chip-symbol">O</span>
+          <span class="chip-name" id="nameO">{{ player2 }}</span>
+          <span class="chip-status" id="statusO">WAITING</span>
+        </div>
+      </div>
+
+      <!-- Board -->
+      <div class="board-wrap">
+        <div class="board" id="gameBoard"></div>
+        <div class="board-overlay hidden" id="boardOverlay"></div>
+      </div>
+
+      <!-- State string -->
+      <div class="state-row">
+        <span class="state-label">STATE</span>
+        <span class="state-str" id="stateStr">.........</span>
+      </div>
+
+      <!-- Game message -->
+      <div class="game-message" id="gameMessage"></div>
+
+      <!-- Action buttons -->
+      <div class="action-bar">
+        <button class="btn btn-danger btn-sm" id="resetBtn">↺ RESET</button>
+        <button class="btn btn-sm" id="analyseBtn">◈ ANALYSE</button>
+        <button class="btn btn-sm" id="historyBtn">≡ HISTORY</button>
+      </div>
+    </section>
+
+    <!-- ── COL 2 : ANALYSIS ENGINE ──────────────────────────────────────── -->
+    <section class="panel panel-analysis">
+      <div class="panel-header">
+        <h2>ANALYSIS ENGINE</h2>
+        <span class="panel-tag">DAA</span>
+      </div>
+
+      <!-- LCS Similarity -->
+      <div class="metric-block">
+        <div class="metric-row">
+          <span class="metric-label">LCS SIMILARITY</span>
+          <span class="metric-val accent" id="simVal">—</span>
+        </div>
+        <div class="meter-track">
+          <div class="meter-fill" id="simMeter" style="width:0%"></div>
+        </div>
+        <div class="metric-sub">Longest Common Subsequence vs history</div>
+      </div>
+
+      <!-- Edit Distance -->
+      <div class="metric-block">
+        <div class="metric-row">
+          <span class="metric-label">EDIT DISTANCE</span>
+          <span class="metric-val" id="edVal">—</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">LCS LENGTH</span>
+          <span class="metric-val" id="lcsVal">—</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">REPEAT COUNT</span>
+          <span class="metric-val" id="repeatVal">—</span>
+        </div>
+        <div class="metric-sub">Min edits · Subsequence length · State repeats</div>
+      </div>
+
+      <!-- Draw Detection -->
+      <div class="alert-box" id="drawAlert" style="display:none">
+        <span class="alert-icon">⚠</span>
+        <div>
+          <div class="alert-title">POTENTIAL DRAW DETECTED</div>
+          <div class="alert-sub" id="drawReason">Similarity threshold crossed</div>
+        </div>
+      </div>
+
+      <!-- Threefold Repetition -->
+      <div class="alert-box alert-threefold" id="threefoldAlert" style="display:none">
+        <span class="alert-icon">♻</span>
+        <div>
+          <div class="alert-title">THREEFOLD REPETITION</div>
+          <div class="alert-sub">Same board state appeared 3× — draw declared</div>
+        </div>
+      </div>
+
+      <!-- History list -->
+      <div class="history-section">
+        <div class="metric-label" style="margin-bottom:8px">STATE HISTORY</div>
+        <div class="history-list" id="historyList">
+          <span class="history-empty">No moves yet</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── COL 3 : GAME LOG / TIMELINE ──────────────────────────────────── -->
+    <section class="panel panel-timeline">
+      <div class="panel-header">
+        <h2>GAME LOG</h2>
+        <span class="panel-tag">TIMELINE</span>
+      </div>
+      <div class="timeline" id="timeline">
+        <span class="log-empty">No moves yet</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ BOTTOM GRID ══════════════════════════════════════════════════════ -->
+  <div class="bottom-grid">
+
+    <!-- ── OS SYNC DEMO ─────────────────────────────────────────────────── -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>OS SYNC DEMO</h2>
+        <span class="panel-tag">SEMAPHORE</span>
+      </div>
+
+      <div class="sync-buttons">
+        <button class="btn btn-danger btn-sm" id="raceBtn">⚡ RACE CONDITION</button>
+        <button class="btn btn-success btn-sm" id="safeBtn">🔒 SEMAPHORE SAFE</button>
+      </div>
+
+      <!-- Semaphore diagram -->
+      <div class="sem-diagram" id="semDiagram" style="display:none">
+        <div class="sem-thread">
+          <div class="thread-label">THREAD · P1</div>
+          <div class="thread-state" id="t1State">IDLE</div>
+        </div>
+        <div class="sem-mutex">
+          <div class="mutex-label">MUTEX</div>
+          <div class="mutex-lock" id="mutexLock">🔓</div>
+        </div>
+        <div class="sem-thread">
+          <div class="thread-label">THREAD · P2</div>
+          <div class="thread-state" id="t2State">IDLE</div>
+        </div>
+      </div>
+
+      <!-- Verdict row -->
+      <div class="verdict-row" id="verdictRow" style="display:none">
+        <div class="verdict-card" id="unsafeCard">
+          <span class="verdict-icon">💥</span>
+          <span class="verdict-text" id="unsafeText">—</span>
+        </div>
+        <div class="verdict-card verdict-safe" id="safeCard">
+          <span class="verdict-icon">✅</span>
+          <span class="verdict-text" id="safeText">—</span>
+        </div>
+      </div>
+
+      <!-- Log box -->
+      <div class="log-label">EVENT LOG</div>
+      <div class="log-box" id="logBox">
+        <span class="log-line head">[ Click a demo button to begin… ]</span>
+      </div>
+    </section>
+
+    <!-- ── STRATEGY COMPARE ──────────────────────────────────────────────── -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>STRATEGY COMPARE</h2>
+        <span class="panel-tag bonus">BONUS</span>
+      </div>
+
+      <div class="strat-columns">
+        <div class="strat-player strat-x">
+          <div class="strat-name" id="stratNameX">{{ player1 }}</div>
+          <div class="strat-moves mono" id="xMoves">—</div>
+          <div class="strat-label">MOVE SEQUENCE</div>
+        </div>
+        <div class="strat-center">
+          <div class="strat-sim-val" id="stratSim">—</div>
+          <div class="strat-sim-label">STRATEGY<br>SIMILARITY</div>
+          <div class="strat-ed" id="stratEd">EDIT DIST: —</div>
+        </div>
+        <div class="strat-player strat-o">
+          <div class="strat-name" id="stratNameO">{{ player2 }}</div>
+          <div class="strat-moves mono" id="oMoves">—</div>
+          <div class="strat-label">MOVE SEQUENCE</div>
+        </div>
+      </div>
+
+      <div class="strat-report" id="stratReport">—</div>
+
+      <button class="btn btn-sm" id="stratBtn">COMPARE ▶</button>
+    </section>
+
+  </div>
+
+  <!-- ══ FOOTER ═══════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    TurnEngine &nbsp;·&nbsp; DAA: LCS / Edit Distance &nbsp;·&nbsp; OS: Semaphores / Mutual Exclusion
+    <span class="footer-divider">|</span>
+    Hackathon Team 7
+  </footer>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

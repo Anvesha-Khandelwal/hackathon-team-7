@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TurnEngine — Player Login</title>
+  <meta name="description" content="TurnEngine competitive turn-based game validator. Login to begin your match." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="login-body">
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow login-glow-1"></div>
+  <div class="bg-glow login-glow-2"></div>
+  <div class="scanline"></div>
+
+  <div class="login-wrap">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <span class="login-logo-icon">⚡</span>
+      <div class="login-logo-text">
+        <span class="login-brand">TURN<span class="accent">ENGINE</span></span>
+        <span class="login-tagline">COMPETITIVE GAME VALIDATOR</span>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <div class="login-card">
+      <div class="login-card-header">
+        <span class="lc-corner tl"></span>
+        <span class="lc-corner tr"></span>
+        <span class="lc-corner bl"></span>
+        <span class="lc-corner br"></span>
+
+        <div class="lc-badge">MATCH SETUP</div>
+        <h1 class="lc-title">PLAYER REGISTRATION</h1>
+        <p class="lc-sub">Enter callsigns to begin the session</p>
+      </div>
+
+      <form class="login-form" id="loginForm" novalidate>
+
+        <!-- Player 1 -->
+        <div class="lf-field" id="field1">
+          <label class="lf-label" for="p1Name">
+            <span class="lf-marker x">X</span>
+            PLAYER 1 CALLSIGN
+          </label>
+          <div class="lf-input-wrap">
+            <input
+              class="lf-input"
+              id="p1Name"
+              type="text"
+              maxlength="20"
+              placeholder="Enter callsign…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <span class="lf-cursor"></span>
+          </div>
+          <span class="lf-error" id="err1"></span>
+        </div>
+
+        <!-- VS divider -->
+        <div class="lf-vs">
+          <span class="lf-vs-line"></span>
+          <span class="lf-vs-badge">VS</span>
+          <span class="lf-vs-line"></span>
+        </div>
+
+        <!-- Player 2 -->
+        <div class="lf-field" id="field2">
+          <label class="lf-label" for="p2Name">
+            <span class="lf-marker o">O</span>
+            PLAYER 2 CALLSIGN
+          </label>
+          <div class="lf-input-wrap">
+            <input
+              class="lf-input"
+              id="p2Name"
+              type="text"
+              maxlength="20"
+              placeholder="Enter callsign…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <span class="lf-cursor"></span>
+          </div>
+          <span class="lf-error" id="err2"></span>
+        </div>
+
+        <!-- Global error -->
+        <div class="lf-global-error hidden" id="globalErr"></div>
+
+        <!-- Submit -->
+        <button class="lf-submit" id="submitBtn" type="submit">
+          <span class="lf-submit-text">INITIALIZE MATCH</span>
+          <span class="lf-submit-icon">→</span>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      DAA · OS CONCEPTS · DYNAMIC PROGRAMMING · SEMAPHORES
+    </div>
+
+  </div>
+
+  <script>
+    const form      = document.getElementById('loginForm');
+    const p1        = document.getElementById('p1Name');
+    const p2        = document.getElementById('p2Name');
+    const err1      = document.getElementById('err1');
+    const err2      = document.getElementById('err2');
+    const globalErr = document.getElementById('globalErr');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function clearErrors() {
+      err1.textContent = '';
+      err2.textContent = '';
+      globalErr.textContent = '';
+      globalErr.classList.add('hidden');
+      document.getElementById('field1').classList.remove('lf-field-error');
+      document.getElementById('field2').classList.remove('lf-field-error');
+    }
+
+    function showGlobalError(msg) {
+      globalErr.textContent = msg;
+      globalErr.classList.remove('hidden');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErrors();
+
+      const v1 = p1.value.trim();
+      const v2 = p2.value.trim();
+      let valid = true;
+
+      if (!v1) {
+        err1.textContent = 'Callsign required';
+        document.getElementById('field1').classList.add('lf-field-error');
+        valid = false;
+      }
+      if (!v2) {
+        err2.textContent = 'Callsign required';
+        document.getElementById('field2').classList.add('lf-field-error');
+        valid = false;
+      }
+      if (v1 && v2 && v1.toLowerCase() === v2.toLowerCase()) {
+        err2.textContent = 'Must differ from Player 1';
+        document.getElementById('field2').classList.add('lf-field-error');
+        valid = false;
+      }
+      if (!valid) return;
+
+      submitBtn.disabled = true;
+      submitBtn.querySelector('.lf-submit-text').textContent = 'INITIALIZING…';
+
+      try {
+        const res  = await fetch('/login', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ player1: v1, player2: v2 }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = data.redirect;
+        } else {
+          showGlobalError(data.message || 'Login failed.');
+          submitBtn.disabled = false;
+          submitBtn.querySelector('.lf-submit-text').textContent = 'INITIALIZE MATCH';
+        }
+      } catch (err) {
+        showGlobalError('Server error. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.querySelector('.lf-submit-text').textContent = 'INITIALIZE MATCH';
+      }
+    });
+
+    // Focus animation
+    [p1, p2].forEach(inp => {
+      inp.addEventListener('focus', () => inp.parentElement.classList.add('lf-focused'));
+      inp.addEventListener('blur',  () => inp.parentElement.classList.remove('lf-focused'));
+    });
+  </script>
+</body>
+</html>

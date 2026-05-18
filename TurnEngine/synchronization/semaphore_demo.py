@@ -369,6 +369,12 @@ def _pretty_print_summary(unsafe: dict, safe: dict):
 #  STANDALONE ENTRY-POINT  (python semaphore_demo.py)
 # ══════════════════════════════════════════════════════════════════════
 
+# ── Alias expected by app.py ──────────────────────────────────────────────────
+# app.py does:  from synchronization.semaphore_demo import run_demo
+# run_demo is the same as run_full_demo — just an alias so app.py works as-is.
+run_demo = run_full_demo
+
+
 if __name__ == "__main__":
     result = run_full_demo()
     # Optionally dump JSON for piping into other tools

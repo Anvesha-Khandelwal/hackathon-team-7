@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# Flask / runtime
+instance/
+.webassets-cache
+flask_session/
+
+# Environment variables
+.env
+.env.local
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Distribution
+*.tar.gz
+*.zip
